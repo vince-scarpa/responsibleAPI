@@ -1,0 +1,7 @@
+# ===========================
+# Responsible ENV
+# Software variables
+# ===========================
+
+PLATFORM = 'Responsible'
+API_VERSION = '1.2'

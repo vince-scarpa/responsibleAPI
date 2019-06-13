@@ -304,7 +304,7 @@ class header
     {
         $auth_headers = $this->getHeaders();
 
-        if (isset($auth_headers["Authorization"])) {
+        if (isset($auth_headers["Authorization"]) && !empty($auth_headers["Authorization"])) {
 
             /**
              * Test if it's a Authorization Basic & client_credentials

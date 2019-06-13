@@ -11,7 +11,7 @@ require __DIR__ . '/vendor/autoload.php';
 // ===================================================
 // Load Responsible API core
 // ===================================================
-require __DIR__ . '/src/responsible/responsible.php';
+require __DIR__ . '/src/responsible.php';
 
 // ===================================================
 // Use Responsible API core

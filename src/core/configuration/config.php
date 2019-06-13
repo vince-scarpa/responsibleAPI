@@ -35,7 +35,7 @@ class config
             $this->root = dirname(dirname(__DIR__));
             $this->root .= '/.config';
         } else {
-            $this->root .= '/responsible/.config';
+            $this->root .= '/src/.config';
         }
 
         $ENV_FILE = $this->root;
