@@ -1,0 +1,93 @@
+#################
+##### TO DO #####
+#################
+
+1. Authorise class rebuild / fix
+	- authUser()
+		- testing test
+		- JWT token test
+		- if JWT then check account exists "accountID" and "Secret key"
+
+	- authJWT()
+	- authAccount()	
+
+	- setUser()
+		- set user
+	- DB()
+		- get db
+	- setDB()
+		-set db
+
+
+
+3. Rate limit
+	"Main class just needs cleaning"
+	"Re-create rate limiter and leaky bucket"
+
+	BUCKET CLASS
+		- pour()
+		
+		- capacity()
+		- setCapacity()
+		- getCapacity()
+
+		- leak()
+		- setLeakRate()
+		- getLeakRate()
+
+		- fill()
+		- full()
+		- getDrops()
+		
+		- getTokenData()
+
+		- timeMake()
+		- timeAccess()
+		- timeFrame();
+		
+
+
+
+4. Create user fix
+	"userLoad" sub class of account
+		- load()
+		- accountExists()
+		- setUser()
+		- getUser()
+	
+	"userUpdate" sub class of account
+		- update()
+		- updateAccountAccess()
+		- accountExists()
+		- setUser()
+		- getUser()
+	
+	
+	"userCreate" sub class of account
+		- create()
+		- validate() "Switch" name, email
+		- accountExists()
+		- accountInsert()
+		- setSecret()
+		- getSecret()
+		- setAccountID()
+		- getAccountID()
+		- setToken()
+		- getToken()
+
+
+5. Output types
+	- json
+	- xml
+	- debug
+
+
+Documentation
+
+Class config
+.Please read the documentation on setting up a configuration file.
+
+Class application 
+Please read the documentation on supported request types.
+
+

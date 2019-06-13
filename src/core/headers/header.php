@@ -1,0 +1,444 @@
+<?php
+/**
+ * ==================================
+ * Responsible PHP API
+ * ==================================
+ *
+ * @link Git https://github.com/vince-scarpa/responsible.git
+ *
+ * @api Responible API
+ * @package responsible\core\headers
+ *
+ * @author Vince scarpa <vince.in2net@gmail.com>
+ *
+ */
+namespace responsible\core\headers;
+
+use responsible\core\encoder;
+use responsible\core\exception;
+use responsible\core\server;
+use responsible\core\user;
+
+class header
+{
+    /**
+     * Max age constant
+     */
+    const MAX_WINDOW = 3600;
+
+    /**
+     * [$options Responsible API options]
+     * @var [array]
+     */
+    private $options = [];
+
+    /**
+     * [$REQUEST_APPLICATION]
+     * @var array
+     */
+    private $REQUEST_APPLICATION = array(
+        'xml' => 'text/xml',
+        'json' => 'application/json',
+        'html' => 'text/html',
+        'array' => 'text/plain',
+        'object' => 'text/plain',
+    );
+
+    /**
+     * [$REQUEST_TYPE / Default is json]
+     * @var string
+     */
+    private $REQUEST_TYPE;
+
+    /**
+     * [$REQUEST_METHOD]
+     * @var string
+     */
+    private $REQUEST_METHOD = [];
+
+    /**
+     * [$HEADER_STATUS]
+     * @var array
+     */
+    private $HEADER_STATUS = [];
+
+    /**
+     * [requestType]
+     * @return [void]
+     */
+    public function requestType($type = 'json')
+    {
+        $this->REQUEST_TYPE = $type;
+    }
+
+    /**
+     * [getRequestType]
+     * @return [string]
+     */
+    public function getRequestType()
+    {
+        return $this->REQUEST_TYPE;
+    }
+
+    /**
+     * [requestMethod Set and return the request method]
+     * @return [object]
+     */
+    public function requestMethod()
+    {
+        switch (strtolower($_SERVER['REQUEST_METHOD'])) {
+
+            case 'get':
+                $this->REQUEST_METHOD = ['method' => 'get', 'data' => $_REQUEST];
+                break;
+
+            case 'post':
+                $this->REQUEST_METHOD = ['method' => 'post', 'data' => $_REQUEST];
+                break;
+
+            case 'put':
+                $_PARSE = parse_str(
+                    file_get_contents(
+                        'php://input',
+                        false,
+                        null,
+                        -1,
+                        $_SERVER['CONTENT_LENGTH']
+                    ),
+                    $_PUT
+                );
+                $this->REQUEST_METHOD = ['method' => 'put', 'data' => $_PARSE];
+                break;
+
+            case 'patch':
+                # [TODO]
+                $this->REQUEST_METHOD = ['method' => 'patch', 'data' => []];
+                break;
+
+            case 'delete':
+                # [TODO]
+                $this->REQUEST_METHOD = ['method' => 'delete', 'data' => []];
+                break;
+
+            default:
+                $this->REQUEST_METHOD = [];
+                break;
+        }
+    }
+
+    /**
+     * [getMethod Get the request method]
+     * @return [object]
+     */
+    public function getMethod()
+    {
+        return (object) $this->REQUEST_METHOD;
+    }
+
+    /**
+     * [setAllowedMethods Set the allowed methods for endpoints]
+     * @param array $methods [GET, POST, PUT, PATCH, DELETE, ect..]
+     */
+    public function setAllowedMethods(array $methods)
+    {
+        $requestMethod = $this->getServerMethod();
+        if (!in_array($requestMethod, $methods)) {
+            (new exception\errorException)->error('METHOD_NOT_ALLOWED');
+        }
+    }
+
+    /**
+     * [getMethod Get the request method]
+     * @return [string]
+     */
+    public function getServerMethod()
+    {
+        if (!isset($_SERVER['REQUEST_METHOD'])) {
+            return [];
+        }
+        return $_SERVER['REQUEST_METHOD'];
+    }
+
+    /**
+     * [getHeaders List all headers Server headers and Apache headers]
+     * @return [type] [description]
+     */
+    public function getHeaders()
+    {
+        $headers_list = headers_list();
+        foreach ($headers_list as $index => $headValue) {
+            list($key, $value) = explode(": ", $headValue);
+
+            if ($key && $value) {
+                $headers_list[$key] = $value;
+                unset($headers_list[$index]);
+            }
+        }
+
+        $apache_headers = array_merge($headers_list, apache_request_headers());
+
+        $headers = array();
+
+        foreach ($_SERVER as $key => $value) {
+            if (substr($key, 0, 5) != 'HTTP_') {
+                continue;
+            }
+            $header = str_replace(' ', '-', ucwords(str_replace('_', ' ', strtolower(substr($key, 5)))));
+            $headers[$header] = $value;
+        }
+
+        return array_merge($headers, $apache_headers);
+    }
+
+    /**
+     * [setHeader Append aditional headers]
+     * @return [void]
+     */
+    public function setHeader($header, $headerValue = array(), $status = '', $delimiter = ';')
+    {
+        $header = trim(str_replace(':', '', $header)) . ': ';
+        $headerValue = implode($delimiter . ' ', $headerValue);
+
+        header($header . $status . $headerValue);
+    }
+
+    /**
+     * [setHeaders Default headers]
+     * @return [void]
+     */
+    public function setHeaders()
+    {
+        $application = 'json';
+        if (isset($this->REQUEST_APPLICATION[$this->getRequestType()])) {
+            $application = $this->REQUEST_APPLICATION[$this->getRequestType()];
+        }
+
+        $this->setHeader('Content-Type', array(
+            $application, 'charset=UTF-8',
+        ));
+
+        $this->setHeader('Accept-Ranges', array(
+            'bytes',
+        ));
+
+        $this->setHeader('Access-Control-Allow-Credentials', array(
+            true,
+        ));
+
+        $this->setHeader('Access-Control-Allow-Methods', array(
+            'GET,POST',
+        ));
+
+        $this->setHeader('Access-Control-Expose-Headers', array(
+            'Content-Range',
+        ));
+
+        $this->setHeader('Access-Control-Allow-Headers', array(
+            'origin, x-requested-with',
+        ));
+
+        $this->setHeader('Access-Control-Max-Age', array(
+            $this->getMaxWindow(),
+        ));
+
+        $this->setHeader('Expires', array(
+            'Wed, 20 September 1978 00:00:00 GMT',
+        ));
+
+        $this->setHeader('Cache-Control', array(
+            'no-store, no-cache, must-revalidate',
+        ));
+
+        $this->setHeader('Cache-Control', array(
+            'post-check=0, pre-check=0',
+        ));
+
+        $this->setHeader('Pragma', array(
+            'no-cache',
+        ));
+
+        $this->setHeader('X-Content-Type-Options', array(
+            'nosniff',
+        ));
+
+        $this->setHeader('X-XSS-Protection', array(
+            '1', 'mode=block',
+        ));
+
+        if (isset($this->getOptions()['addHeaders']) &&
+            (is_array($this->getOptions()['addHeaders']) && !empty($this->getOptions()['addHeaders']))
+        ) {
+            foreach ($this->getOptions()['addHeaders'] as $i => $customHeader) {
+                if (is_array($customHeader) && sizeof($customHeader) == 2) {
+                    $this->setHeader($customHeader[0], array(
+                        $customHeader[1],
+                    ));
+                }
+            }
+        }
+    }
+
+    /**
+     * [setHeaderStatus]
+     * @param [void]
+     */
+    public function setHeaderStatus($status)
+    {
+        http_response_code($status);
+    }
+
+    /**
+     * [getHeaderStatus]
+     * @return [integer]
+     */
+    public function getHeaderStatus()
+    {
+        return http_response_code();
+    }
+
+    /**
+     * [authorizationHeaders Scan for "Authorization" header]
+     * @return [mixed: string / error]
+     */
+    public function authorizationHeaders($skipError = false)
+    {
+        $auth_headers = $this->getHeaders();
+
+        if (isset($auth_headers["Authorization"])) {
+
+            /**
+             * Test if it's a Authorization Basic & client_credentials
+             */
+            if (isset($_REQUEST['grant_type']) && $_REQUEST['grant_type'] == 'client_credentials') {
+                if ($refreshToken = $this->accessCredentialsHeaders($auth_headers)) {
+                    return [
+                        'client_access_request' => $refreshToken,
+                    ];
+                }
+            }
+
+            /**
+             * Test if it's a Authorization Bearer token
+             */
+            if (strcasecmp(trim($auth_headers["Authorization"]), "Bearer") == 0) {
+                $this->unauthorised();
+            }
+
+            list($type, $clientToken) = explode(" ", $auth_headers["Authorization"], 2);
+
+            if (strcasecmp($type, "Bearer") == 0 && !empty($clientToken)) {
+                return $clientToken;
+            } else {
+                if (!$skipError) {
+                    $this->unauthorised();
+                }
+            }
+        } else {
+            if (!$skipError) {
+                $this->unauthorised();
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * [accessCredentialsHeaders Check if the credentials are correct]
+     * @param  [array] $auth_headers
+     * @return [mixed: string / error]
+     */
+    private function accessCredentialsHeaders($auth_headers)
+    {
+        $cipher = new encoder\cipher;
+
+        list($type, $clientCredentials) = explode(" ", $auth_headers["Authorization"], 2);
+
+        if (strcasecmp($type, "Basic") == 0 && !empty($clientCredentials)) {
+            $credentails = explode('/', $clientCredentials);
+            if (!empty($credentails) && is_array($credentails)) {
+                $credentails = explode(':', $cipher->decode($clientCredentials));
+
+                if (!empty($credentails) && is_array($credentails) && sizeof($credentails) == 2) {
+                    $user = new user\user;
+                    $user->setAccountID($credentails[0]);
+
+                    $account = $user
+                        ->setOptions($this->options)
+                        ->load(
+                            $credentails[0],
+                            array(
+                                'loadBy' => 'account_id',
+                                'getJWT' => true,
+                            )
+                        );
+
+                    $account['refreshToken']['refresh_token'] = $account['JWT'];
+
+                    if (!empty($account)) {
+                        if (strcasecmp($account['secret'], $credentails[1]) == 0) {
+                            return $account;
+                        }
+                    }
+                }
+            }
+        } else {
+            $this->unauthorised();
+        }
+    }
+
+    /**
+     * [unauthorised Set an unauthorised header]
+     * @return [exit exception message]
+     */
+    public function unauthorised()
+    {
+        $this->setHeaders();
+
+        $this->setHeader('HTTP/1.1', array(
+            'Unauthorized',
+        ), 401);
+
+        (new exception\errorException)->error('UNAUTHORIZED');
+    }
+
+    /**
+     * [getMaxWindow Get the max control age window]
+     * @return [integer]
+     */
+    private function getMaxWindow()
+    {
+        if ($this->getOptions()) {
+            if (isset($this->getOptions()['maxWindow']) && !empty($this->getOptions()['maxWindow'])) {
+                if (!is_numeric($this->getOptions()['maxWindow'])) {
+                    (new exception\errorException)
+                        ->message('maxWindow option must be an integer type')
+                        ->error('APPLICATION_ERROR');
+                }
+
+                return $this->getOptions()['maxWindow'];
+            }
+        }
+        return self::MAX_WINDOW;
+    }
+
+    /**
+     * [setOptions Set the Responsible API options]
+     * @param [array] $options
+     */
+    public function setOptions($options)
+    {
+        $this->options = $options;
+    }
+
+    /**
+     * [getOptions Get the Responsible API options if set]
+     * @return [mixed: array/boolean]
+     */
+    private function getOptions()
+    {
+        if (!empty($this->options)) {
+            return $this->options;
+        }
+        return;
+    }
+}

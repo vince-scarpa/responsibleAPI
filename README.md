@@ -1,2 +1,2 @@
-# responsibleAPI
-PHP RESTfull API server
+# Resposible RESTfull API
+

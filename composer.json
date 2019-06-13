@@ -1,0 +1,29 @@
+{
+    "name": "ResposibleAPI",
+    "type": "Application",
+    "description": "",
+    "keywords": ["php", "responsibleAPI", "api", "JWT"],
+    "homepage": "https://github.com/vince-scarpa/responsibleAPI",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Vince Scarpa",
+            "email": "vince.in2net@gmail.com",
+            "role": "Maintainer / Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.5.0",
+        "josegonzalez/dotenv": "dev-master",
+        "m1/env": "2.*"
+    },
+
+    "autoload": {
+        "psr-4": {
+            "responsible\\": "src"
+        },
+        "psr-0": {
+            "josegonzalez\\Dotenv": ["src", "tests"]
+        }
+    }
+}

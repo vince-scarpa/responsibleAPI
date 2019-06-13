@@ -1,0 +1,150 @@
+<?php
+/**
+ * ==================================
+ * Responsible PHP API
+ * ==================================
+ *
+ * @link Git https://github.com/vince-scarpa/responsible.git
+ *
+ * @api Responible API
+ * @package responsible\core\oauth
+ *
+ * @author Vince scarpa <vince.in2net@gmail.com>
+ *
+ */
+namespace responsible\core\auth;
+
+use responsible\core\auth;
+use responsible\core\configuration;
+use responsible\core\user;
+
+class authorise extends \responsible\core\server
+{
+    /**
+     * [$user]
+     * @var [object]
+     */
+    public $user;
+
+    /**
+     * [$header]
+     * @var [object]
+     */
+    public $header;
+
+    /**
+     * [__construct Inherit Responsible API options]
+     */
+    public function __construct($options)
+    {
+        $this->options($options);
+        $this->config = new configuration\config;
+        $this->config->responsibleDefault($options);
+    }
+
+    /**
+     * [auth]
+     * @return [object]
+     */
+    public function authorise()
+    {
+        if (isset($this->config->getConfig()['MASTER_KEY'])) {
+            $key = $this->config->getConfig()['MASTER_KEY'];
+        }
+
+        /**
+         * Ignore if debug mode is initiated in Responsible API options
+         */
+        if ($this->getRequestType() == 'debug') {
+            $this->grantAccess = true;
+            return true;
+        }
+
+        /**
+         * Scan for a header Authorization Bearer Json Web Token
+         * -- If not set header will return an unauthorised message
+         */
+        $token = $this->header->authorizationHeaders();
+
+        if (isset($token['client_access_request']) && !empty($token['client_access_request'])) {
+            $this->user = (object) $token['client_access_request'];
+            $this->grantAccess = true;
+        } else {
+
+            /**
+             * [$jwt Decode the JWT]
+             * @var auth\jwt
+             */
+            $jwt = new auth\jwt;
+            $decoded = $jwt->token($token)
+                ->key($key)
+                ->decode()
+            ;
+        }
+
+        /**
+         * [$user Check user account]
+         * @var [object]
+         */
+        if (isset($decoded['sub']) && !empty($decoded['sub'])) {
+            $this->user = (object) (new user\user)
+                ->setOptions($this->getOptions())
+                ->load($decoded['sub'], ['refreshToken' => true])
+            ;
+        }
+
+        /**
+         *  Account not found / doesn't exist
+         */
+        if (empty($this->user)) {
+            $this->header->unauthorised();
+        }
+    }
+
+    /**
+     * [user]
+     * @return [object]
+     */
+    public function user()
+    {
+        return $this->user;
+    }
+
+    /**
+     * [isGrantType If grant type is set then allow system scope override]
+     * @return boolean
+     */
+    public function isGrantType()
+    {
+        return $this->grantAccess;
+    }
+
+    /**
+     * [getJWTToken Get the user JWT refresh object]
+     * @return [array]
+     */
+    public function getJWTObject($objectKey, $array = null)
+    {
+        if ($this->getRequestType() == 'debug') {
+            return;
+        }
+
+        $haystack = (is_null($array)) ? $this->user->refreshToken : $array;
+
+        if (isset($haystack[$objectKey])) {
+            return $haystack[$objectKey];
+        }
+
+        if (is_array($haystack)) {
+            foreach ($haystack as $key => $value) {
+                if (is_array($value)) {
+                    return $this->getJWTObject($objectKey, $value);
+                }
+                if (false !== stripos($key, $objectKey)) {
+                    return $haystack[$key];
+                }
+            }
+        }
+        return false;
+    }
+}
