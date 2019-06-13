@@ -27,6 +27,43 @@ $ git clone https://github.com/vince-scarpa/responsibleSDK.git
 ```
 $ composer install
 ```
+## Setup
+In order for the ResponsibleAPI to initiate we need to add some basic configurations
+1. Import the emapmle sql file
+2. Create a .config file
+
+## Basic usage
+#### Seting up our API server
+```
+<?php
+/**
+ * Composer Autoloader
+ */
+require __DIR__ . '/responsibleAPI/vendor/autoload.php';
+
+/**
+ * Load Responsible API core
+ */
+require __DIR__ . '/responsibleAPI/src/responsible.php';
+
+/**
+ * Load Responsible API core
+ */
+use responsible\responsible;
+
+// Initiate the API with no options, let ResponsibleAPI take care of all defaults
+$responsible = responsible::API();
+
+// Print the response
+$responsible::response(true);
+```
+What does the above example give us? well, nothing..\
+Just a permissions denied message. 
+
+
+### Options
+
+
 ### Development
 Version 1.2\
 This repo is still in development, if you would like to be a contributor ping me a request.
