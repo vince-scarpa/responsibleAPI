@@ -2,6 +2,11 @@
 Responsible API is a secure PHP RESTfull application that allows easy HTTP requests from\
 internal or external requests fused by Json Web Tokens (JWT).\
 [ResponsibleSDK](https://github.com/vince-scarpa/responsibleSDK "ResponsibleAPI software development kit") is recommended to connect to the ResponsibleAPI\
+
+### Development
+Version 1.2\
+This repo is still in development, if you would like to be a contributor ping me a request.
+
 Features include:
 1. **JWT**
     - to sign each request
@@ -102,9 +107,3 @@ https://github.com/vince-scarpa/responsibleSDK or any other HTTP request method 
 
 ### Options
 [TODO]
-
-
-
-### Development
-Version 1.2\
-This repo is still in development, if you would like to be a contributor ping me a request.
