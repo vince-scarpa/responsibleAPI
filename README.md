@@ -19,7 +19,7 @@ Composer
 Install composer if not already
   https://getcomposer.org/doc/00-intro.md
 ```
-$ cd <responsible sdk dirrectory>
+$ cd <responsible sdk directory>
 $ git clone https://github.com/vince-scarpa/responsibleSDK.git
 $ composer install
 ```
@@ -28,13 +28,13 @@ In order for the ResponsibleAPI to initiate we need to add some basic configurat
 1. Import the example sql file
 2. Use or Create a .config file
 ### Setup your storage
-The ResponsibleAPI uses MySQL as Database storage, run the suplied `responsible.sql` file to install the required tables
+The ResponsibleAPI uses MySQL as Database storage, run the supplied `responsible.sql` file to install the required tables
 
 ### Setup a config file
 If you didn't get a `.config` file shipped in this repo then you'll need to create one.\
 In the repo root directory run the following or anyway you know to create and write to files
 ```
-$ cd <responsible sdk dirrectory>
+$ cd <responsible sdk directory>
 $ mkdir config
 $ touch config/.config
 ```
@@ -64,7 +64,7 @@ MASTER_KEY = '<YOUR_MASTER_SECRET>'
 ```
 
 ## Basic usage
-#### Seting up our API server
+#### Setting up our API server
 ```
 <?php
 /**
@@ -88,8 +88,8 @@ $responsible = responsible::API();
 // Print the response
 $responsible::response(true);
 ```
-What does the above example give us? well, nothing..\
-Just a permissions denied message. 
+What does the above example give us? well, nothing really...\
+Just a `permissions denied` message.
 
 
 ### Options
