@@ -1,5 +1,1 @@
-vendor/*
-
 !example/.htaccess
-!src/.api
-!src/.config
