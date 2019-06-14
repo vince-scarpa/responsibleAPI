@@ -99,10 +99,17 @@ class user
      */
     private function validate($type, $property)
     {
+        $options = $this->getOptions();
+        $skipValidatation = false;
+
+        if( isset($options['validate']) && $options['validate'] === false ) {
+            $skipValidatation = true;
+        }
+
         switch ($type) {
 
             case 'name':
-                if (!is_string($property)) {
+                if (!is_string($property) && !$skipValidatation) {
                     return;
                 }
                 $this->name = preg_replace('/\s+/', '-', strtolower($property));
@@ -111,11 +118,9 @@ class user
                 break;
 
             case 'mail':
-                $regex = '/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/';
-                if (!preg_match($regex, $property)) {
+                if( !filter_var($property, FILTER_VALIDATE_EMAIL) && !$skipValidatation) {
                     return;
                 }
-
                 $this->mail = $property;
 
                 return true;
