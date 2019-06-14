@@ -15,7 +15,7 @@ Features include:
 ## Requirements
 PHP 5.6.x, 7.x\
 [Composer](https://getcomposer.org/doc/00-intro.md "Composer install")\
-[ResponsibleSDK](https://github.com/vince-scarpa/responsibleSDK "ResponsibleAPI software development kit")
+[ResponsibleSDK](https://github.com/vince-scarpa/responsibleSDK "ResponsibleAPI software development kit") [recommended]
 
 ## Installation
 Install composer if not already\
@@ -32,7 +32,7 @@ $ composer install
 ## Setup
 In order for the ResponsibleAPI to initiate we need to add some basic configurations
 1. Import the example sql file
-2. Use or Create a .config file
+2. Use or Create a `.config` file
 ### Setup your storage
 The ResponsibleAPI uses MySQL as Database storage, run the supplied `responsible.sql` file to install the required tables
 
@@ -51,7 +51,7 @@ Your file structure should look like this
     * src
         * (...)
 
-Edit your new .config file and paste the below code, change all credentials to reflect your storage\
+Edit your new `.config` file and paste the below code, change all credentials to reflect your storage\
 Note: The MASTER_KEY is the global "secret key" for system use to sign requests.\
 To generate a strong secret I recommend using a strong password generator, this has no length limit but do note you probably want to stick to 32bytes. The only tested characters are;
 ```
@@ -96,8 +96,8 @@ $responsible::response(true);
 ```
 What does the above example give us? well, nothing really...\
 Just a `permissions denied` message and a server waiting for real requests.\
-To access the Responsible server via requests you'll need to run the ResponsibleSDK, this can be found @\
-https://github.com/vince-scarpa/responsibleSDK
+To access the ResponsibleAPI server via requests you'll need to run the ResponsibleSDK, this can be found @\
+https://github.com/vince-scarpa/responsibleSDK or any other HTTP request method you're comfortable with
 
 
 ### Options
