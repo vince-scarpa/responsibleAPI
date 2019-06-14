@@ -89,7 +89,9 @@ $responsible = responsible::API();
 $responsible::response(true);
 ```
 What does the above example give us? well, nothing really...\
-Just a `permissions denied` message.
+Just a `permissions denied` message and a server waiting for real requests.\
+To access the Responsible server via requests you'll need to run the ResponsibleSDK, this can be found @\
+https://github.com/vince-scarpa/responsibleSDK
 
 
 ### Options
