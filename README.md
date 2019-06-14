@@ -1,6 +1,6 @@
 # ResponsibleAPI RESTfull API
 Responsible API is a secure PHP RESTfull application that allows easy HTTP requests from\
-internal or external servers fused by Json Web Tokens (JWT).  
+internal or external servers fused by Json Web Tokens (JWT) used in conjunction with the [ResponsibleSDK](https://www.google.com "ResponsibleAPI software development kit")\
 Features include:
 1. **JWT**
     - to sign each request
@@ -95,6 +95,8 @@ https://github.com/vince-scarpa/responsibleSDK
 
 
 ### Options
+[TODO]
+
 
 
 ### Development
