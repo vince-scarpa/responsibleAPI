@@ -32,14 +32,12 @@ class config
     public function responsibleDefault($options = null)
     {
         if (!isset($this->root)) {
-            $this->root = dirname(dirname(__DIR__));
-            $this->root .= '/.config';
-        } else {
-            $this->root .= '/src/.config';
+            $this->root = dirname(dirname(dirname(__DIR__)));
         }
+        
+        $ENV_FILE = $this->root . '/config/.config';
 
-        $ENV_FILE = $this->root;
-
+        
         if (!file_exists($ENV_FILE)) {
             throw new \Exception(
                 "No configuration file seems to exist. Please read the documentation on setting up a configuration file."
