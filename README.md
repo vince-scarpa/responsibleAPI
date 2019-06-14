@@ -1,6 +1,6 @@
 # ResponsibleAPI RESTfull API
 Responsible API is a secure PHP RESTfull application that allows easy HTTP requests from\
-internal or external servers fused by Json Web Tokens (JWT) used in conjunction with the [ResponsibleSDK](https://www.google.com "ResponsibleAPI software development kit")\
+internal or external servers fused by Json Web Tokens (JWT) used in conjunction with the [ResponsibleSDK](https://github.com/vince-scarpa/responsibleSDK "ResponsibleAPI software development kit")\
 Features include:
 1. **JWT**
     - to sign each request
@@ -13,14 +13,19 @@ Features include:
 
 ## Requirements
 PHP 5.6.x, 7.x\
-Composer
+[Composer](https://getcomposer.org/doc/00-intro.md "Composer install")\
+[ResponsibleSDK](https://github.com/vince-scarpa/responsibleSDK "ResponsibleAPI software development kit")
 
 ## Installation
-Install composer if not already
-  https://getcomposer.org/doc/00-intro.md
+Install composer if not already\
+    https://getcomposer.org/doc/00-intro.md  
+
+Install ResponsibleSDK  
+    https://github.com/vince-scarpa/responsibleSDK
+    
 ```
 $ cd <responsible sdk directory>
-$ git clone https://github.com/vince-scarpa/responsibleSDK.git
+$ git clone https://github.com/vince-scarpa/responsibleAPI.git
 $ composer install
 ```
 ## Setup
