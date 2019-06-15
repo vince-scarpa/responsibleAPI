@@ -114,8 +114,4 @@ $responsible::response(true);
  *      - leak [boolean]
  *      - leakRate [slow | medium | normal | default | positive integer]
  *      - unlimited [boolean]
- *
- *
- * 4. User access accounts
- *      - userType [anonymous]
  */
