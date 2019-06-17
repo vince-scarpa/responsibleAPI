@@ -1,1 +1,5 @@
+# Allow the .htaccess
 !example/.htaccess
+
+#Ignore Config file
+config/.config
