@@ -62,6 +62,6 @@ class assets implements interfaces\endpointsInterface
      */
     public function run()
     {
-        // print_r($this);
+        print_r($this);
     }
 }

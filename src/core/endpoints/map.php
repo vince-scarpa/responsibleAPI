@@ -40,6 +40,12 @@ class map extends route\router
     private $registry = array();
 
     /**
+     * [$options Responsible API options]
+     * @var [array]
+     */
+    private $options;
+
+    /**
      * [$middleWareClass Holds middleware class object]
      * @var [object]
      */
@@ -70,13 +76,32 @@ class map extends route\router
      */
     public function register()
     {
-        $endpoint = str_replace(
-            array('core', '/', '\\'),
-            array('service', DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR),
-            __NAMESPACE__
-        );
+        $options = $this->options;
 
-        $directory = $this->route()->base['root'] . '/' . str_replace('responsible', '', $endpoint);
+        /**
+         * Check if a custom directory was set in the Responsible API options
+         */
+        if( (isset($this->options['classRoute']) && !empty($this->options['classRoute'])) && 
+            (isset($this->options['classRoute']['directory']) && isset($this->options['classRoute']['namespace']))
+        ) {
+            $customService = $this->options['classRoute'];
+            $directory = $customService['directory'];
+            $middleware = $customService['namespace'];
+
+        }else {
+            $middleware = 'responsible';
+
+            $endpoint = str_replace(
+                array('core', '/', '\\'),
+                array('service', DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR),
+                __NAMESPACE__
+            );
+
+            $directory = $this->route()->base['root'] . '/' . str_replace('responsible/', '', $endpoint);
+        }
+
+        // print_r($endpoint);
+        // exit;
 
         if (!is_dir($directory)) {
             (new exception\errorException)
@@ -98,13 +123,14 @@ class map extends route\router
         }
 
         foreach ($scanned as $e => $point) {
+
             if (substr($point, -4) == '.php') {
                 $point = str_replace('.php', '', $point);
 
                 $this->BASE_ENDPOINTS[] = $point;
 
                 $endpoint = str_replace('core', 'service', __NAMESPACE__) . '\\' . $point;
-
+                $endpoint = $middleware . '\\service\\endpoints\\' . $point;
                 $child = $endpoint;
 
                 $this->NAMESPACE_ENDPOINTS[$point] = $endpoint;
@@ -112,6 +138,10 @@ class map extends route\router
                 if (class_exists($child)) {
                     self::$middleWareClass = new $child;
                     $this->registry[$point] = self::$middleWareClass->register();
+                }else{
+                    (new exception\errorException)
+                        ->message('Class Error:: class needs to exist. See documentation on setting up a service.')
+                        ->error('NOT_EXTENDED');
                 }
             }
         }
@@ -294,5 +324,14 @@ class map extends route\router
         }
 
         return;
+    }
+
+    /**
+     * [options Inherit options from server]
+     * @param  [array] $options
+     */
+    public function options($options)
+    {
+        $this->options = $options;
     }
 }

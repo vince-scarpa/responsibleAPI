@@ -92,6 +92,7 @@ class server
 
         $this->keys = new keys\key;
         $this->endpoints = new endpoints\map;
+        $this->endpoints->options($options);
 
         $this->auth = new auth\authorise($options);
         $this->auth->header = $this->header;

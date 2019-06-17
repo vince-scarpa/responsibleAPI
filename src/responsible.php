@@ -331,13 +331,16 @@ class responsible
         $loadBy = (isset($options['loadBy']) && !empty($options['loadBy']))
         ? $options['loadBy'] : 'account_id';
 
+        $getJWT = (isset($options['getJWT']) && is_bool($options['getJWT']))
+        ? $options['getJWT'] : true;
+
         return (new user\user)
             ->setOptions($options)
             ->load(
                 $property,
                 array(
                     'loadBy' => $loadBy,
-                    'getJWT' => true,
+                    'getJWT' => $getJWT,
                 )
         );
     }

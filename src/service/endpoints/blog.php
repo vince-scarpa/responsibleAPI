@@ -65,7 +65,7 @@ class blog implements interfaces\endpointsInterface
         return array(
             'testing' =>
             [
-                'response' => 'works',
+                'response' => 'Responsible works',
 
                 'deepArray' => [
                     'works' => ['sure', 'does'],
