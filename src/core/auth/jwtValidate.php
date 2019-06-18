@@ -184,8 +184,11 @@ class jwtValidate extends jwt
         ) {
             return;
         }
-        $account = new user\account;
-        $account = $account->load($payloadObject['sub']);
+
+        $account = (object) (new user\user)
+            ->setOptions(parent::$options)
+            ->load($payloadObject['sub'], ['refreshToken' => false])
+        ;
 
         if (empty($account)) {
             return;

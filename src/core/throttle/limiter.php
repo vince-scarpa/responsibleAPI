@@ -158,9 +158,15 @@ class limiter
         /**
          * [Update account access]
          */
-        $user = (new user\account($this->getAccount()->account_id))
+        /*$user = (new user\account($this->getAccount()->account_id))
             ->setBucketToken($this->packed)
-            ->updateAccountAccess();
+            ->updateAccountAccess();*/
+
+        $user = (new user\user)
+            ->setAccountID($this->getAccount()->account_id)
+            ->setBucketToken($this->packed)
+            ->updateAccountAccess()
+        ;
     }
 
     /**

@@ -19,7 +19,7 @@ use responsible\core\exception;
 use responsible\core\keys;
 use responsible\core\configuration;
 
-class jwt
+class jwt extends \responsible\core\auth\authorise
 {
     /**
      * [CTY - Json Web Token content type]
@@ -70,6 +70,11 @@ class jwt
      * @var [string]
      */
     protected $payload;
+
+    /**
+     * Responsible API options
+     */
+    protected static $options;
 
     /**
      * [__construct]
@@ -205,6 +210,16 @@ class jwt
     public function getExpires()
     {
         return $this->EXPIRES;
+    }
+
+    /**
+     * [setOptions Inherit Responsible API options]
+     * @param [array] $options
+     */
+    public function setOptions($options)
+    {
+        self::$options = $options;
+        return $this;
     }
 
     /**

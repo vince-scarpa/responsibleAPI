@@ -71,6 +71,51 @@ class user
     }
 
     /**
+     * [updateAccountAccess Update the requests account access]
+     * @return [boolean]
+     */
+    public function updateAccountAccess($ACCOUNT_ID = null)
+    {
+        if (is_null($ACCOUNT_ID) && empty($this->ACCOUNT_ID)) {
+            (new exception\errorException)
+                ->message('No ACCOUNT_ID provided!')
+                ->error('ACCOUNT_ID');
+        }
+
+        if (!is_null($ACCOUNT_ID)) {
+            $this->setAccountID($ACCOUNT_ID);
+        }
+
+        /**
+         * Upate the users access
+         */
+        $this->updateAccess();
+    }
+
+    /**
+     * [updateAccess Update access for limit requests]
+     * @return [boolean]
+     */
+    private function updateAccess()
+    {
+        return $this->DB()->
+            query(
+                "UPDATE responsible_api_users USR
+                        JOIN responsible_token_bucket TKN
+                            ON (USR.account_id = TKN.account_id)
+                        set
+                            USR.access = :unix,
+                            TKN.bucket = :bkt
+                        WHERE USR.account_id = :aid;",
+                array(
+                'unix' => (new \DateTime('now'))->getTimestamp(),
+                'aid' => $this->getAccountID(),
+                'bkt' => $this->getBucketToken(),
+            )
+        );
+    }
+
+    /**
      * [credentials Set the new account credentials]
      * @param  [string] $name [username]
      * @param  [string] $mail [email address]
@@ -217,6 +262,25 @@ class user
     protected function getAccountID()
     {
         return $this->ACCOUNT_ID;
+    }
+
+    /**
+     * [setBucket Bucket data token]
+     * @param [string] $packed
+     */
+    public function setBucketToken($packed)
+    {
+        $this->bucketToken = $packed;
+        return $this;
+    }
+
+    /**
+     * [getBucketToken Bucket data token]
+     * @param [string] $packed
+     */
+    public function getBucketToken()
+    {
+        return $this->bucketToken;
     }
 
     /**

@@ -76,7 +76,9 @@ class authorise extends \responsible\core\server
              * @var auth\jwt
              */
             $jwt = new auth\jwt;
-            $decoded = $jwt->token($token)
+            $decoded = $jwt
+                ->setOptions($this->getOptions())
+                ->token($token)
                 ->key($key)
                 ->decode()
             ;

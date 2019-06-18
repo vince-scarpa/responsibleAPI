@@ -15,7 +15,7 @@
 namespace responsible\core\throttle;
 
 use responsible\core\throttle;
-use \responsible\core\encoder;
+use responsible\core\encoder;
 
 class tokenPack
 {
