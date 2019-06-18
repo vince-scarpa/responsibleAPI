@@ -201,7 +201,9 @@ class user
             $defaults = $this->getDefaults();
             $config = $defaults['config'];
 
-            $this->DB = new connect\DB($config['DB_HOST'], $config['DB_NAME'], $config['DB_USER'], $config['DB_PASSWORD']);
+            var_dump( class_exists('responsible\core\connect\DB') );
+
+            $this->DB = new \responsible\core\connect\DB($config['DB_HOST'], $config['DB_NAME'], $config['DB_USER'], $config['DB_PASSWORD']);
         }
         return $this->DB;
     }
