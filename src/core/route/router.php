@@ -17,6 +17,7 @@ namespace responsible\core\route;
 use responsible\core\exception;
 use responsible\core\route;
 use responsible\core\server;
+use responsible\core\encoder;
 
 class router extends server
 {
@@ -43,6 +44,12 @@ class router extends server
      * @var array
      */
     private $routes = array();
+
+    /**
+     * [$requestBody]
+     * @var array
+     */
+    private $requestBody = [];
 
     /**
      * [run Try run the request method]
@@ -81,6 +88,28 @@ class router extends server
 
             return $response;
         }
+    }
+
+    /**
+     * [setRequestBody Set the request body payload]
+     * @param [string] $payload
+     */
+    public function setRequestBody($payload)
+    {
+        $cipher = new encoder\cipher;
+        $this->requestBody = $cipher->jsonDecode($cipher->decode($payload));
+    }
+
+    /**
+     * [getRequestBody Get the request body defaults to empty array]
+     * @return [array]
+     */
+    public function getRequestBody()
+    {
+        if( isset($this->requestBody['payload']) ) {
+            return $this->requestBody['payload'];
+        }
+        return $this->requestBody;
     }
 
     /**

@@ -266,6 +266,14 @@ class server
             (new exception\errorException)->error('BAD_REQUEST');
         }
 
+        /**
+         * Check if theres a payload sent
+         */
+        if(isset($_REQUEST['payload'])) {
+            $router->setRequestBody($_REQUEST['payload']);
+        }
+        $this->router->payload = $router->getRequestBody();
+
         $router->setScope($this->router->endpoint->model['scope']);
 
         if (!$this->auth->isGrantType()) {
@@ -279,6 +287,7 @@ class server
          */
         if ($router->getScope() !== 'system') {
             $response = $router->run();
+
         } else {
             $response = [
                 'system' => $router->getApi(),
