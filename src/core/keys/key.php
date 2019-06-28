@@ -51,7 +51,7 @@ class key
     {
         $chars =
             'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz' .
-            '0123456789`-=~!@#$%^&*()_+,./?;[]{}\|'
+            '0123456789`-=!@#$%^&*()_+,./?;[]{}\|'
         ;
 
         $str = '';
