@@ -392,6 +392,9 @@ class header
             if (!empty($credentails) && is_array($credentails)) {
                 $credentails = explode(':', $cipher->decode($clientCredentials));
 
+                /*echo json_encode(array('success' => $credentails), JSON_PRETTY_PRINT);
+                exit;*/
+
                 if (!empty($credentails) && is_array($credentails) && sizeof($credentails) == 2) {
                     $user = new user\user;
                     $user->setAccountID($credentails[0]);

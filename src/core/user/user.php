@@ -59,6 +59,15 @@ class user
     }
 
     /**
+     * [update Update an access account]
+     * @return [array]
+     */
+    public function update($properties)
+    {
+        return $this->updateAccount($properties);
+    }
+
+    /**
      * [load Load a stored account]
      * @return [array]
      */
@@ -112,6 +121,60 @@ class user
                 'aid' => $this->getAccountID(),
                 'bkt' => $this->getBucketToken(),
             )
+        );
+    }
+
+    /**
+     * [updateAccount Update access for limit requests]
+     * @return [boolean]
+     */
+    private function updateAccount($properties)
+    {
+        if( !isset($properties->update) || 
+            !isset($properties->where) || 
+            (isset($properties->update) && !is_array($properties->update)) ||
+            (isset($properties->where) && !is_array($properties->where))
+        ) {
+            (new exception\errorException)
+                ->message('No update property was provided. Please read the documentation on updating user accounts.')
+                ->error('ACCOUNT_UPDATE');
+        }
+        
+        $allowedFileds = $binds = [];
+        $set = '';
+
+        /**
+         * Get the available table field names to set allowed updates
+         */
+        $columns = $this->DB()->query("SHOW COLUMNS FROM responsible_api_users");
+        
+        foreach ($columns as $f => $field) {
+            $allowedFileds[] = $field['Field'];
+        }
+
+        /**
+         * Remove any properties that arn't a table column
+         * @var [type]
+         */
+        foreach ($properties->update as $u => $update) {
+            if( !in_array($u, $allowedFileds) ) {
+                unset($properties->update[$u]);
+            }else{
+                $set .= $u . ' = :' . $u . ',';
+                $binds[$u] = $update;
+            }
+        }
+
+        $set = rtrim($set, ',');
+        $where =  key($properties->where) . ' = ' . $properties->where[key($properties->where)];
+
+        return $this->DB()->
+            query(
+                "UPDATE responsible_api_users USR
+                        set {$set}
+                        WHERE {$where}
+                ;",
+                $binds
         );
     }
 

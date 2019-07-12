@@ -321,6 +321,19 @@ class responsible
     }
 
     /**
+     * [updateUser Update a user account]
+     * @param  [array] $properties
+     * @param  [array] $options
+     * @return [array]
+     */
+    public static function updateUser($properties, array $options = [])
+    {
+        return (new user\user)
+            ->update($properties)
+        ;
+    }
+
+    /**
      * [loadUser Load a stored account]
      * @param  [mixed: interger/string] $property
      * @param  [string] $type
