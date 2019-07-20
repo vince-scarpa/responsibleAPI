@@ -60,6 +60,13 @@ class authorise extends \responsible\core\server
             return true;
         }
 
+        if (isset($this->getOptions()['systemUser']) && !empty($this->getOptions()['systemUser'])) {
+            $oauth = $this->header
+                ->setHeader('Authorization', array(
+                    'Bearer', $this->getOptions()['systemUser']['token'],
+                ), "", "");
+        }
+
         /**
          * Scan for a header Authorization Bearer Json Web Token
          * -- If not set header will return an unauthorised message
