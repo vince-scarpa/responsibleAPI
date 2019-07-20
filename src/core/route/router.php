@@ -96,6 +96,7 @@ class router extends server
      */
     public function setRequestBody($payload)
     {
+        $payload = ltrim($payload, 'payload=');
         $cipher = new encoder\cipher;
         $this->requestBody = $cipher->jsonDecode($cipher->decode($payload));
     }
@@ -126,12 +127,12 @@ class router extends server
      * [route]
      * @return [array]
      */
-    public function route()
+    public function route($customRoute = '')
     {
         $base = new route\base;
 
         $base_url = $base->url();
-        $base_uri = $base->uri();
+        $base_uri = (!empty($customRoute)) ? $customRoute : $base->uri();
 
         /**
          * Get the routes exit if any errors

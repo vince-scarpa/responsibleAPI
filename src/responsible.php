@@ -108,6 +108,8 @@ class responsible
      */
     private function server()
     {
+        $route = (isset($this->getOptions()['route'])) ? $this->getOptions()['route'] : '';
+
         /**
          * [$this->server :: Set the a new API server object]
          * @var responsibleCore [Alias for responsible\core]
@@ -129,7 +131,7 @@ class responsible
         // Authenticate the API connections
             ->authenticate()
         // Build the APIs internal router
-            ->route()
+            ->route($route)
         ;
 
         self::$response = $this->server->response();

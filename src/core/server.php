@@ -233,7 +233,7 @@ class server
      *
      * @return [array]
      */
-    public function route()
+    public function route($route)
     {
         /**
          * Register endpoints
@@ -246,9 +246,12 @@ class server
          */
         $router = new route\router();
         $router->baseApiRoot(dirname(__DIR__));
-        $this->router = $router->route();
+        $this->router = $router->route($route);
+        $this->router->options = $this->getOptions();
         $this->router->auth = $this->auth->user();
         $this->router->limiter = $this->limiter->getThrottle();
+
+
 
         /**
          * Endpoint tiers must be larger than 1
