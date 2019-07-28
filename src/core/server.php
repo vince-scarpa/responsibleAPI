@@ -277,6 +277,10 @@ class server
         }
         $this->router->payload = $router->getRequestBody();
 
+        if( !isset($this->router->endpoint->model['scope']) ) {
+            $this->router->endpoint->model['scope'] = 'private';
+        }
+
         $router->setScope($this->router->endpoint->model['scope']);
 
         if (!$this->auth->isGrantType()) {

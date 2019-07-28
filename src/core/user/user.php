@@ -210,7 +210,7 @@ class user
         $options = $this->getOptions();
         $skipValidatation = false;
 
-        if( isset($options['validate']) && $options['validate'] === false ) {
+        if( isset($options['validate']) && $options['validate'] == false ) {
             $skipValidatation = true;
         }
 
