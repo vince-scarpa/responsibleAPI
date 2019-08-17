@@ -4,7 +4,7 @@
  * Responsible PHP API
  * ==================================
  *
- * @link Git https://github.com/vince-scarpa/responsible.git
+ * @link Git https://github.com/vince-scarpa/responsibleAPI.git
  *
  * @api Responible API
  * @package responsible\core\auth
