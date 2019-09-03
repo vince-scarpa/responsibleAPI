@@ -277,12 +277,21 @@ class server
         }
         $this->router->payload = $router->getRequestBody();
 
+        /**
+         * Check the access scope
+         */
         if( !isset($this->router->endpoint->model['scope']) ) {
             $this->router->endpoint->model['scope'] = 'private';
         }
 
-        $router->setScope($this->router->endpoint->model['scope']);
+        if( isset($this->header->getMethod()->data['scope']) && 
+            ($this->header->getMethod()->data['scope'] == 'anonymous')
+        ) {
+            $this->router->endpoint->model['scope'] = 'anonymous';
+        }
 
+        $router->setScope($this->router->endpoint->model['scope']);
+        
         if (!$this->auth->isGrantType()) {
             if (!$router->systemAccess($this->auth->user())) {
                 $this->header->unauthorised();

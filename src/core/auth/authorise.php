@@ -60,6 +60,16 @@ class authorise extends \responsible\core\server
             return true;
         }
 
+        /**
+         * Check if a custom scope is set
+         */
+        if( isset($this->header->getMethod()->data['scope']) && 
+            ($this->header->getMethod()->data['scope'] == 'anonymous')
+        ) {
+            $this->grantAccess = true;
+            return true;
+        }
+
         if (isset($this->getOptions()['systemUser']) && !empty($this->getOptions()['systemUser'])) {
             $oauth = $this->header
                 ->setHeader('Authorization', array(
