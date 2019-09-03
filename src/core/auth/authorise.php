@@ -148,6 +148,12 @@ class authorise extends \responsible\core\server
             return;
         }
 
+        if( isset($this->header->getMethod()->data['scope']) && 
+            ($this->header->getMethod()->data['scope'] == 'anonymous')
+        ) {
+            return;
+        }
+
         $haystack = (is_null($array)) ? $this->user->refreshToken : $array;
 
         if (isset($haystack[$objectKey])) {
