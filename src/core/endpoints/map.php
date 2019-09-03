@@ -100,9 +100,6 @@ class map extends route\router
             $directory = $this->route()->base['root'] . '/' . str_replace('responsible/', '', $endpoint);
         }
 
-        // print_r($endpoint);
-        // exit;
-
         if (!is_dir($directory)) {
             (new exception\errorException)
                 ->message('Directory Error:: responsible\service needs to exist. See documentation on setting up a service.')
@@ -140,7 +137,7 @@ class map extends route\router
                     $this->registry[$point] = self::$middleWareClass->register();
                 }else{
                     (new exception\errorException)
-                        ->message('Class Error:: class needs to exist. See documentation on setting up a service.')
+                        ->message("Class Error:: class {$child} needs to exist. See documentation on setting up a service.")
                         ->error('NOT_EXTENDED');
                 }
             }
