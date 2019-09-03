@@ -18,6 +18,7 @@ namespace responsible;
 use responsible\core as responsibleCore;
 use responsible\core\configuration;
 use responsible\core\user;
+use responsible\core\headers;
 
 class responsible
 {
@@ -292,6 +293,15 @@ class responsible
     public static function API(array $options = [])
     {
         return new self($options);
+    }
+
+    /**
+     * [unauthorised Set a custom unauthorized header]
+     * @return [void]
+     */
+    public static function unauthorised()
+    {
+        (new headers\header)->unauthorised();
     }
 
     /**
