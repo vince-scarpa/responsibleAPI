@@ -126,6 +126,13 @@ class authorise extends \responsible\core\server
      */
     public function user()
     {
+        if( $this->isGrantType() ) {
+            return (object) [
+                'uid' => -1,
+                'account_id' => 0,
+                'scope' => 'anonymous',
+            ];
+        }
         return $this->user;
     }
 

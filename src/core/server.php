@@ -203,6 +203,20 @@ class server
      */
     public function authenticate()
     {
+        $this->endpoints->baseApiRoot(dirname(__DIR__));
+        $this->endpoints->register();
+        
+        $router = new route\router();
+        $router->baseApiRoot(dirname(__DIR__));
+
+        $this->router = $router->route('');
+        $endpoint = $this->endpoints->isEndpoint($router->getApi(), $router->getPath());
+
+        if(isset($endpoint->model['scope'])) {
+            $_REQUEST['scope'] = $endpoint->model['scope'];
+            $this->header->setData($_REQUEST);
+        }
+
         /**
          * Authenticate the JWT
          */
@@ -214,6 +228,9 @@ class server
         if (!isset($this->limiter)) {
             $this->rateLimit();
         }
+        // print_r($this->auth->user());
+
+        // exit;
         $this->limiter
             ->options($this->getOptions())
             ->setAccount($this->auth->user())

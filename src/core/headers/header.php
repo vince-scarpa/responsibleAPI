@@ -459,6 +459,15 @@ class header
     }
 
     /**
+     * [setData Set request method data]
+     * @param array $data
+     */
+    public function setData($data = []) 
+    {
+        $this->REQUEST_METHOD['data'] = $data;
+    }
+
+    /**
      * [setOptions Set the Responsible API options]
      * @param [array] $options
      */

@@ -57,6 +57,12 @@ class limiter
     private $unlimited = false;
 
     /**
+     * [$scope Set the default scope]
+     * @var string
+     */
+    private $scope = 'private';
+
+    /**
      * [setupOptions Set any Responsible API options]
      * @return [self]
      */
@@ -88,6 +94,12 @@ class limiter
             $this->setUnlimited();
         }
 
+        if( isset($this->account->scope) &&
+            ($this->account->scope == 'anonymous' || $this->account->scope == 'public')
+        ) {
+           $this->scope = $this->account->scope;
+        }
+
         return $this;
     }
 
@@ -97,7 +109,7 @@ class limiter
      */
     public function throttleRequest()
     {
-        if ($this->isUnlimited()) {
+        if ($this->isUnlimited() || $this->scope !== 'private') {
             return true;
         }
 
@@ -175,7 +187,7 @@ class limiter
      */
     public function getThrottle()
     {
-        if ($this->isUnlimited()) {
+        if ($this->isUnlimited() || $this->scope !== 'private') {
             return array(
                 'unlimited' => true,
             );

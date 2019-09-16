@@ -182,8 +182,9 @@ class map extends route\router
                 'method' => $method,
                 'arguments' => '',
             );
+
             return (object) $endpointSettings;
-        }
+        }        
 
         $endpoint = htmlspecialchars($endpoint, ENT_QUOTES, 'UTF-8');
         $index = array_search($api, $this->BASE_ENDPOINTS);
@@ -196,6 +197,7 @@ class map extends route\router
                         'namespace' => $this->NAMESPACE_ENDPOINTS[$api],
                         'class' => $this->BASE_ENDPOINTS[$index],
                         'method' => basename($endpoint),
+                        'scope' => 'private',
                     ),
                 );
 
@@ -204,6 +206,11 @@ class map extends route\router
                  * @var array
                  */
                 if ($found = array_search($endpoint, $this->registry[$api]) !== false) {
+                    
+                    $scope = 'private';
+                    if( method_exists($this->NAMESPACE_ENDPOINTS[$api], 'scope') ) {
+                        $endpointSettings['model']['scope'] = (new $this->NAMESPACE_ENDPOINTS[$api])->scope();
+                    }
                     return (object) $endpointSettings;
                 }
 
@@ -248,8 +255,13 @@ class map extends route\router
                             }
                         }
 
+                        $scope = 'private';
+                        if( method_exists($this->NAMESPACE_ENDPOINTS[$api], 'scope') ) {
+                            $scope = (new $this->NAMESPACE_ENDPOINTS[$api])->scope();
+                        }
+
                         $endpointSettings['model'] = array(
-                            'scope' => 'private',
+                            'scope' => $scope,
                             'namespace' => $this->NAMESPACE_ENDPOINTS[$api],
                             'class' => $model['class'],
                             'method' => $model['method'],
