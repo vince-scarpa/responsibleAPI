@@ -209,7 +209,18 @@ class map extends route\router
                     
                     $scope = 'private';
                     if( method_exists($this->NAMESPACE_ENDPOINTS[$api], 'scope') ) {
-                        $endpointSettings['model']['scope'] = (new $this->NAMESPACE_ENDPOINTS[$api])->scope();
+                        $classScope = (new $this->NAMESPACE_ENDPOINTS[$api])->scope();
+                        $position = array_search($endpoint, $this->registry[$api]);
+                        
+                        if( is_array($classScope) && isset($classScope[$position]) ) {
+                            $endpointSettings['model']['scope'] = $classScope[$position];
+
+                        }else{
+
+                            if( !is_array($classScope) ) {
+                                $endpointSettings['model']['scope'] = $classScope;
+                            }
+                        }
                     }
                     return (object) $endpointSettings;
                 }
@@ -257,7 +268,18 @@ class map extends route\router
 
                         $scope = 'private';
                         if( method_exists($this->NAMESPACE_ENDPOINTS[$api], 'scope') ) {
-                            $scope = (new $this->NAMESPACE_ENDPOINTS[$api])->scope();
+                            $classScope = (new $this->NAMESPACE_ENDPOINTS[$api])->scope();
+                            $position = array_search($endpoint, $this->registry[$api]);
+                            
+                            if( is_array($classScope) && isset($classScope[$position]) ) {
+                                $scope = $classScope[$position];
+
+                            }else{
+
+                                if( !is_array($classScope) ) {
+                                    $scope = $classScope;
+                                }
+                            }
                         }
 
                         $endpointSettings['model'] = array(
