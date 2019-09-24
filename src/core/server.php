@@ -203,13 +203,16 @@ class server
      */
     public function authenticate()
     {
+        $options = $this->getOptions();
+        $route = (isset($options['route']) && !empty($options['route']) ) ? $options['route'] : '';
+
         $this->endpoints->baseApiRoot(dirname(__DIR__));
         $this->endpoints->register();
         
         $router = new route\router();
         $router->baseApiRoot(dirname(__DIR__));
 
-        $this->router = $router->route('');
+        $this->router = $router->route($route);
         $endpoint = $this->endpoints->isEndpoint($router->getApi(), $router->getPath());
 
         if(isset($endpoint->model['scope'])) {
@@ -228,9 +231,7 @@ class server
         if (!isset($this->limiter)) {
             $this->rateLimit();
         }
-        // print_r($this->auth->user());
-
-        // exit;
+        
         $this->limiter
             ->options($this->getOptions())
             ->setAccount($this->auth->user())

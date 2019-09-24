@@ -133,6 +133,7 @@ class router extends server
 
         $base_url = $base->url();
         $base_uri = (!empty($customRoute)) ? $customRoute : $base->uri();
+        $base_uri = substr($base_uri, 0, 1) !== '/' ? '/' . $base_uri : $base_uri;
 
         /**
          * Get the routes exit if any errors
