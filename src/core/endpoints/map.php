@@ -269,7 +269,7 @@ class map extends route\router
                         $scope = 'private';
                         if( method_exists($this->NAMESPACE_ENDPOINTS[$api], 'scope') ) {
                             $classScope = (new $this->NAMESPACE_ENDPOINTS[$api])->scope();
-                            $position = array_search($endpoint, $this->registry[$api]);
+                            $position = array_search($path, $this->registry[$api]);
                             
                             if( is_array($classScope) && isset($classScope[$position]) ) {
                                 $scope = $classScope[$position];
