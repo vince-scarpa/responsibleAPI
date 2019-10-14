@@ -359,6 +359,9 @@ class responsible
         $getJWT = (isset($options['getJWT']) && is_bool($options['getJWT']))
         ? $options['getJWT'] : true;
 
+        $getSecretAppend = (isset($options['secret']) && ($options['secret'] == 'append') )
+        ? $options['secret'] : false;
+
         return (new user\user)
             ->setOptions($options)
             ->load(
@@ -366,6 +369,7 @@ class responsible
                 array(
                     'loadBy' => $loadBy,
                     'getJWT' => $getJWT,
+                    'secret' => $getSecretAppend
                 )
         );
     }

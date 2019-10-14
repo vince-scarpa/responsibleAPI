@@ -41,6 +41,18 @@ class userLoad extends user
     private $getToken = false;
 
     /**
+     * [$secret]
+     * @var string
+     */
+    private $secret = '';
+
+    /**
+     * [$secret request by system to append the users secret from DB]
+     * @var boolean
+     */
+    private $secretAppend = false;
+
+    /**
      * @param $credentials
      */
     public function __construct($property = null, $options)
@@ -61,6 +73,12 @@ class userLoad extends user
         $this->setColumn($loadBy);
         $this->setProperty($property);
         $this->timeNow();
+
+        $this->secret = $this->getDefaults()['config']['MASTER_KEY'];
+
+        if( isset($options['secret']) && $options['secret'] == 'append' ) {
+            $this->secretAppend = true;
+        }
     }
 
     /**
@@ -89,6 +107,10 @@ class userLoad extends user
                 ),
                 \PDO::FETCH_OBJ
             );
+
+        if( $this->secretAppend ) {
+            $this->secret = $account->secret;
+        }
 
         if (!empty($account)) {
             $this->setAccountID($account->account_id);
@@ -145,13 +167,13 @@ class userLoad extends user
      */
     public function futureToken()
     {
-        if (!isset($this->getDefaults()['config']['MASTER_KEY'])) {
+        if (!isset($this->secret)) {
             (new exception\errorException)
                 ->message('There was an error trying to retrieve the server master key. Please read the documentation on setting up a configuration file')
                 ->error('NO_CONTENT');
         }
 
-        $key = $this->getDefaults()['config']['MASTER_KEY'];
+        $key = $this->secret;
         $userPayload = $this->getJWT($key);
 
         if (empty($userPayload) || !isset($userPayload['payload'])) {
@@ -198,13 +220,13 @@ class userLoad extends user
      */
     public function getUserJWT()
     {
-        if (!isset($this->getDefaults()['config']['MASTER_KEY'])) {
+        if (!isset($this->secret)) {
             (new exception\errorException)
                 ->message('There was an error trying to retrieve the server master key. Please read the documentation on setting up a configuration file')
                 ->error('NO_CONTENT');
         }
 
-        $key = $this->getDefaults()['config']['MASTER_KEY'];
+        $key = $this->secret;
 
         /**
          * [$payload Set the default payload]
