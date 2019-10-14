@@ -80,6 +80,7 @@ class jwtDecoder extends jwt
 
         if (sizeof($segment) != 3) {
             (new exception\errorException)
+                ->setOptions(parent::$options)
                 ->message(self::messages('denied_token'))
                 ->error('UNAUTHORIZED');
         }
@@ -96,6 +97,7 @@ class jwtDecoder extends jwt
     {
         if (is_null($token) || empty($token)) {
             (new exception\errorException)
+                ->setOptions(parent::$options)
                 ->message(self::messages('denied_token'))
                 ->error('UNAUTHORIZED');
         }

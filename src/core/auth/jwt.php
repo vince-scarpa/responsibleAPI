@@ -128,6 +128,7 @@ class jwt extends \responsible\core\auth\authorise
     {
         if (is_null($token) || empty($token) || !is_string($token)) {
             (new exception\errorException)
+                ->setOptions(self::$options)
                 ->message(self::messages('denied_token'))
                 ->error('UNAUTHORIZED');
         }
@@ -147,6 +148,7 @@ class jwt extends \responsible\core\auth\authorise
     {
         if (is_null($key) || empty($key) || !is_string($key)) {
             (new exception\errorException)
+                ->setOptions(self::$options)
                 ->message(self::messages('denied_key'))
                 ->error('UNAUTHORIZED');
         }

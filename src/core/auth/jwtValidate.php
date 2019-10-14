@@ -52,6 +52,7 @@ class jwtValidate extends jwt
             !self::alg($headObject)
         ) {
             (new exception\errorException)
+                ->setOptions(parent::$options)
                 ->message(self::messages('denied_token'))
                 ->error('UNAUTHORIZED');
         }
@@ -73,6 +74,7 @@ class jwtValidate extends jwt
             !self::exp($payloadObject)
         ) {
             (new exception\errorException)
+                ->setOptions(parent::$options)
                 ->message(self::messages('denied_token'))
                 ->error('UNAUTHORIZED');
         }
@@ -91,6 +93,7 @@ class jwtValidate extends jwt
             empty($key)
         ) {
             (new exception\errorException)
+                ->setOptions(parent::$options)
                 ->message(self::messages('denied_token'))
                 ->error('UNAUTHORIZED');
         }
@@ -109,6 +112,7 @@ class jwtValidate extends jwt
 
         if (!$cipher->hashCompare($signature, $hashed)) {
             (new exception\errorException)
+                ->setOptions(parent::$options)
                 ->message(self::messages('denied_token'))
                 ->error('UNAUTHORIZED');
         }
@@ -220,6 +224,7 @@ class jwtValidate extends jwt
 
         if ($payloadObject['iat'] > self::getTimestamp()) {
             (new exception\errorException)
+                ->setOptions(parent::$options)
                 ->message(self::messages('not_ready'))
                 ->error('NO_CONTENT');
         }
@@ -242,6 +247,7 @@ class jwtValidate extends jwt
 
         if ($payloadObject['nbf'] > self::getTimestamp()) {
             (new exception\errorException)
+                ->setOptions(parent::$options)
                 ->message(self::messages('not_ready'))
                 ->error('NO_CONTENT');
         }
@@ -264,6 +270,7 @@ class jwtValidate extends jwt
 
         if ($payloadObject['exp'] <= (int) (self::$TIMESTAMP - self::$LEEWAY)) {
             (new exception\errorException)
+                ->setOptions(parent::$options)
                 ->message(self::messages('expired'))
                 ->error('UNAUTHORIZED');
         }

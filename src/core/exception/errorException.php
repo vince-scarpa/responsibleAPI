@@ -19,6 +19,11 @@ use responsible\core\headers;
 class errorException extends \Exception
 {
     /**
+     * Responsible API options
+     */
+    private static $options;
+
+    /**
      * [__construct Use parent constructor]
      */
     public function __construct()
@@ -148,6 +153,8 @@ class errorException extends \Exception
      */
     private function throwError($level)
     {
+        $options = $this->getOptions();
+
         (new headers\header)->setHeaders();
 
         http_response_code($this->ERROR_STATE['ERROR_CODE']);
@@ -157,21 +164,52 @@ class errorException extends \Exception
         : $this->ERROR_STATE['MESSAGE'];
 
         if ($level == 'normal') {
-            echo json_encode(array(
+            $eMessage = json_encode(array(
                 'ERROR_CODE' => $this->ERROR_STATE['ERROR_CODE'],
                 'ERROR_STATUS' => $this->ERROR_STATE['ERROR_STATUS'],
                 'MESSAGE' => $message,
             ), JSON_PRETTY_PRINT);
+
+            if( isset($options['errors']) && $options['errors'] == 'catchAll' ) {
+                throw new \Exception($eMessage, 1);
+            }
+
+            echo $eMessage;
             exit;
         }
 
         if ($level == 'system') {
-            echo json_encode(array(
+            $eMessage = json_encode(array(
                 'ERROR_CODE' => $this->ERROR_STATE['ERROR_CODE'],
                 'ERROR_STATUS' => $this->ERROR_STATE['ERROR_STATUS'],
                 'MESSAGE' => $message,
             ), JSON_PRETTY_PRINT);
+
+            if( isset($options['errors']) && $options['errors'] == 'catchAll' ) {
+                throw new \Exception($eMessage, 1);
+            }
+
+            echo $eMessage;
             exit;
         }
+    }
+
+    /**
+     * [setOptions Inherit Responsible API options]
+     * @param [array] $options
+     */
+    public function setOptions($options)
+    {
+        self::$options = $options;
+        return $this;
+    }
+
+    /**
+     * [getOptions Get available options]
+     * @return [array]
+     */
+    public function getOptions()
+    {
+        return self::$options;
     }
 }
