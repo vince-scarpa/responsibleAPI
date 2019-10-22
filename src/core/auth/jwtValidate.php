@@ -65,6 +65,10 @@ class jwtValidate extends jwt
      */
     public static function payload(array $payloadObject = [])
     {
+        if( isset($payloadObject['scope']) && $payloadObject['scope'] == 'anonymous' ) {
+            return true;
+        }
+
         if (
             !is_array($payloadObject) ||
             !self::iss($payloadObject) ||
