@@ -406,10 +406,16 @@ class header
                             array(
                                 'loadBy' => 'account_id',
                                 'getJWT' => true,
+                                'authorizationRefresh' => true,
                             )
                         );
 
-                    $account['refreshToken']['refresh_token'] = $account['JWT'];
+                    $tokens = [
+                        'token' => $account['JWT'],
+                        'refresh_token' => $account['refreshToken']['token']
+                    ];
+
+                    $account['refreshToken'] = $tokens;
 
                     if (!empty($account)) {
                         if (strcasecmp($account['secret'], $credentails[1]) == 0) {

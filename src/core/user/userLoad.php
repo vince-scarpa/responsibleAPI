@@ -35,6 +35,12 @@ class userLoad extends user
     private $requestRefreshToken = false;
 
     /**
+     * [$requestRefreshToken Request a new refresh JWT, request from authorization headers]
+     * @var boolean
+     */
+    private $authorizationRefresh = false;
+
+    /**
      * [$requestRefreshToken Get an encoded user token]
      * @var boolean
      */
@@ -66,6 +72,7 @@ class userLoad extends user
         $loadBy = $this->checkVal($options, 'loadBy', 'account_id');
         $this->getToken = $this->checkVal($options, 'getJWT');
         $this->requestRefreshToken = $this->checkVal($options, 'refreshToken');
+        $this->authorizationRefresh = $this->checkVal($options, 'authorizationRefresh');
 
         $this->keys = new keys\key;
         $this->jwt = new auth\jwt;
@@ -122,6 +129,9 @@ class userLoad extends user
 
             if ($this->getToken) {
                 $account->JWT = $this->getUserJWT();
+                if( $this->authorizationRefresh ) {
+                    $account->refreshToken['token'] = $this->getUserJWT(true);
+                }
             }
 
             return (array) $account;
@@ -218,7 +228,7 @@ class userLoad extends user
      * [getUserJWT Get an ecoded user token]
      * @return [string]
      */
-    public function getUserJWT()
+    public function getUserJWT($refresh = false)
     {
         if (!isset($this->secret)) {
             (new exception\errorException)
@@ -255,6 +265,23 @@ class userLoad extends user
                     $nbf = $payload['iat'] + 10;
                 }
                 $payload['nbf'] = $nbf;
+            }
+        }
+
+        if( $refresh && $exp ) {
+            $refreshPayload = $payload;
+
+            $offset = $exp - $this->timeNow();
+            $leeway = ($this->checkVal($this->options['jwt'], 'leeway')) ?: $this->jwt->getLeeway();
+
+            $refreshPayload['exp'] = $exp+$offset+$leeway;
+
+            $refreshJWT = $this->refreshJWT([
+                'payload' => $refreshPayload
+            ]);
+
+            if( isset($refreshJWT['refresh']) ) {
+                return $refreshJWT['refresh'];
             }
         }
 
