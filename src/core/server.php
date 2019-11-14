@@ -165,7 +165,9 @@ class server
             return;
         }
         if (is_null($key) || $key == '') {
-            $this->RESPONSE['response'] = $response;
+            if( !is_null($response) ) {
+                $this->RESPONSE['response'] = $response;
+            }
             return;
         }
 
