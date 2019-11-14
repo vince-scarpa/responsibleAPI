@@ -19,6 +19,7 @@ use responsible\core\exception;
 use responsible\core\headers;
 use responsible\core\keys;
 use responsible\core\route;
+use responsible\core\encoder;
 
 class userLoad extends user
 {
@@ -70,6 +71,7 @@ class userLoad extends user
         }
 
         $loadBy = $this->checkVal($options, 'loadBy', 'account_id');
+
         $this->getToken = $this->checkVal($options, 'getJWT');
         $this->requestRefreshToken = $this->checkVal($options, 'refreshToken');
         $this->authorizationRefresh = $this->checkVal($options, 'authorizationRefresh');
@@ -100,7 +102,7 @@ class userLoad extends user
         $account = $this->DB()
             ->row(
                 "SELECT
-                USR.uid, USR.account_id, USR.name, USR.status, USR.access, USR.secret,
+                USR.uid, USR.account_id, USR.name, USR.status, USR.access, USR.secret, USR.refresh_token,
                 TKN.bucket
                 FROM responsible_api_users USR
                 INNER JOIN responsible_token_bucket TKN
@@ -122,6 +124,9 @@ class userLoad extends user
         if (!empty($account)) {
             $this->setAccountID($account->account_id);
 
+            /**
+             * May be redundant 
+             */
             if ($this->requestRefreshToken) {
                 $account->refreshToken = $this->futureToken();
                 $account->refreshToken['token'] = (new headers\header)->authorizationHeaders(true);
@@ -129,17 +134,51 @@ class userLoad extends user
 
             if ($this->getToken) {
                 $account->JWT = $this->getUserJWT();
-                if( $this->authorizationRefresh ) {
-                    $account->refreshToken['token'] = $this->getUserJWT(true);
-                }
+                $account->refresh_token = $this->refreshTokenGenerate($account);
+                $account->refreshToken = ['token' => $account->refresh_token];
             }
 
             return (array) $account;
         }
 
-        // print_r($this);
-
         (new exception\errorException)->error('UNAUTHORIZED');
+    }
+
+    /**
+     * [refreshToken New way to request refresh token]
+     * @return [string]
+     */
+    public function refreshTokenGenerate($account)
+    {
+        $offset = 86400;
+        $time = ($this->timeNow()+$offset);
+
+        if( isset($account->refresh_token) && !empty($account->refresh_token) ) {
+            $raToken = explode('.', $account->refresh_token);
+            if( is_array($raToken) ) {
+                $raToken = array_values(array_filter($raToken));
+                $time = ($raToken[0] <= ($this->timeNow()-$offset) ) ? ($this->timeNow()+$offset) : $raToken[0];
+            }
+        }
+
+        $cipher = new encoder\cipher;
+        $refreshHash = $account->account_id.':'.$account->secret;
+        $refreshHash = $cipher->encode($cipher->hash('sha256', $refreshHash, $account->secret));
+
+        $refreshHash = $time.'.'.$refreshHash;
+        $account->refreshToken = $refreshHash;
+
+        $updateProp = [
+            'where' => [
+                'account_id' => $account->account_id
+            ],
+            'update' => [
+                'refresh_token' => $refreshHash,
+            ]
+        ];
+        parent::update($updateProp);
+
+        return $refreshHash;
     }
 
     /**
@@ -330,6 +369,10 @@ class userLoad extends user
 
         if ($column == 'email' || $column == 'mail') {
             $this->column = 'USR.mail';
+        }
+
+        if ($column == 'refresh_token') {
+            $this->column = 'USR.refresh_token';
         }
     }
 

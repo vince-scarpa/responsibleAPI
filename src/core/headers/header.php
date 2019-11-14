@@ -18,6 +18,7 @@ use responsible\core\encoder;
 use responsible\core\exception;
 use responsible\core\server;
 use responsible\core\user;
+use responsible\core\auth;
 
 class header
 {
@@ -344,7 +345,18 @@ class header
              * Test if it's a Authorization Basic & client_credentials
              */
             if (isset($_REQUEST['grant_type']) && $_REQUEST['grant_type'] == 'client_credentials') {
-                if ($refreshToken = $this->accessCredentialsHeaders($auth_headers)) {
+                if ($refreshToken = $this->accessCredentialHeaders($auth_headers)) {
+                    return [
+                        'client_access_request' => $refreshToken,
+                    ];
+                }
+            }
+
+            /**
+             * Test if it's a Authorization Bearer & refresh_token
+             */
+            if (isset($_REQUEST['grant_type']) && $_REQUEST['grant_type'] == 'refresh_token') {
+                if ($refreshToken = $this->accessRefreshHeaders($auth_headers)) {
                     return [
                         'client_access_request' => $refreshToken,
                     ];
@@ -377,11 +389,51 @@ class header
     }
 
     /**
-     * [accessCredentialsHeaders Check if the credentials are correct]
+     * [accessRefreshHeaders description]
+     * @return [mixed: string / error]
+     */
+    private function accessRefreshHeaders($auth_headers)
+    {
+        list($type, $clientToken) = explode(" ", $auth_headers["Authorization"], 2);
+
+        if (strcasecmp($type, "Bearer") == 0 && !empty($clientToken)) {
+
+            $user = new user\user;
+            $account = $user
+                ->setOptions($this->options)
+                ->load(
+                    $clientToken,
+                    array(
+                        'loadBy' => 'refresh_token',
+                        'getJWT' => true,
+                        'authorizationRefresh' => true,
+                    )
+                );
+
+            if( empty($account) ) {
+                $this->unauthorised();
+            }
+
+            $tokens = [
+                'token' => $account['JWT'],
+                'refresh_token' => $account['refreshToken']['token']
+            ];
+
+            $account['refreshToken'] = $tokens;
+
+            return $account;
+
+        } else {
+            $this->unauthorised();
+        }
+    }
+
+    /**
+     * [accessCredentialHeaders Check if the credentials are correct]
      * @param  [array] $auth_headers
      * @return [mixed: string / error]
      */
-    private function accessCredentialsHeaders($auth_headers)
+    private function accessCredentialHeaders($auth_headers)
     {
         $cipher = new encoder\cipher;
 
@@ -391,9 +443,6 @@ class header
             $credentails = explode('/', $clientCredentials);
             if (!empty($credentails) && is_array($credentails)) {
                 $credentails = explode(':', $cipher->decode($clientCredentials));
-
-                /*echo json_encode(array('success' => $credentails), JSON_PRETTY_PRINT);
-                exit;*/
 
                 if (!empty($credentails) && is_array($credentails) && sizeof($credentails) == 2) {
                     $user = new user\user;

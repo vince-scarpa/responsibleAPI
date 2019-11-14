@@ -130,6 +130,10 @@ class user
      */
     private function updateAccount($properties)
     {
+        if( is_array($properties) ) {
+            $properties = (object) $properties; //json_decode(json_encode($properties));
+        }
+
         if( !isset($properties->update) || 
             !isset($properties->where) || 
             (isset($properties->update) && !is_array($properties->update)) ||
