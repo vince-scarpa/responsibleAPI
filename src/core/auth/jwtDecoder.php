@@ -50,6 +50,10 @@ class jwtDecoder extends jwt
          */
         $payloadObject = $cipher->jsonDecode($cipher->decode($jwtPayload));
 
+        if( $this->key == 'payloadOnly' ) {
+            return $payloadObject;
+        }
+
         /**
          * [$jwtKey Key signature]
          * @var [crypt]

@@ -86,6 +86,7 @@ class authorise extends \responsible\core\server
         if (isset($token['client_access_request']) && !empty($token['client_access_request'])) {
             $this->user = (object) $token['client_access_request'];
             $this->grantAccess = true;
+
         } else {
 
             /**
@@ -96,16 +97,37 @@ class authorise extends \responsible\core\server
             $decoded = $jwt
                 ->setOptions($this->getOptions())
                 ->token($token)
-                ->key($key)
+                ->key('payloadOnly')
                 ->decode()
             ;
+
+            if( isset($decoded['sub']) && !empty($decoded['sub']) ) {
+
+                $this->user = (object) (new user\user)
+                    ->setOptions($this->getOptions())
+                    ->load($decoded['sub'], ['refreshToken' => true])
+                ;
+
+                if ( !empty($this->user) ) {
+                    $jwt = new auth\jwt;
+                    $decoded = $jwt
+                        ->setOptions($this->getOptions())
+                        ->token($token)
+                        ->key($this->user->secret)
+                        ->decode()
+                    ;
+                }
+            }else{
+
+                $this->header->unauthorised();
+            }
         }
 
         /**
          * [$user Check user account]
          * @var [object]
          */
-        if (isset($decoded['sub']) && !empty($decoded['sub'])) {
+        if ( (isset($decoded['sub']) && !empty($decoded['sub'])) && !$this->user ) {
             $this->user = (object) (new user\user)
                 ->setOptions($this->getOptions())
                 ->load($decoded['sub'], ['refreshToken' => true])

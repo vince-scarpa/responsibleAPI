@@ -124,12 +124,42 @@ class userLoad extends user
         if (!empty($account)) {
             $this->setAccountID($account->account_id);
 
+            $this->secret = $account->secret;
+
             /**
              * May be redundant 
              */
             if ($this->requestRefreshToken) {
-                $account->refreshToken = $this->futureToken();
-                $account->refreshToken['token'] = (new headers\header)->authorizationHeaders(true);
+                $account->refresh_token = $this->refreshTokenGenerate($account);
+                $sentToken = (new headers\header)->hasBearerToken();
+
+                if( $sentToken ) {
+                    /**
+                     * [$jwt Decode the JWT]
+                     * @var auth\jwt
+                     */
+                    $jwt = new auth\jwt;
+                    $decoded = $jwt
+                        ->setOptions($this->getOptions())
+                        ->token($sentToken)
+                        ->key('payloadOnly')
+                        ->decode()
+                    ;
+
+                    $leeway = ($this->checkVal($this->options['jwt'], 'leeway')) 
+                        ?: $this->jwt->getLeeway()
+                    ;
+                    $absSeconds = ($decoded['exp'] - ($this->timeNow() - $leeway));
+
+                    if( $absSeconds > 0 ) {
+                        $account->JWT = $sentToken;
+                    }
+                }
+
+                $account->refreshToken = [
+                    'token' => $sentToken,
+                    'refresh' => $account->refresh_token
+                ];
             }
 
             if ($this->getToken) {

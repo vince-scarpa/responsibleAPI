@@ -332,6 +332,25 @@ class header
     }
 
     /**
+     * [hasBearerToken Check if bearer token is present]
+     * @return boolean
+     */
+    public function hasBearerToken()
+    {
+        $auth_headers = $this->getHeaders();
+
+        if (isset($auth_headers["Authorization"]) && !empty($auth_headers["Authorization"])) {
+
+            list($type, $clientToken) = explode(" ", $auth_headers["Authorization"], 2);
+
+            if (strcasecmp($type, "Bearer") == 0 && !empty($clientToken)) {
+                return $clientToken;
+            }
+        }
+        return;
+    }
+
+    /**
      * [authorizationHeaders Scan for "Authorization" header]
      * @return [mixed: string / error]
      */
