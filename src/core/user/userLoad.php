@@ -125,10 +125,7 @@ class userLoad extends user
             $this->setAccountID($account->account_id);
 
             $this->secret = $account->secret;
-
-            /**
-             * May be redundant 
-             */
+            
             if ($this->requestRefreshToken) {
                 $account->refresh_token = $this->refreshTokenGenerate($account);
                 $sentToken = (new headers\header)->hasBearerToken();
@@ -154,6 +151,14 @@ class userLoad extends user
                     if( $absSeconds > 0 ) {
                         $account->JWT = $sentToken;
                     }
+
+                    $account->tokenExpire = [
+                        'tokenExpire' => [
+                            'leeway' => $leeway,
+                            'expiresIn' => $absSeconds,
+                            'expiresString' => $this->tokenExpiresIn($absSeconds),
+                        ]
+                    ];
                 }
 
                 $account->refreshToken = [
