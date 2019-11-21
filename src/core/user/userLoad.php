@@ -102,7 +102,14 @@ class userLoad extends user
         $account = $this->DB()
             ->row(
                 "SELECT
-                USR.uid, USR.account_id, USR.name, USR.status, USR.access, USR.secret, USR.refresh_token,
+                USR.uid,
+                USR.account_id,
+                USR.name,
+                USR.mail,
+                USR.status,
+                USR.access,
+                USR.secret,
+                USR.refresh_token,
                 TKN.bucket
                 FROM responsible_api_users USR
                 INNER JOIN responsible_token_bucket TKN
@@ -172,6 +179,8 @@ class userLoad extends user
                 $account->refresh_token = $this->refreshTokenGenerate($account);
                 $account->refreshToken = ['token' => $account->refresh_token];
             }
+
+            print_r($account);
 
             return (array) $account;
         }
