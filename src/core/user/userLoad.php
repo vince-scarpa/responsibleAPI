@@ -180,8 +180,6 @@ class userLoad extends user
                 $account->refreshToken = ['token' => $account->refresh_token];
             }
 
-            print_r($account);
-
             return (array) $account;
         }
 
