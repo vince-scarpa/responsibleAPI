@@ -244,6 +244,10 @@ class header
             'origin, x-requested-with',
         ));
 
+        $this->setHeader('Access-Control-Allow-Origin', array(
+            '*',
+        ));
+
         $this->setHeader('Access-Control-Max-Age', array(
             $this->getMaxWindow(),
         ));
