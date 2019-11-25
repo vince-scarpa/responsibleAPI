@@ -90,11 +90,15 @@ class header
         switch (strtolower($_SERVER['REQUEST_METHOD'])) {
 
             case 'get':
-                $this->REQUEST_METHOD = ['method' => 'get', 'data' => $_REQUEST];
+                $this->REQUEST_METHOD = ['method' => 'get', 'data' => $_GET];
                 break;
 
             case 'post':
-                $this->REQUEST_METHOD = ['method' => 'post', 'data' => $_REQUEST];
+                $this->REQUEST_METHOD = ['method' => 'post', 'data' => $_POST];
+                break;
+
+            case 'options':
+                $this->REQUEST_METHOD = ['method' => 'options', 'data' => $_POST];
                 break;
 
             case 'put':
@@ -142,6 +146,10 @@ class header
      */
     public function setAllowedMethods(array $methods)
     {
+        $this->setHeader('Access-Control-Allow-Methods', array(
+            implode(',', $methods),
+        ));
+
         $requestMethod = $this->getServerMethod();
         if (!in_array($requestMethod, $methods)) {
             (new exception\errorException)->error('METHOD_NOT_ALLOWED');
@@ -232,9 +240,15 @@ class header
             true,
         ));
 
-        $this->setHeader('Access-Control-Allow-Methods', array(
-            'GET,POST',
+        $this->setHeader('Access-Control-Allow-Origin', array(
+            '*',
         ));
+
+        if( !array_key_exists('Access-Control-Allow-Methods', $this->getHeaders()) ) {
+            $this->setHeader('Access-Control-Allow-Methods', array(
+                'GET,POST',
+            ));
+        }
 
         $this->setHeader('Access-Control-Expose-Headers', array(
             'Content-Range',
@@ -242,10 +256,6 @@ class header
 
         $this->setHeader('Access-Control-Allow-Headers', array(
             'origin, x-requested-with',
-        ));
-
-        $this->setHeader('Access-Control-Allow-Origin', array(
-            '*',
         ));
 
         $this->setHeader('Access-Control-Max-Age', array(
