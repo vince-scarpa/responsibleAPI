@@ -99,6 +99,9 @@ class header
 
             case 'options':
                 $this->REQUEST_METHOD = ['method' => 'options', 'data' => $_POST];
+                echo json_encode(['success'=>true]);
+                $this->setHeaders();
+                exit;
                 break;
 
             case 'put':
@@ -246,7 +249,7 @@ class header
 
         if( !array_key_exists('Access-Control-Allow-Methods', $this->getHeaders()) ) {
             $this->setHeader('Access-Control-Allow-Methods', array(
-                'GET,POST',
+                'GET,POST,OPTIONS',
             ));
         }
 
@@ -255,7 +258,7 @@ class header
         ));
 
         $this->setHeader('Access-Control-Allow-Headers', array(
-            'origin, x-requested-with',
+            'origin,x-requested-with,Authorization,cache-control',
         ));
 
         $this->setHeader('Access-Control-Max-Age', array(
