@@ -105,17 +105,16 @@ class header
                 break;
 
             case 'put':
-                $_PARSE = parse_str(
-                    file_get_contents(
-                        'php://input',
-                        false,
-                        null,
-                        0,
-                        $_SERVER['CONTENT_LENGTH']
-                    ),
-                    $_PUT
-                );
-                $this->REQUEST_METHOD = ['method' => 'put', 'data' => $_PARSE];
+                parse_str(file_get_contents("php://input"), $_PUT);
+
+                foreach ($_PUT as $key => $value) {
+                    unset($_PUT[$key]);
+                    $_PUT[str_replace('amp;', '', $key)] = $value;
+                }
+
+                $_REQUEST = array_merge($_REQUEST, $_PUT);
+
+                $this->REQUEST_METHOD = ['method' => 'put', 'data' => $_REQUEST];
                 break;
 
             case 'patch':
