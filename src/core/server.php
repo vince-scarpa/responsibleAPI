@@ -271,8 +271,6 @@ class server
         $this->router->auth = $this->auth->user();
         $this->router->limiter = $this->limiter->getThrottle();
 
-
-
         /**
          * Endpoint tiers must be larger than 1
          */
@@ -288,6 +286,11 @@ class server
         ) {
             (new exception\errorException)->error('BAD_REQUEST');
         }
+
+        $this->router->endpoint->header = [
+            'method' => $this->header->getServerMethod(),
+            'status' => $this->header->getHeaderStatus()
+        ];
 
         /**
          * Check if theres a payload sent
