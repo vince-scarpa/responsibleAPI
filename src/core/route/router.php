@@ -91,6 +91,24 @@ class router extends server
     }
 
     /**
+     * [setPostBody Set the post body payload]
+     * @param [array] $payload
+     */
+    public function setPostBody($payload)
+    {
+        $payloadPost = [
+            'post' => $payload
+        ];
+
+        if( isset($this->requestBody['payload']) ) {
+            array_merge($this->requestBody['payload'], $payloadPost);
+            return;
+        }
+
+        $this->requestBody = $payloadPost;
+    }
+
+    /**
      * [setRequestBody Set the request body payload]
      * @param [string] $payload
      */
