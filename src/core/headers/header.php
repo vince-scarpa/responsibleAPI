@@ -110,7 +110,7 @@ class header
                         'php://input',
                         false,
                         null,
-                        -1,
+                        0,
                         $_SERVER['CONTENT_LENGTH']
                     ),
                     $_PUT

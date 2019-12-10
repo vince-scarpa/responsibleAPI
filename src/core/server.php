@@ -289,7 +289,8 @@ class server
 
         $this->router->endpoint->header = [
             'method' => $this->header->getServerMethod(),
-            'status' => $this->header->getHeaderStatus()
+            'status' => $this->header->getHeaderStatus(),
+            'body' => $this->header->getMethod(),
         ];
 
         /**
