@@ -94,7 +94,12 @@ class header
                 break;
 
             case 'post':
-                $this->REQUEST_METHOD = ['method' => 'post', 'data' => $_POST];
+                $_POST_DATA = $_POST;
+                if (is_object(json_decode(file_get_contents("php://input")))) {
+                    $_POST_DATA = json_decode(file_get_contents("php://input"));
+                }
+
+                $this->REQUEST_METHOD = ['method' => 'post', 'data' => $_POST_DATA];
                 break;
 
             case 'options':
