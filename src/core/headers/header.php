@@ -95,7 +95,9 @@ class header
 
             case 'post':
                 $_POST_DATA = $_POST;
-                if (is_object(json_decode(file_get_contents("php://input")))) {
+                $jsonData = json_decode(file_get_contents("php://input"));
+
+                if (is_object($jsonData) || is_array($jsonData)) {
                     $_POST_DATA = json_decode(file_get_contents("php://input"), true);
                 }
 
