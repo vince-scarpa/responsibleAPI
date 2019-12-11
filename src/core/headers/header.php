@@ -96,10 +96,12 @@ class header
             case 'post':
                 $_POST_DATA = $_POST;
                 if (is_object(json_decode(file_get_contents("php://input")))) {
-                    $_POST_DATA = json_decode(file_get_contents("php://input"));
+                    $_POST_DATA = json_decode(file_get_contents("php://input"), true);
                 }
 
-                $this->REQUEST_METHOD = ['method' => 'post', 'data' => $_POST_DATA];
+                $_POST = array_merge($_POST, $_POST_DATA);
+
+                $this->REQUEST_METHOD = ['method' => 'post', 'data' => $_POST];
                 break;
 
             case 'options':
