@@ -99,9 +99,9 @@ class header
                     $_POST_DATA = json_decode(file_get_contents("php://input"), true);
                 }
 
-                $_POST = array_merge($_POST, $_POST_DATA);
+                $_REQUEST = array_merge($_POST, $_POST_DATA);
 
-                $this->REQUEST_METHOD = ['method' => 'post', 'data' => $_POST];
+                $this->REQUEST_METHOD = ['method' => 'post', 'data' => $_REQUEST];
                 break;
 
             case 'options':
