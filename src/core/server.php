@@ -299,9 +299,10 @@ class server
         if(isset($_REQUEST['payload'])) {
             $router->setRequestBody($_REQUEST['payload']);
         }
-        if(isset($_POST) && !empty($_POST)) {
+        // print_r($_REQUEST);
+        /*if(isset($_POST) && !empty($_POST)) {
             $router->setPostBody($_POST);
-        }
+        }*/
         $this->router->payload = $router->getRequestBody();
 
         /**
