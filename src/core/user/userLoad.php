@@ -99,8 +99,6 @@ class userLoad extends user
         /**
          * [Validate the requested account exists]
          */
-        $intBinary = ($this->column == 'USR.account_id') ? 'BINARY' : '';
-
         $account = $this->DB()
             ->row(
                 "SELECT
@@ -117,7 +115,7 @@ class userLoad extends user
                 INNER JOIN responsible_token_bucket TKN
                     ON USR.account_id = TKN.account_id
 
-                    WHERE {$intBinary} {$this->column} = ?
+                    WHERE {$this->column} = ?
                     AND status = 1
             ;",
                 array(
@@ -404,7 +402,7 @@ class userLoad extends user
     private function setColumn($column)
     {
         if ($column == 'account_id' || strtolower($column == 'accountid')) {
-            $this->column = 'USR.account_id';
+            $this->column = 'BINARY USR.account_id';
         }
 
         if ($column == 'username' || $column == 'name') {
