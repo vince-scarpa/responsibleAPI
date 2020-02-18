@@ -99,6 +99,8 @@ class userLoad extends user
         /**
          * [Validate the requested account exists]
          */
+        $intBinary = ($this->column == 'USR.account_id') ? 'BINARY' : '';
+
         $account = $this->DB()
             ->row(
                 "SELECT
@@ -115,7 +117,7 @@ class userLoad extends user
                 INNER JOIN responsible_token_bucket TKN
                     ON USR.account_id = TKN.account_id
 
-                    WHERE {$this->column} = ?
+                    WHERE {$intBinary} {$this->column} = ?
                     AND status = 1
             ;",
                 array(
