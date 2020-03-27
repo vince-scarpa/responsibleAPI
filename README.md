@@ -5,7 +5,7 @@ external requests fused by Json Web Tokens (JWT).\
 
 ### Development
 Version 1.2\
-This repo is still in development and open for contributions.
+This repo is open for contributions.
 
 Features include:
 1. **JWT**
