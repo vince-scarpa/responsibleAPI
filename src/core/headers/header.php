@@ -187,9 +187,9 @@ class header
     {
         $headers_list = headers_list();
         foreach ($headers_list as $index => $headValue) {
-            list($key, $value) = explode(": ", $headValue);
+            @list($key, $value) = explode(": ", $headValue);
 
-            if ($key && $value) {
+            if (!is_null($key) && !is_null($value) ) {
                 $headers_list[$key] = $value;
                 unset($headers_list[$index]);
             }
