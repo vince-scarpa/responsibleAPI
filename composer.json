@@ -1,6 +1,6 @@
 {
     "name": "vince-scarpa/responsibleapi",
-    "type": "Application",
+    "type": "application",
     "description": "",
     "keywords": ["php", "responsibleAPI", "api", "JWT"],
     "homepage": "https://github.com/vince-scarpa/responsibleAPI",
