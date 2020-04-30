@@ -47,7 +47,7 @@ class jwtValidate extends jwt
     public static function header(array $headObject = [])
     {
         if (
-            !is_array($headObject) ||
+            empty($headObject) ||
             !self::typ($headObject) ||
             !self::alg($headObject)
         ) {
