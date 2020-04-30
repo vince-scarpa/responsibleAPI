@@ -23,26 +23,26 @@ class jwtValidate extends jwt
 {
     /**
      * [$TIMESTAMP]
-     * @var [integer]
+     * @var int
      */
     protected static $TIMESTAMP;
 
     /**
      * [$LEEWAY]
-     * @var [integer]
+     * @var int
      */
     protected static $LEEWAY = 0;
 
     /**
      * [$ALGORITHM]
-     * @var [string]
+     * @var string
      */
     private static $ALGORITHM;
 
     /**
      * [header Validate the header object]
      * First segment of the token
-     * @return [boolean]
+     * @return bool
      */
     public static function header(array $headObject = [])
     {
@@ -61,7 +61,7 @@ class jwtValidate extends jwt
     /**
      * [payload Validate the payload object]
      * Second segment of the token
-     * @return [boolean]
+     * @return bool
      */
     public static function payload(array $payloadObject = [])
     {
@@ -87,7 +87,7 @@ class jwtValidate extends jwt
     /**
      * [signature - Validate the signature object]
      * Third segment of the token
-     * @return [boolean]
+     * @return bool
      */
     public static function signature($jwtHead, $jwtPayload, $signature, $key)
     {
@@ -125,7 +125,7 @@ class jwtValidate extends jwt
     /**
      * [typ Issuer claim]
      *
-     * @return [boolean]
+     * @return bool
      */
     public static function typ($headObject)
     {
@@ -140,7 +140,7 @@ class jwtValidate extends jwt
     /**
      * [alg Issuer claim]
      *
-     * @return [boolean]
+     * @return bool
      */
     public static function alg($headObject)
     {
@@ -159,7 +159,7 @@ class jwtValidate extends jwt
     /**
      * [iss Issuer claim]
      *
-     * @return [boolean]
+     * @return bool
      */
     public static function iss($payloadObject)
     {
@@ -183,7 +183,7 @@ class jwtValidate extends jwt
      * [sub Subject claim]
      * The Responsible API uses the "Subject" claim as a placeholder for account Ids
      *
-     * @return [boolean]
+     * @return bool
      */
     public static function sub($payloadObject)
     {
@@ -216,7 +216,7 @@ class jwtValidate extends jwt
     /**
      * [iat Issued at claim]
      *
-     * @return [boolean]
+     * @return bool
      */
     public static function iat($payloadObject)
     {
@@ -239,7 +239,7 @@ class jwtValidate extends jwt
     /**
      * [nbf Not before claim]
      *
-     * @return [boolean]
+     * @return bool
      */
     public static function nbf($payloadObject)
     {
@@ -262,7 +262,7 @@ class jwtValidate extends jwt
     /**
      * [exp Expiration claim this optional so if its not set return true]
      *
-     * @return [boolean]
+     * @return bool
      */
     public static function exp($payloadObject)
     {
@@ -284,8 +284,8 @@ class jwtValidate extends jwt
 
     /**
      * [leeway Inherit the leeway offset]
-     * @param  [type] $leeway [integer in seconds]
-     * @return [void]
+     * @param  int $leeway [integer in seconds]
+     * @return void
      */
     public static function leeway($leeway)
     {
@@ -294,8 +294,8 @@ class jwtValidate extends jwt
 
     /**
      * [timestamp Inherit the current timestamp (now)]
-     * @param  [type] $timestamp [integer in seconds]
-     * @return [void]
+     * @param  int $timestamp [integer in seconds]
+     * @return void
      */
     public static function timestamp($timestamp)
     {
@@ -304,7 +304,7 @@ class jwtValidate extends jwt
 
     /**
      * [getTimestamp Add both the timestamp (now) and the leeway]
-     * @return [integer]
+     * @return int
      */
     private static function getTimestamp()
     {
@@ -313,7 +313,7 @@ class jwtValidate extends jwt
 
     /**
      * [algorithm Set the requested hash algorithm]
-     * @return [string]
+     * @return string
      */
     public static function algorithm($algo = 'SHA256')
     {
