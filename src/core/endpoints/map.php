@@ -47,13 +47,13 @@ class map extends route\router
 
     /**
      * [$middleWareClass Holds middleware class object]
-     * @var [object]
+     * @var object
      */
     private static $middleWareClass;
 
     /**
      * [$SYSTEM_ENDPOINTS Reserved system Endpoints]
-     * @var [array]
+     * @var array
      */
     const SYSTEM_ENDPOINTS = [
         'token' => '/token/access_token',
@@ -71,8 +71,8 @@ class map extends route\router
     }
 
     /**
-     * [register]
-     * @return [void]
+     * [register Scan and register endpoints defined in services]
+     * @return void
      */
     public function register()
     {
@@ -147,8 +147,8 @@ class map extends route\router
     }
 
     /**
-     * [isEndpoint]
-     * @return [boolean]
+     * [isEndpoint Check the requested endpoint, scope and tier parts]
+     * @return boolean
      */
     public function isEndpoint($api, $endpoint)
     {
@@ -206,8 +206,6 @@ class map extends route\router
                  * @var array
                  */
                 if (array_search($endpoint, $this->registry[$api]) !== false) {
-                    
-                    $scope = 'private';
                     if( method_exists($this->NAMESPACE_ENDPOINTS[$api], 'scope') ) {
                         $classScope = (new $this->NAMESPACE_ENDPOINTS[$api])->scope();
                         $position = array_search($endpoint, $this->registry[$api]);
@@ -267,6 +265,7 @@ class map extends route\router
                         }
 
                         $scope = 'private';
+
                         if( method_exists($this->NAMESPACE_ENDPOINTS[$api], 'scope') ) {
                             $classScope = (new $this->NAMESPACE_ENDPOINTS[$api])->scope();
                             $position = array_search($path, $this->registry[$api]);
@@ -303,7 +302,7 @@ class map extends route\router
 
     /**
      * [filterParts Prepare routed parts]
-     * @return [array]
+     * @return array
      */
     private function filterParts($uri, $parts)
     {
@@ -328,7 +327,7 @@ class map extends route\router
      * Compare the current request endpoint with the registered endpoint
      * only return the same tier sizes
      *
-     * @return [boolean]
+     * @return boolean
      */
     private function uriCheckSize($endpointRegister, $endpoint)
     {
@@ -339,7 +338,7 @@ class map extends route\router
 
     /**
      * [getClassModel Class, Method]
-     * @return [array]
+     * @return array
      */
     private function getClassModel($request_path)
     {
@@ -359,7 +358,7 @@ class map extends route\router
 
     /**
      * [options Inherit options from server]
-     * @param  [array] $options
+     * @param  array $options
      */
     public function options($options)
     {
