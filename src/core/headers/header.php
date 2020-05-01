@@ -29,7 +29,7 @@ class header
 
     /**
      * [$options Responsible API options]
-     * @var [array]
+     * @var array
      */
     private $options = [];
 
@@ -53,7 +53,7 @@ class header
 
     /**
      * [$REQUEST_METHOD]
-     * @var string
+     * @var array
      */
     private $REQUEST_METHOD = [];
 
@@ -65,7 +65,7 @@ class header
 
     /**
      * [requestType]
-     * @return [void]
+     * @return void
      */
     public function requestType($type = 'json')
     {
@@ -74,7 +74,7 @@ class header
 
     /**
      * [getRequestType]
-     * @return [string]
+     * @return string
      */
     public function getRequestType()
     {
@@ -83,7 +83,7 @@ class header
 
     /**
      * [requestMethod Set and return the request method]
-     * @return [object]
+     * @return object
      */
     public function requestMethod()
     {
@@ -144,7 +144,7 @@ class header
 
     /**
      * [getMethod Get the request method]
-     * @return [object]
+     * @return object
      */
     public function getMethod()
     {
@@ -169,7 +169,7 @@ class header
 
     /**
      * [getMethod Get the request method]
-     * @return [string]
+     * @return string
      */
     public function getServerMethod()
     {
@@ -181,7 +181,7 @@ class header
 
     /**
      * [getHeaders List all headers Server headers and Apache headers]
-     * @return [type] [description]
+     * @return array
      */
     public function getHeaders()
     {
@@ -201,6 +201,10 @@ class header
             $apacheRequestHeaders = apache_request_headers();
         }
 
+        if( is_null($apacheRequestHeaders) || empty($apacheRequestHeaders) ) {
+            return [];
+        }
+
         $apache_headers = array_merge($headers_list, $apacheRequestHeaders);
 
         $headers = array();
@@ -218,7 +222,7 @@ class header
 
     /**
      * [setHeader Append aditional headers]
-     * @return [void]
+     * @return void
      */
     public function setHeader($header, $headerValue = array(), $status = '', $delimiter = ';')
     {
@@ -230,7 +234,7 @@ class header
 
     /**
      * [setHeaders Default headers]
-     * @return [void]
+     * @return void
      */
     public function setHeaders()
     {
@@ -313,7 +317,7 @@ class header
     /**
      * [apacheRequestHeaders Native replacment fuction]
      * https://www.php.net/manual/en/function.apache-request-headers.php#70810
-     * @return [array]
+     * @return array
      */
     public function apacheRequestHeaders()
     {
@@ -340,7 +344,7 @@ class header
 
     /**
      * [setHeaderStatus]
-     * @param [void]
+     * @param void
      */
     public function setHeaderStatus($status)
     {
@@ -349,7 +353,7 @@ class header
 
     /**
      * [getHeaderStatus]
-     * @return [integer]
+     * @return integer
      */
     public function getHeaderStatus()
     {
@@ -358,7 +362,7 @@ class header
 
     /**
      * [hasBearerToken Check if bearer token is present]
-     * @return boolean
+     * @return string|null
      */
     public function hasBearerToken()
     {
@@ -377,7 +381,7 @@ class header
 
     /**
      * [authorizationHeaders Scan for "Authorization" header]
-     * @return [mixed: string / error]
+     * @return string|array [mixed: string / error]
      */
     public function authorizationHeaders($skipError = false)
     {
@@ -434,7 +438,7 @@ class header
 
     /**
      * [accessRefreshHeaders description]
-     * @return [mixed: string / error]
+     * @return string|array [mixed: string / error]
      */
     private function accessRefreshHeaders($auth_headers)
     {
@@ -474,8 +478,8 @@ class header
 
     /**
      * [accessCredentialHeaders Check if the credentials are correct]
-     * @param  [array] $auth_headers
-     * @return [mixed: string / error]
+     * @param  array $auth_headers
+     * @return string|array [mixed: string / error]
      */
     private function accessCredentialHeaders($auth_headers)
     {
@@ -524,7 +528,7 @@ class header
 
     /**
      * [unauthorised Set an unauthorised header]
-     * @return [exit exception message]
+     * @return array [exit exception message]
      */
     public function unauthorised()
     {
@@ -539,7 +543,7 @@ class header
 
     /**
      * [getMaxWindow Get the max control age window]
-     * @return [integer]
+     * @return integer
      */
     private function getMaxWindow()
     {
@@ -560,6 +564,7 @@ class header
     /**
      * [setData Set request method data]
      * @param array $data
+     * @return void
      */
     public function setData($data = []) 
     {
@@ -568,7 +573,7 @@ class header
 
     /**
      * [setOptions Set the Responsible API options]
-     * @param [array] $options
+     * @param array $options
      */
     public function setOptions($options)
     {
@@ -577,7 +582,7 @@ class header
 
     /**
      * [getOptions Get the Responsible API options if set]
-     * @return [mixed: array/boolean]
+     * @return array|null [mixed: array/boolean]
      */
     private function getOptions()
     {
