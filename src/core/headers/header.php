@@ -174,7 +174,7 @@ class header
     public function getServerMethod()
     {
         if (!isset($_SERVER['REQUEST_METHOD'])) {
-            return [];
+            return '';
         }
         return $_SERVER['REQUEST_METHOD'];
     }

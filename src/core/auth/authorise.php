@@ -22,13 +22,13 @@ class authorise extends \responsible\core\server
 {
     /**
      * [$user]
-     * @var [object]
+     * @var object
      */
     public $user;
 
     /**
      * [$header]
-     * @var [object]
+     * @var object
      */
     public $header;
 
@@ -44,7 +44,7 @@ class authorise extends \responsible\core\server
 
     /**
      * [auth]
-     * @return [object]
+     * @return object
      */
     public function authorise()
     {
@@ -144,7 +144,7 @@ class authorise extends \responsible\core\server
 
     /**
      * [user]
-     * @return [object]
+     * @return object
      */
     public function user()
     {
@@ -169,7 +169,7 @@ class authorise extends \responsible\core\server
 
     /**
      * [getJWTToken Get the user JWT refresh object]
-     * @return [array]
+     * @return array
      */
     public function getJWTObject($objectKey, $array = null)
     {
