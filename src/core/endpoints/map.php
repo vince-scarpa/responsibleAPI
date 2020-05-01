@@ -152,14 +152,14 @@ class map extends route\router
      */
     public function isEndpoint($api, $endpoint)
     {
+        $endpointSettings = [];
+
         if (isset(self::SYSTEM_ENDPOINTS[$api]) &&
             (
                 in_array($endpoint, self::SYSTEM_ENDPOINTS) ||
                 array_search($endpoint, self::SYSTEM_ENDPOINTS[$api]) !== false
             )
         ) {
-
-            $system = new endpoints\system;
             $methodCreate = explode('/', $endpoint);
             $methodCreate = array_values(array_filter($methodCreate));
             $method = '';
@@ -202,10 +202,10 @@ class map extends route\router
                 );
 
                 /**
-                 * [$found Nothing dynamic, found an exact match]
+                 * Nothing dynamic, found an exact match
                  * @var array
                  */
-                if ($found = array_search($endpoint, $this->registry[$api]) !== false) {
+                if (array_search($endpoint, $this->registry[$api]) !== false) {
                     
                     $scope = 'private';
                     if( method_exists($this->NAMESPACE_ENDPOINTS[$api], 'scope') ) {
