@@ -58,12 +58,6 @@ class header
     private $REQUEST_METHOD = [];
 
     /**
-     * [$HEADER_STATUS]
-     * @var array
-     */
-    private $HEADER_STATUS = [];
-
-    /**
      * [requestType]
      * @return void
      */

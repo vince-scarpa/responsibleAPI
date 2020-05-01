@@ -44,7 +44,7 @@ class authorise extends \responsible\core\server
 
     /**
      * [auth]
-     * @return object
+     * @return boolean|object
      */
     public function authorise()
     {
@@ -169,7 +169,7 @@ class authorise extends \responsible\core\server
 
     /**
      * [getJWTToken Get the user JWT refresh object]
-     * @return array
+     * @return boolean|null
      */
     public function getJWTObject($objectKey, $array = null)
     {
