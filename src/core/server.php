@@ -29,7 +29,7 @@ class server
 {
     /**
      * [$config]
-     * @var array
+     * @var object
      */
     protected $config;
 
