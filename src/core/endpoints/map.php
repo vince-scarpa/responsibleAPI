@@ -72,7 +72,7 @@ class map extends route\router
 
     /**
      * [register Scan and register endpoints defined in services]
-     * @return void
+     * @return array
      */
     public function register()
     {
@@ -148,7 +148,7 @@ class map extends route\router
 
     /**
      * [isEndpoint Check the requested endpoint, scope and tier parts]
-     * @return boolean
+     * @return object|null
      */
     public function isEndpoint($api, $endpoint)
     {
