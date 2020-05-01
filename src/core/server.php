@@ -28,20 +28,26 @@ use responsible\core\throttle;
 class server
 {
     /**
+     * [$config]
+     * @var array
+     */
+    protected $config;
+
+    /**
      * [$options Variable store for the Responsible API options set]
-     * @var [array]
+     * @var array
      */
     private $options;
 
     /**
      * [$DB Database PDO connector]
-     * @var [object]
+     * @var object
      */
     protected $DB;
 
     /**
      * [$router The responsible API router]
-     * @var [array]
+     * @var array
      */
     protected $router;
 
@@ -53,7 +59,7 @@ class server
 
     /**
      * [$ALLOWED_METHODS]
-     * @var [array]
+     * @var array
      */
     private $ALLOWED_METHODS = array(
         'GET',
@@ -71,8 +77,8 @@ class server
 
     /**
      * [__construct]
-     * @param [array]  $config [environment variables]
-     * @param [boolean] $db on / off
+     * @param array  $config [environment variables]
+     * @param boolean $db on / off
      */
     public function __construct(array $config = [], array $options = [], $db = false)
     {
@@ -100,7 +106,7 @@ class server
 
     /**
      * [options Responsible API options]
-     * @param [array] $options
+     * @param array $options
      */
     protected function options($options)
     {
@@ -109,7 +115,7 @@ class server
 
     /**
      * [getOptions Get the stored Responsible API options]
-     * @return [array]
+     * @return array
      */
     protected function getOptions()
     {
@@ -118,7 +124,7 @@ class server
 
     /**
      * [DB Get the database instance]
-     * @return [object]
+     * @return object
      */
     public function DB()
     {
@@ -127,8 +133,8 @@ class server
 
     /**
      * [requestType]
-     * @var [string] $type
-     * @return [self]
+     * @var string $type
+     * @return self
      */
     public function requestType($type)
     {
@@ -139,7 +145,7 @@ class server
 
     /**
      * [getRequestType]
-     * @return [string]
+     * @return string
      */
     public function getRequestType()
     {
@@ -149,7 +155,7 @@ class server
     /**
      * [setResponse Append the Responsible API response]
      * @param [string/array] $key [Array key]
-     * @param [mixed] $response [Array value]
+     * @param array|null $response [Array value]
      */
     public function setResponse($key, $response)
     {
@@ -176,7 +182,7 @@ class server
 
     /**
      * [getResponse Get the Responsible API output response]
-     * @return [array]
+     * @return array
      */
     private function getResponse()
     {
@@ -185,9 +191,9 @@ class server
 
     /**
      * [rate Set the API rate limit]
-     * @param  [integer] $limit [The request limit]
-     * @param  [string/integer] $rate  [The request window]
-     * @return [self]
+     * @param  integer $limit [The request limit]
+     * @param  string|integer $rate  [The request window]
+     * @return self
      */
     public function rateLimit($limit = null, $rate = null)
     {
@@ -201,7 +207,7 @@ class server
      * 1. Authorise the requests JWT
      * 2. Throttle the requests
      *
-     * @return [self]
+     * @return self
      */
     public function authenticate()
     {
@@ -251,7 +257,7 @@ class server
      * 2. Build router
      * 3. Try run middleware
      *
-     * @return [array]
+     * @return array
      */
     public function route($route)
     {
@@ -347,7 +353,7 @@ class server
 
     /**
      * [getRouter Get the details of the Responsible API router]
-     * @return [array]
+     * @return array
      */
     public function getRouter()
     {
@@ -356,7 +362,7 @@ class server
 
     /**
      * [coredata Get the core data response]
-     * @return [object]
+     * @return object
      */
     public function coredata()
     {
@@ -372,7 +378,7 @@ class server
 
     /**
      * [response Finnal response output]
-     * @return [mixed]
+     * @return array|object
      */
     public function response($debug = '')
     {

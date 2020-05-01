@@ -104,8 +104,6 @@ class jwtValidate extends jwt
 
         $cipher = new encoder\cipher;
 
-        $algorithm = self::$ALGORITHM;
-
         $hashed = $cipher->encode(
             $cipher->hash(
                 self::$ALGORITHM,

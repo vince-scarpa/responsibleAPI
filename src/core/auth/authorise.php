@@ -48,9 +48,9 @@ class authorise extends \responsible\core\server
      */
     public function authorise()
     {
-        if (isset($this->config->getConfig()['MASTER_KEY'])) {
+        /*if (isset($this->config->getConfig()['MASTER_KEY'])) {
             $key = $this->config->getConfig()['MASTER_KEY'];
-        }
+        }*/
 
         /**
          * Ignore if debug mode is initiated in Responsible API options
@@ -71,7 +71,7 @@ class authorise extends \responsible\core\server
         }
 
         if (isset($this->getOptions()['systemUser']) && !empty($this->getOptions()['systemUser'])) {
-            $oauth = $this->header
+            $this->header
                 ->setHeader('Authorization', array(
                     'Bearer', $this->getOptions()['systemUser']['token'],
                 ), "", "");
