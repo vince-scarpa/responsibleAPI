@@ -27,7 +27,7 @@ class jwtEncoder extends jwt
 
     /**
      * [encode]
-     * @return [array]
+     * @return string
      */
     public function encode()
     {

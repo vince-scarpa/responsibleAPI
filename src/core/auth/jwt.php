@@ -29,7 +29,7 @@ class jwt extends \responsible\core\auth\authorise
 
     /**
      * [$TIMESTAMP Set the current timestamp]
-     * @var [type]
+     * @var integer
      */
     protected static $TIMESTAMP;
 
@@ -47,7 +47,7 @@ class jwt extends \responsible\core\auth\authorise
 
     /**
      * [$algorithyms Supported algorithms]
-     * @var [array]
+     * @var array
      */
     protected static $ALGORITHMS = [
         'hash_hmac' => 'sha256',
@@ -55,19 +55,19 @@ class jwt extends \responsible\core\auth\authorise
 
     /**
      * [$token]
-     * @var [string]
+     * @var string
      */
     protected $token;
 
     /**
      * [$key Client secret key]
-     * @var [string]
+     * @var string
      */
     protected $key;
 
     /**
      * [$payload Clients payload]
-     * @var [string]
+     * @var string
      */
     protected $payload;
 
@@ -86,7 +86,7 @@ class jwt extends \responsible\core\auth\authorise
 
     /**
      * [encode]
-     * @return [type]
+     * @return string
      */
     public function encode()
     {
@@ -103,7 +103,7 @@ class jwt extends \responsible\core\auth\authorise
 
     /**
      * [decode Decode the token]
-     * @return [array]
+     * @return array
      */
     public function decode()
     {
@@ -121,8 +121,8 @@ class jwt extends \responsible\core\auth\authorise
     /**
      * [token Set the token]
      *
-     * @param  [string] - Hashed string
-     * @return [self]
+     * @param  string Hashed string
+     * @return self
      */
     public function token($token = null)
     {
@@ -141,8 +141,8 @@ class jwt extends \responsible\core\auth\authorise
     /**
      * [key - Set the secret key]
      *
-     * @param  [string] - Assigned client secret keystring
-     * @return [self]
+     * @param  string  Assigned client secret keystring
+     * @return self
      */
     public function key($key = null)
     {
@@ -160,8 +160,8 @@ class jwt extends \responsible\core\auth\authorise
 
     /**
      * [payload Set the clients payload]
-     * @param  [array] $payload
-     * @return [self]
+     * @param  array $payload
+     * @return self
      */
     public function setPayload($payload)
     {
@@ -171,7 +171,7 @@ class jwt extends \responsible\core\auth\authorise
 
     /**
      * [getToken Get the Json Web Token]
-     * @return [string]
+     * @return string
      */
     protected function getToken()
     {
@@ -180,7 +180,7 @@ class jwt extends \responsible\core\auth\authorise
 
     /**
      * [getKey Get the client secret key]
-     * @return [string]
+     * @return string
      */
     protected function getKey()
     {
@@ -189,7 +189,7 @@ class jwt extends \responsible\core\auth\authorise
 
     /**
      * [getPayload Get the clients payload]
-     * @return [string]
+     * @return string
      */
     protected function getPayload()
     {
@@ -198,7 +198,7 @@ class jwt extends \responsible\core\auth\authorise
 
     /**
      * [getLeeway Get the default leeway]
-     * @return [integer]
+     * @return integer
      */
     public function getLeeway()
     {
@@ -207,7 +207,7 @@ class jwt extends \responsible\core\auth\authorise
 
     /**
      * [getLeeway Get the default expiry]
-     * @return [integer]
+     * @return integer
      */
     public function getExpires()
     {
@@ -216,7 +216,7 @@ class jwt extends \responsible\core\auth\authorise
 
     /**
      * [setOptions Inherit Responsible API options]
-     * @param [array] $options
+     * @param array $options
      */
     public function setOptions($options)
     {
@@ -226,11 +226,13 @@ class jwt extends \responsible\core\auth\authorise
 
     /**
      * [messages Common error messages]
-     * @param  [string] $type [message type]
-     * @return [array]
+     * @param  string $type [message type]
+     * @return array
      */
     protected static function messages($type)
     {
+        $error = [];
+
         switch ($type) {
             case 'denied_token':
                 $error = [
@@ -266,8 +268,8 @@ class jwt extends \responsible\core\auth\authorise
 
     /**
      * [getAlgorithm Check if the algorithm in the header is supported by the Responsible API]
-     * @param  [staring] $type [Algorithm hash]
-     * @return [boolean]
+     * @param  string $type [Algorithm hash]
+     * @return boolean
      */
     protected static function getAlgorithm($type)
     {
