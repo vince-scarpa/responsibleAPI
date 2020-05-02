@@ -121,7 +121,7 @@ class jwt extends \responsible\core\auth\authorise
     /**
      * [token Set the token]
      *
-     * @param  string [Hashed string]
+     * @param  string
      * @return self
      */
     public function token($token = null)
@@ -141,7 +141,7 @@ class jwt extends \responsible\core\auth\authorise
     /**
      * [key - Set the secret key]
      *
-     * @param  string  [Assigned client secret keystring]
+     * @param  string
      * @return self
      */
     public function key($key = null)
