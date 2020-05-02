@@ -106,7 +106,7 @@ class userLoad extends user
 
     /**
      * [account Get the account]
-     * @return object
+     * @return array
      */
     public function account()
     {
@@ -293,7 +293,7 @@ class userLoad extends user
         /**
          * Check token expiry
          */
-        if ($exp = $this->checkVal($userPayload['payload'], 'exp') && !$skipExpiry) {
+        if($this->checkVal($userPayload['payload'], 'exp') && !$skipExpiry) {
             return $this->refreshJWT($userPayload);
         }
 
