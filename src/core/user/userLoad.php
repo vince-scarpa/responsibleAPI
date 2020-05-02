@@ -25,7 +25,7 @@ class userLoad extends user
 {
     /**
      * [$column Load user by what column]
-     * @var [string]
+     * @var string
      */
     private $column;
 
@@ -54,14 +54,28 @@ class userLoad extends user
     private $secret = '';
 
     /**
+     * [$keys]
+     */
+    private $keys;
+
+    /**
+     * [$jwt]
+     * @var object
+     */
+    private $jwt;
+
+    /**
+     * [$property]
+     * @var string
+     */
+    protected $property
+
+    /**
      * [$secret request by system to append the users secret from DB]
      * @var boolean
      */
     private $secretAppend = false;
 
-    /**
-     * @param $credentials
-     */
     public function __construct($property = null, $options)
     {
         if (is_null($property) || empty($property)) {
@@ -92,7 +106,7 @@ class userLoad extends user
 
     /**
      * [account Get the account]
-     * @return [object]
+     * @return object
      */
     public function account()
     {
@@ -188,7 +202,7 @@ class userLoad extends user
 
     /**
      * [refreshToken New way to request refresh token]
-     * @return [string]
+     * @return string
      */
     public function refreshTokenGenerate($account)
     {
@@ -197,7 +211,7 @@ class userLoad extends user
 
         if( isset($account->refresh_token) && !empty($account->refresh_token) ) {
             $raToken = explode('.', $account->refresh_token);
-            if( is_array($raToken) ) {
+            if( !empty($raToken) ) {
                 $raToken = array_values(array_filter($raToken));
                 $time = ($raToken[0] <= ($this->timeNow()-$offset) ) ? ($this->timeNow()+$offset) : $raToken[0];
             }
@@ -225,7 +239,7 @@ class userLoad extends user
 
     /**
      * [refreshJWT Get a refresh JWT]
-     * @return [array]
+     * @return array
      */
     public function refreshJWT($userPayload)
     {
@@ -254,7 +268,7 @@ class userLoad extends user
 
     /**
      * [futureToken Get a future refresh JWT]
-     * @return [array]
+     * @return array
      */
     public function futureToken()
     {
@@ -288,8 +302,8 @@ class userLoad extends user
 
     /**
      * [tokenExpiresIn Get the token expiry as a string]
-     * @param  [integer] $seconds
-     * @return [string]
+     * @param  integer $seconds
+     * @return string
      */
     private function tokenExpiresIn($seconds)
     {
@@ -307,7 +321,7 @@ class userLoad extends user
 
     /**
      * [getUserJWT Get an ecoded user token]
-     * @return [string]
+     * @return string
      */
     public function getUserJWT($refresh = false)
     {
@@ -332,7 +346,7 @@ class userLoad extends user
 
         /**
          * [$jwtOptions JWT options may be set as Responsible option overrides]
-         * @var [array]
+         * @var array
          */
         if (false !== ($jwtOptions = $this->checkVal($this->getOptions(), 'jwt'))) {
             if (false !== ($exp = $this->checkVal($jwtOptions, 'expires'))) {
@@ -378,7 +392,7 @@ class userLoad extends user
 
     /**
      * [setOptions Set the Responsible API options]
-     * @param [array] $options
+     * @param array $options
      */
     public function setOptions($options)
     {
@@ -388,7 +402,7 @@ class userLoad extends user
 
     /**
      * [setProperty Set the property we want the Responsible API load an account by]
-     * @param [type] $property
+     * @param string $property
      */
     private function setProperty($property)
     {
@@ -397,7 +411,7 @@ class userLoad extends user
 
     /**
      * [setColumn Set the column type we want the Responsible API load an account by]
-     * @param [string] $column
+     * @param string $column
      */
     private function setColumn($column)
     {
@@ -420,7 +434,7 @@ class userLoad extends user
 
     /**
      * [getColumn Get the set column]
-     * @return [string]
+     * @return string
      */
     private function getColumn()
     {
