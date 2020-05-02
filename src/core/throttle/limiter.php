@@ -33,6 +33,11 @@ class limiter
     private $leakRate = 1;
 
     /**
+     * [$unpacked]
+     */
+    private $unpacked
+
+    /**
      * [$timeframe Durations are in seconds]
      * @var array
      */
@@ -46,7 +51,7 @@ class limiter
 
     /**
      * [$window Timeframe window]
-     * @var [integer]
+     * @var integer
      */
     private $window;
 
@@ -64,7 +69,7 @@ class limiter
 
     /**
      * [setupOptions Set any Responsible API options]
-     * @return [self]
+     * @return self
      */
     public function setupOptions()
     {
@@ -105,7 +110,7 @@ class limiter
 
     /**
      * [throttleRequest Build the Responsible API throttle]
-     * @return [void]
+     * @return void
      */
     public function throttleRequest()
     {
@@ -159,7 +164,7 @@ class limiter
 
     /**
      * [updateBucket Store the buckets token data and user access time]
-     * @return [void]
+     * @return void
      */
     private function save()
     {
@@ -183,7 +188,7 @@ class limiter
 
     /**
      * [getThrottle Return a list of the throttled results]
-     * @return [array]
+     * @return array
      */
     public function getThrottle()
     {
@@ -210,7 +215,7 @@ class limiter
 
     /**
      * [getLastAccessDate Get the last recorded access in date format]
-     * @return [string]
+     * @return string
      */
     private function getLastAccessDate()
     {
@@ -240,7 +245,7 @@ class limiter
 
     /**
      * [options Responsible API options]
-     * @param [array] $options
+     * @param array $options
      */
     public function options($options)
     {
@@ -250,7 +255,7 @@ class limiter
 
     /**
      * [getOptions Get the stored Responsible API options]
-     * @return [array]
+     * @return array
      */
     private function getOptions()
     {
@@ -259,7 +264,7 @@ class limiter
 
     /**
      * [setCapacity Set the buckets capacity]
-     * @param [integer] $capacity
+     * @param integer $capacity
      */
     public function setCapacity($capacity)
     {
@@ -268,7 +273,7 @@ class limiter
 
     /**
      * [getCapacity Get the buckets capacity]
-     * @return [integer]
+     * @return integer
      */
     public function getCapacity()
     {
@@ -277,7 +282,7 @@ class limiter
 
     /**
      * [setTimeframe Set the window timeframe]
-     * @param [mixed: string/integer] $timeframe
+     * @param string|integer $timeframe
      */
     public function setTimeframe($timeframe)
     {
@@ -297,7 +302,7 @@ class limiter
 
     /**
      * [getTimeframe Get the timeframe window]
-     * @return [integer]
+     * @return integer
      */
     public function getTimeframe()
     {
@@ -307,7 +312,7 @@ class limiter
     /**
      * [setLeakRate Set the buckets leak rate]
      * Options: slow, medium, normal, default, fast or custom positive integer
-     * @param [mixed: string/integer] $leakRate
+     * @param string|integer $leakRate
      */
     private function setLeakRate($leakRate)
     {
@@ -316,7 +321,7 @@ class limiter
 
     /**
      * [getLeakRate Get the buckets leak rate]
-     * @return [mixed: string/integer]
+     * @return string|integer
      */
     private function getLeakRate()
     {
@@ -333,7 +338,7 @@ class limiter
 
     /**
      * [isUnlimited Check if the Responsible API is set to unlimited]
-     * @return boolean [description]
+     * @return boolean
      */
     private function isUnlimited()
     {

@@ -268,7 +268,7 @@ class userLoad extends user
 
     /**
      * [futureToken Get a future refresh JWT]
-     * @return array
+     * @return array|null
      */
     public function futureToken()
     {
