@@ -269,7 +269,7 @@ class jwt extends \responsible\core\auth\authorise
     /**
      * [getAlgorithm Check if the algorithm in the header is supported by the Responsible API]
      * @param  string $type [Algorithm hash]
-     * @return boolean
+     * @return mixed
      */
     protected static function getAlgorithm($type)
     {
