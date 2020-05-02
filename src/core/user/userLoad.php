@@ -68,7 +68,7 @@ class userLoad extends user
      * [$property]
      * @var string
      */
-    protected $property
+    protected $property;
 
     /**
      * [$secret request by system to append the users secret from DB]
