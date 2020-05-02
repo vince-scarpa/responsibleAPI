@@ -35,7 +35,12 @@ class limiter
     /**
      * [$unpacked]
      */
-    private $unpacked
+    private $unpacked;
+
+    /**
+     * [$bucket]
+     */
+    private $bucket;
 
     /**
      * [$timeframe Durations are in seconds]
