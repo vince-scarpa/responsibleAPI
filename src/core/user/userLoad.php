@@ -348,6 +348,7 @@ class userLoad extends user
          * [$jwtOptions JWT options may be set as Responsible option overrides]
          * @var array
          */
+        $exp = false;
         if (false !== ($jwtOptions = $this->checkVal($this->getOptions(), 'jwt'))) {
             if (false !== ($exp = $this->checkVal($jwtOptions, 'expires'))) {
                 $payload['exp'] = $exp;
