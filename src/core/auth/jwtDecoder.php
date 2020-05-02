@@ -22,7 +22,7 @@ class jwtDecoder extends jwt
 {
     /**
      * [decode]
-     * @return [array]
+     * @return array
      */
     public function decode()
     {
@@ -40,13 +40,13 @@ class jwtDecoder extends jwt
 
         /**
          * [$headObject JWT head object]
-         * @var [object]
+         * @var object
          */
         $headObject = $cipher->jsonDecode($cipher->decode($jwtHead));
 
         /**
          * [$payloadObject JWT payload object]
-         * @var [object]
+         * @var object
          */
         $payloadObject = $cipher->jsonDecode($cipher->decode($jwtPayload));
 
@@ -56,7 +56,7 @@ class jwtDecoder extends jwt
 
         /**
          * [$jwtKey Key signature]
-         * @var [crypt]
+         * @var string
          */
         $signature = $cipher->decode($sig);
 
@@ -76,7 +76,7 @@ class jwtDecoder extends jwt
 
     /**
      * [split Decouple the token into segments]
-     * @return [array]
+     * @return array
      */
     private function segment()
     {
@@ -94,8 +94,8 @@ class jwtDecoder extends jwt
 
     /**
      * [token Set the token]
-     * @param  [string] - Hashed string
-     * @return [string]
+     * @param  string
+     * @return string
      */
     public function token($token = null)
     {
@@ -113,8 +113,8 @@ class jwtDecoder extends jwt
 
     /**
      * [key Set the clients supplied secret key]
-     * @param  [string] - Hashed string
-     * @return [string]
+     * @param  string
+     * @return string
      */
     public function key($key = null)
     {
