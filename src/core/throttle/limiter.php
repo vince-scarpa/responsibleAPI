@@ -38,6 +38,11 @@ class limiter
     private $unpacked;
 
     /**
+     * [$packed]
+     */
+    private $packed;
+
+    /**
      * [$bucket]
      */
     private $bucket;
@@ -115,7 +120,7 @@ class limiter
 
     /**
      * [throttleRequest Build the Responsible API throttle]
-     * @return void
+     * @return boolean|void
      */
     public function throttleRequest()
     {
@@ -180,11 +185,7 @@ class limiter
         /**
          * [Update account access]
          */
-        /*$user = (new user\account($this->getAccount()->account_id))
-            ->setBucketToken($this->packed)
-            ->updateAccountAccess();*/
-
-        $user = (new user\user)
+        (new user\user)
             ->setAccountID($this->getAccount()->account_id)
             ->setBucketToken($this->packed)
             ->updateAccountAccess()
@@ -204,8 +205,8 @@ class limiter
         }
 
         $windowFrame = (is_string($this->getTimeframe()))
-        ? $this->getTimeframe()
-        : $this->getTimeframe() . 'secs'
+            ? $this->getTimeframe()
+            : $this->getTimeframe() . 'secs'
         ;
 
         return array(
