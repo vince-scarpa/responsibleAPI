@@ -17,12 +17,6 @@ namespace responsible\core\auth;
 class jwtClaims
 {
     /**
-     * [$claims Collection claims]
-     * @var array
-     */
-    private $claims = array();
-
-    /**
      * [$segments Collection segments]
      * @var array
      */
@@ -30,7 +24,7 @@ class jwtClaims
 
     /**
      * [setSegment]
-     * @param [string] $encodedHeader [Header claims encoded]
+     * @param string $encodedHeader [Header claims encoded]
      */
     public function setSegment($segment, $encodedHeader)
     {
@@ -39,8 +33,8 @@ class jwtClaims
 
     /**
      * [getSegment Return a given segment request]
-     * @param  [string] $segment [header, payload, secret]
-     * @return [string]
+     * @param  string $segment [header, payload, secret]
+     * @return string
      */
     public function getSegment($segment)
     {

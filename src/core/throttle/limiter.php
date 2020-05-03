@@ -28,7 +28,7 @@ class limiter
 
     /**
      * [$leakRate Constant rate at which the bucket will leak]
-     * @var integer
+     * @var string|integer
      */
     private $leakRate = 1;
 
@@ -39,6 +39,7 @@ class limiter
 
     /**
      * [$packed]
+     * @var string
      */
     private $packed;
 
@@ -46,6 +47,16 @@ class limiter
      * [$bucket]
      */
     private $bucket;
+
+    /**
+     * [$account User account object]
+     */
+    private $account;
+
+    /**
+     * [$options Responisble options]
+     */
+    private $options;
 
     /**
      * [$timeframe Durations are in seconds]
@@ -61,7 +72,7 @@ class limiter
 
     /**
      * [$window Timeframe window]
-     * @var integer
+     * @var integer|string
      */
     private $window;
 
@@ -120,7 +131,7 @@ class limiter
 
     /**
      * [throttleRequest Build the Responsible API throttle]
-     * @return boolean|void
+     * @return void
      */
     public function throttleRequest()
     {
@@ -205,8 +216,8 @@ class limiter
         }
 
         $windowFrame = (is_string($this->getTimeframe()))
-            ? $this->getTimeframe()
-            : $this->getTimeframe() . 'secs'
+        ? $this->getTimeframe()
+        : $this->getTimeframe() . 'secs'
         ;
 
         return array(
@@ -234,6 +245,7 @@ class limiter
 
     /**
      * [setAccount Set the requests account]
+     * @return self
      */
     public function setAccount($account)
     {
@@ -308,7 +320,7 @@ class limiter
 
     /**
      * [getTimeframe Get the timeframe window]
-     * @return integer
+     * @return integer|string
      */
     public function getTimeframe()
     {
