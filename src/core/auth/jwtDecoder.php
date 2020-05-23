@@ -95,7 +95,7 @@ class jwtDecoder extends jwt
     /**
      * [token Set the token]
      * @param  string
-     * @return string
+     * @return self
      */
     public function token($token = null)
     {
@@ -114,7 +114,7 @@ class jwtDecoder extends jwt
     /**
      * [key Set the clients supplied secret key]
      * @param  string
-     * @return string
+     * @return self
      */
     public function key($key = null)
     {
