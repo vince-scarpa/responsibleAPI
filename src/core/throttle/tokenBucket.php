@@ -18,7 +18,7 @@ class tokenBucket
 {
     /**
      * [$capacity The Buckets limit]
-     * @var [integer]
+     * @var integer
      */
     private $capacity;
 
@@ -36,19 +36,19 @@ class tokenBucket
 
     /**
      * [$lastAccess Timestamp of lat access]
-     * @var [integer]
+     * @var integer
      */
     private $lastAccess;
 
     /**
      * [$timeframe The window timeframe]
-     * @var [integer]
+     * @var integer
      */
     private $timeframe;
 
     /**
      * [$pauseAccess Pause access for a given period]
-     * @var [boolean]
+     * @var boolean
      */
     private $pauseAccess = false;
 
@@ -62,7 +62,7 @@ class tokenBucket
 
     /**
      * [capacity Check if the bucket can still be filled]
-     * @return [boolean]
+     * @return boolean
      */
     public function capacity()
     {
@@ -75,7 +75,7 @@ class tokenBucket
 
     /**
      * [leak Create a leak in the bucket]
-     * @return [void]
+     * @return void
      */
     public function leak()
     {
@@ -94,9 +94,9 @@ class tokenBucket
 
     /**
      * [pour Pour drops in the bucket, essentially filling the bucket with drops]
-     * @param  [integer] $drops
-     * @param  [integer] $lastAccess
-     * @return [self]
+     * @param  integer $drops
+     * @param  integer $lastAccess
+     * @return self
      */
     public function pour($drops, $lastAccess)
     {
@@ -107,7 +107,7 @@ class tokenBucket
 
     /**
      * [fill fill the bucket with drops]
-     * @param  [integer] $drops
+     * @param integer $drops
      */
     public function fill($drops = 1)
     {
@@ -116,7 +116,7 @@ class tokenBucket
 
     /**
      * [full Check if the bucket is full]
-     * @return [boolean]
+     * @return boolean
      */
     public function full()
     {
@@ -125,7 +125,7 @@ class tokenBucket
 
     /**
      * [refill Refill the bucket tokens]
-     * @return [mixed array / boolean]
+     * @return array|boolean
      */
     public function refill($accessed)
     {
@@ -146,7 +146,7 @@ class tokenBucket
 
     /**
      * [pause Pause access to the bucket]
-     * @param  [boolean] $state
+     * @param  boolean $state
      */
     public function pause($state = false)
     {
@@ -155,7 +155,7 @@ class tokenBucket
 
     /**
      * [timeNow Create a timestamp of now]
-     * @return [integer]
+     * @return integer
      */
     public function timeNow()
     {
@@ -164,8 +164,8 @@ class tokenBucket
 
     /**
      * [setCapacity Set the buckets overall capacity]
-     * @param [integer] $capacity
-     * @return [self]
+     * @param integer $capacity
+     * @return self
      */
     public function setCapacity($capacity)
     {
@@ -175,8 +175,8 @@ class tokenBucket
 
     /**
      * [setLeakRate Set the buckets leak rate]
-     * @param [integer/float] $leakRate
-     * @return [self]
+     * @param integer|float $leakRate
+     * @return self
      */
     public function setLeakRate($leakRate = null)
     {
@@ -194,7 +194,8 @@ class tokenBucket
                         $this->leakage = (($capacity / $timeframe) / 2);
                         break;
 
-                    case 'normal' || 'default':
+                    case 'normal':
+                    case 'default':
                         $this->leakage = ($capacity / $timeframe);
                         break;
 
@@ -221,7 +222,7 @@ class tokenBucket
 
     /**
      * [setTimeframe Set the buckets window access]
-     * @param [integer] $timeframe
+     * @param integer $timeframe
      */
     public function setTimeframe($timeframe)
     {
@@ -231,7 +232,7 @@ class tokenBucket
 
     /**
      * [getCapacity Get capacity]
-     * @return [integer]
+     * @return integer
      */
     public function getCapacity()
     {
@@ -240,7 +241,7 @@ class tokenBucket
 
     /**
      * [getLeakage Get the buckets leak rate]
-     * @return [integer/float]
+     * @return integer|float
      */
     public function getLeakage()
     {
@@ -249,8 +250,8 @@ class tokenBucket
 
     /**
      * [getDrops Get the buckets current drops]
-     * @param  [boolean] $leak
-     * @return [integer]
+     * @param  boolean $leak
+     * @return integer
      */
     public function getDrops($leak = true)
     {
@@ -262,7 +263,7 @@ class tokenBucket
 
     /**
      * [getTokenData Get the token data]
-     * @return [array]
+     * @return array
      */
     public function getTokenData()
     {
@@ -275,7 +276,7 @@ class tokenBucket
 
     /**
      * [getTimeframe Get the buckets window timeframe]
-     * @return [integer] [timestamp]
+     * @return integer [timestamp]
      */
     public function getTimeframe()
     {

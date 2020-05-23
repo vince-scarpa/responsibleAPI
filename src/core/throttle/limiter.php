@@ -131,7 +131,7 @@ class limiter
 
     /**
      * [throttleRequest Build the Responsible API throttle]
-     * @return void
+     * @return boolean|void
      */
     public function throttleRequest()
     {

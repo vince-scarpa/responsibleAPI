@@ -29,12 +29,12 @@ class tokenPack
 
     /**
      * [pack Tokenize the data array]
-     * @return [type] [description]
+     * @return string
      */
     public function pack(array $data = array())
     {
         if (empty($data)) {
-            return [];
+            return '';
         }
         return $this->cipher->encode(
             $this->cipher->jsonEncode(
@@ -45,7 +45,7 @@ class tokenPack
 
     /**
      * [pack Tokenize the data array]
-     * @return [type] [description]
+     * @return array
      */
     public function unpack($data)
     {
