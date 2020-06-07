@@ -30,7 +30,7 @@ class tokenBucket
 
     /**
      * [$leakage Leak rate]
-     * @var [float]
+     * @var float
      */
     private $leakage;
 
@@ -175,7 +175,7 @@ class tokenBucket
 
     /**
      * [setLeakRate Set the buckets leak rate]
-     * @param integer|float $leakRate
+     * @param string|integer $leakRate
      * @return self
      */
     public function setLeakRate($leakRate = null)
@@ -222,7 +222,7 @@ class tokenBucket
 
     /**
      * [setTimeframe Set the buckets window access]
-     * @param integer $timeframe
+     * @param string|integer $timeframe
      */
     public function setTimeframe($timeframe)
     {
@@ -276,7 +276,7 @@ class tokenBucket
 
     /**
      * [getTimeframe Get the buckets window timeframe]
-     * @return integer [timestamp]
+     * @return string|integer
      */
     public function getTimeframe()
     {
