@@ -82,7 +82,9 @@ class server
      */
     public function __construct(array $config = [], array $options = [], $db = false)
     {
-        if ($db) {
+        $this->options($options);
+
+        if ($db && !$this->isMockTest()) {
             if (empty($config)) {
                 $config = new configuration\config;
                 $config->responsibleDefault();
@@ -90,8 +92,6 @@ class server
             }
             $this->DB = new connect\DB($config['DB_HOST'], $config['DB_NAME'], $config['DB_USER'], $config['DB_PASSWORD']);
         }
-
-        $this->options($options);
 
         $this->header = new headers\header;
         $this->header->setOptions($options);
@@ -110,6 +110,11 @@ class server
      */
     protected function options($options)
     {
+        if (!is_null($this->options)) {
+            array_merge($this->options, $options);
+            return;
+        }
+
         $this->options = $options;
     }
 
@@ -402,5 +407,21 @@ class server
          */
         return (new request\application($this->getRequestType()))
             ->data($this->getResponse());
+    }
+
+    /**
+     * isMockTest
+     *     Check if there's a mook server request
+     * @return boolean
+     */
+    public function isMockTest():bool
+    {
+        if (isset($this->options['mock']) && 
+            $this->options['mock'] == 'mock:3$_\7ucJ#D4,Yy=qzwY{&E+Mk_h,7L8:key'
+        ) {
+            return true;
+        }
+
+        return false;
     }
 }

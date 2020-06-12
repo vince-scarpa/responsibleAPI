@@ -183,6 +183,10 @@ class authorise extends \responsible\core\server
             return;
         }
 
+        if (is_null($this->user)) {
+            return;
+        }
+
         $haystack = (is_null($array)) ? $this->user->refreshToken : $array;
 
         if (isset($haystack[$objectKey])) {
