@@ -220,7 +220,7 @@ class jwt extends \responsible\core\auth\authorise
      */
     public function setOptions($options)
     {
-        parent::options($options);
+        parent::setOptions($options);
         self::$options = $options;
         return $this;
     }

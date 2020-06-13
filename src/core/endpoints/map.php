@@ -18,9 +18,12 @@ namespace responsible\core\endpoints;
 use responsible\core\endpoints;
 use responsible\core\exception;
 use responsible\core\route;
+use responsible\core\interfaces;
 
-class map extends route\router
+class map extends route\router implements interfaces\optionsInterface
 {
+    use \responsible\core\traits\optionsTrait;
+
     /**
      * [$BASE_ENDPOINTS]
      * @var array
@@ -38,12 +41,6 @@ class map extends route\router
      * @var array
      */
     private $registry = array();
-
-    /**
-     * [$options Responsible API options]
-     * @var [array]
-     */
-    private $options;
 
     /**
      * [$middleWareClass Holds middleware class object]
@@ -66,9 +63,7 @@ class map extends route\router
     /**
      * [__construct Silence...]
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * [register Scan and register endpoints defined in services]
@@ -354,14 +349,5 @@ class map extends route\router
         }
 
         return;
-    }
-
-    /**
-     * [options Inherit options from server]
-     * @param  array $options
-     */
-    public function options($options)
-    {
-        $this->options = $options;
     }
 }

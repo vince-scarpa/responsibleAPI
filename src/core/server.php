@@ -82,7 +82,7 @@ class server
      */
     public function __construct(array $config = [], array $options = [], $db = false)
     {
-        $this->options($options);
+        $this->setOptions($options);
 
         if ($db && !$this->isMockTest()) {
             if (empty($config)) {
@@ -98,7 +98,7 @@ class server
 
         $this->keys = new keys\key;
         $this->endpoints = new endpoints\map;
-        $this->endpoints->options($options);
+        $this->endpoints->setOptions($options);
 
         $this->auth = new auth\authorise($options);
         $this->auth->header = $this->header;
@@ -108,7 +108,7 @@ class server
      * [options Responsible API options]
      * @param array $options
      */
-    protected function options($options)
+    public function setOptions($options)
     {
         if (!is_null($this->options)) {
             array_merge($this->options, $options);
@@ -122,7 +122,7 @@ class server
      * [getOptions Get the stored Responsible API options]
      * @return array
      */
-    protected function getOptions()
+    public function getOptions():array
     {
         return $this->options;
     }
