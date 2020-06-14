@@ -321,7 +321,7 @@ class responsible
 
     /**
      * [loadUser Load a stored account]
-     * @param  interger|string $property
+     * @param  integer|string $property
      * @param  string $type
      * @return array
      */
