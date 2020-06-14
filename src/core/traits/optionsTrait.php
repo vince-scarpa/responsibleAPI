@@ -14,7 +14,7 @@
  */
 namespace responsible\core\traits;
 
-use responsible\core\options;
+// use responsible\core\options;
 
 trait optionsTrait
 {
