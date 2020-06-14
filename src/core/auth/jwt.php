@@ -189,7 +189,7 @@ class jwt extends \responsible\core\auth\authorise
 
     /**
      * [getPayload Get the clients payload]
-     * @return string
+     * @return array
      */
     protected function getPayload()
     {
