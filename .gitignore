@@ -3,3 +3,6 @@
 
 #Ignore Config file
 config/.config
+
+#Ignore vendor directory
+vendor/*
