@@ -94,7 +94,8 @@ class jwtEncoder extends jwt
 
     /**
      * [key Set the clients supplied secret key]
-     * @param  string - Hashed string
+     * @param  string $key
+     *         Hashed string
      * @return self
      */
     public function key($key = null)
