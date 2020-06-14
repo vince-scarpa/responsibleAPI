@@ -18,9 +18,12 @@ namespace responsible\core\endpoints;
 use responsible\core\endpoints;
 use responsible\core\exception;
 use responsible\core\route;
+use responsible\core\interfaces;
 
-class map extends route\router
+class map extends route\router implements interfaces\optionsInterface
 {
+    use \responsible\core\traits\optionsTrait;
+
     /**
      * [$BASE_ENDPOINTS]
      * @var array
@@ -38,12 +41,6 @@ class map extends route\router
      * @var array
      */
     private $registry = array();
-
-    /**
-     * [$options Responsible API options]
-     * @var [array]
-     */
-    private $options;
 
     /**
      * [$middleWareClass Holds middleware class object]
@@ -66,9 +63,7 @@ class map extends route\router
     /**
      * [__construct Silence...]
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * [register Scan and register endpoints defined in services]
@@ -81,8 +76,8 @@ class map extends route\router
         /**
          * Check if a custom directory was set in the Responsible API options
          */
-        if( (isset($this->options['classRoute']) && !empty($this->options['classRoute'])) && 
-            (isset($this->options['classRoute']['directory']) && isset($this->options['classRoute']['namespace']))
+        if( (isset($options['classRoute']) && !empty($options['classRoute'])) && 
+            (isset($options['classRoute']['directory']) && isset($options['classRoute']['namespace']))
         ) {
             $customService = $this->options['classRoute'];
             $directory = $customService['directory'];
@@ -106,12 +101,17 @@ class map extends route\router
                 ->error('NOT_EXTENDED');
         }
 
-        $scanned = array_values(
-            array_diff(
-                scandir($directory),
-                array('..', '.', '.DS_Store')
-            )
-        );
+        $scanned = '';
+        $scanDir = scandir($directory);
+
+        if (!empty($scanDir)) { 
+            $scanned = array_values(
+                array_diff(
+                    $scanDir,
+                    array('..', '.', '.DS_Store')
+                )
+            );
+        }
 
         if (empty($scanned)) {
             (new exception\errorException)
@@ -354,14 +354,5 @@ class map extends route\router
         }
 
         return;
-    }
-
-    /**
-     * [options Inherit options from server]
-     * @param  array $options
-     */
-    public function options($options)
-    {
-        $this->options = $options;
     }
 }

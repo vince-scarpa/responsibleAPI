@@ -17,19 +17,21 @@ namespace responsible\core\encoder;
 class cipher
 {
     /**
-     * [jsonEncode description]
-     * @param  [type] $stdArray [description]
-     * @return [type]           [description]
+     * [jsonEncode]
+     * @param  array $stdArray
+     *         Array to encode
+     * @return string
      */
     public function jsonEncode(array $stdArray)
     {
-        return json_encode($stdArray, true);
+        return json_encode($stdArray);
     }
 
     /**
-     * [jsonDecode description]
-     * @param  [type] $jsonString [description]
-     * @return [type]             [description]
+     * [jsonDecode]
+     * @param  string $jsonString
+     *         String to decode
+     * @return array
      */
     public function jsonDecode($jsonString)
     {
@@ -37,9 +39,9 @@ class cipher
     }
 
     /**
-     * [encode description]
-     * @param  [type] $stdString [description]
-     * @return [type]            [description]
+     * [encode]
+     * @param  string $stdString
+     * @return string
      */
     public function encode($stdString)
     {
@@ -47,9 +49,9 @@ class cipher
     }
 
     /**
-     * [decode description]
-     * @param  [type] $toDecode [description]
-     * @return [type]           [description]
+     * [decode]
+     * @param  string $toDecode
+     * @return string
      */
     public function decode($toDecode)
     {
@@ -60,9 +62,9 @@ class cipher
     }
 
     /**
-     * [toBase64Url description]
-     * @param  [type] $base64 [description]
-     * @return [type]         [description]
+     * [toBase64Url]
+     * @param  string $base64
+     * @return string
      */
     private function toBase64($base64)
     {
@@ -71,7 +73,7 @@ class cipher
 
     /**
      * [hash]
-     * @return [string]
+     * @return string
      */
     public function hash($algo = 'sha256', $stdString, $secret)
     {
@@ -80,9 +82,11 @@ class cipher
 
     /**
      * [hash_compare Compare two hashed strings]
-     * @param  [type] $a [know]
-     * @param  [type] $b [unknown user hash]
-     * @return [boolean]
+     * @param  string $a
+     *         Known user hash
+     * @param  string $b 
+     *         Unknown user hash
+     * @return boolean
      */
     public function hashCompare($a, $b)
     {
@@ -103,8 +107,8 @@ class cipher
     }
 
     /**
-     * [padDecode description]
-     * @param [type] $base64String [description]
+     * [padDecode]
+     * @param string $base64String
      */
     private function padDecode($base64String)
     {

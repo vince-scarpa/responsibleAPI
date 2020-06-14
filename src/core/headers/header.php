@@ -19,19 +19,16 @@ use responsible\core\exception;
 use responsible\core\server;
 use responsible\core\user;
 use responsible\core\auth;
+use responsible\core\interfaces;
 
-class header
+class header extends server implements interfaces\optionsInterface
 {
+    use \responsible\core\traits\optionsTrait;
+
     /**
      * Max age constant
      */
     const MAX_WINDOW = 3600;
-
-    /**
-     * [$options Responsible API options]
-     * @var array
-     */
-    private $options = [];
 
     /**
      * [$REQUEST_APPLICATION]
@@ -56,6 +53,11 @@ class header
      * @var array
      */
     private $REQUEST_METHOD = [];
+
+    /**
+     * [__construct Silence...]
+     */
+    public function __construct() {}
 
     /**
      * [requestType]
@@ -562,26 +564,5 @@ class header
     public function setData($data = []) 
     {
         $this->REQUEST_METHOD['data'] = $data;
-    }
-
-    /**
-     * [setOptions Set the Responsible API options]
-     * @param array $options
-     */
-    public function setOptions($options)
-    {
-        $this->options = $options;
-    }
-
-    /**
-     * [getOptions Get the Responsible API options if set]
-     * @return array|null [mixed: array/boolean]
-     */
-    private function getOptions()
-    {
-        if (!empty($this->options)) {
-            return $this->options;
-        }
-        return;
     }
 }

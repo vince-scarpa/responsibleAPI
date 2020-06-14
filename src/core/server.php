@@ -43,7 +43,7 @@ class server
      * [$DB Database PDO connector]
      * @var object
      */
-    protected $DB;
+    protected $DB = null;
 
     /**
      * [$router The responsible API router]
@@ -77,28 +77,31 @@ class server
 
     /**
      * [__construct]
-     * @param array  $config [environment variables]
-     * @param boolean $db on / off
+     * @param array  $config 
+     *        environment variables
+     * @param boolean $db
      */
     public function __construct(array $config = [], array $options = [], $db = false)
     {
-        if ($db) {
+        $this->setOptions($options);
+
+        if ($db && !$this->isMockTest()) {
             if (empty($config)) {
                 $config = new configuration\config;
                 $config->responsibleDefault();
                 $config = $config->getConfig();
             }
-            $this->DB = new connect\DB($config['DB_HOST'], $config['DB_NAME'], $config['DB_USER'], $config['DB_PASSWORD']);
+            if (is_null($this->DB)) {
+                $this->DB = new connect\DB($config['DB_HOST'], $config['DB_NAME'], $config['DB_USER'], $config['DB_PASSWORD']);
+            }
         }
-
-        $this->options($options);
 
         $this->header = new headers\header;
         $this->header->setOptions($options);
 
         $this->keys = new keys\key;
         $this->endpoints = new endpoints\map;
-        $this->endpoints->options($options);
+        $this->endpoints->setOptions($options);
 
         $this->auth = new auth\authorise($options);
         $this->auth->header = $this->header;
@@ -108,8 +111,13 @@ class server
      * [options Responsible API options]
      * @param array $options
      */
-    protected function options($options)
+    public function setOptions($options)
     {
+        if (!is_null($this->options)) {
+            array_merge($this->options, $options);
+            return;
+        }
+
         $this->options = $options;
     }
 
@@ -117,7 +125,7 @@ class server
      * [getOptions Get the stored Responsible API options]
      * @return array
      */
-    protected function getOptions()
+    public function getOptions():array
     {
         return $this->options;
     }
@@ -402,5 +410,21 @@ class server
          */
         return (new request\application($this->getRequestType()))
             ->data($this->getResponse());
+    }
+
+    /**
+     * isMockTest
+     *     Check if there's a mook server request
+     * @return boolean
+     */
+    public function isMockTest():bool
+    {
+        if (isset($this->options['mock']) && 
+            $this->options['mock'] == 'mock:3$_\7ucJ#D4,Yy=qzwY{&E+Mk_h,7L8:key'
+        ) {
+            return true;
+        }
+
+        return false;
     }
 }

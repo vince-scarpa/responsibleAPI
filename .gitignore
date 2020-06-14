@@ -4,5 +4,5 @@
 #Ignore Config file
 config/.config
 
-#Ignore vendor directory
+#Ignore vendor diretory
 vendor/*

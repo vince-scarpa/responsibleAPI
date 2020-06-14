@@ -80,13 +80,16 @@ class jwtDecoder extends jwt
      */
     private function segment()
     {
-        $segment = explode('.', $this->getToken());
+        $token = $this->getToken();
+        $segment = explode('.', $token);
 
-        if (sizeof($segment) != 3) {
+        if (sizeof($segment) != 3 || empty($token)) {
             (new exception\errorException)
                 ->setOptions(parent::$options)
                 ->message(self::messages('denied_token'))
                 ->error('UNAUTHORIZED');
+
+            return;
         }
 
         return $segment;

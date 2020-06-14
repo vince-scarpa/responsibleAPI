@@ -171,7 +171,7 @@ class errorException extends \Exception
             ), JSON_PRETTY_PRINT);
 
             if( isset($options['errors']) && $options['errors'] == 'catchAll' ) {
-                throw new \Exception($eMessage, 1);
+                throw new self($eMessage, 1);
             }
 
             echo $eMessage;
@@ -186,7 +186,7 @@ class errorException extends \Exception
             ), JSON_PRETTY_PRINT);
 
             if( isset($options['errors']) && $options['errors'] == 'catchAll' ) {
-                throw new \Exception($eMessage, 1);
+                throw new self($eMessage, 1);
             }
 
             echo $eMessage;

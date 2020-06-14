@@ -139,16 +139,22 @@ class limiter
             return true;
         }
 
+        $account = $this->getAccount();
+
+        if (empty($account)) {
+            return false;
+        }
+
         /**
          * [$unpack Unpack the account bucket data]
          */
         $this->unpacked = (new throttle\tokenPack)->unpack(
-            $this->getAccount()->bucket
+            $account->bucket
         );
         if (empty($this->unpacked)) {
             $this->unpacked = array(
                 'drops' => 1,
-                'time' => $this->getAccount()->access,
+                'time' => $account->access,
             );
         }
 
@@ -172,7 +178,7 @@ class limiter
                     $this->save();
                 }
 
-                if ($this->bucket->refill($this->getAccount()->access)) {
+                if ($this->bucket->refill($account->access)) {
                     $this->save();
                 }
             }
@@ -220,6 +226,10 @@ class limiter
         : $this->getTimeframe() . 'secs'
         ;
 
+        if (is_null($this->bucket)) {
+            return;
+        }
+
         return array(
             'limit' => $this->getCapacity(),
             'leakRate' => $this->getLeakRate(),
@@ -258,6 +268,13 @@ class limiter
      */
     public function getAccount()
     {
+        if(is_null($this->account)) {
+            (new exception\errorException)
+                ->setOptions($this->getOptions())
+                ->error('UNAUTHORIZED');
+            return;
+        }
+
         return $this->account;
     }
 

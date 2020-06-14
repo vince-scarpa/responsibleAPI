@@ -17,8 +17,9 @@ namespace responsible\core\auth;
 use responsible\core\auth;
 use responsible\core\configuration;
 use responsible\core\user;
+use responsible\core\server;
 
-class authorise extends \responsible\core\server
+class authorise extends server
 {
     /**
      * [$user]
@@ -37,7 +38,7 @@ class authorise extends \responsible\core\server
      */
     public function __construct($options)
     {
-        $this->options($options);
+        $this->setOptions($options);
         $this->config = new configuration\config;
         $this->config->responsibleDefault($options);
     }
@@ -180,6 +181,10 @@ class authorise extends \responsible\core\server
         if( isset($this->header->getMethod()->data['scope']) && 
             ($this->header->getMethod()->data['scope'] == 'anonymous')
         ) {
+            return;
+        }
+
+        if (is_null($this->user)) {
             return;
         }
 
