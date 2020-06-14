@@ -22,33 +22,29 @@ use responsible\core\headers;
 
 class responsible
 {
-    /**
-     * [$options Variable store for the Responsible API options set]
-     * @var [array]
-     */
-    private $options;
+    use \responsible\core\traits\optionsTrait;
 
     /**
      * [$config Variable store for the Responsible API config set]
-     * @var [array]
+     * @var array
      */
     private $config;
 
     /**
      * [$defaults Variable store for the Responsible API defaults set]
-     * @var [array]
+     * @var array
      */
     private $defaults;
 
     /**
      * [$server Core server object]
-     * @var [object]
+     * @var object
      */
     private $server;
 
     /**
      * [$response Response data]
-     * @var [mixed: array / object]
+     * @var array|object
      */
     private static $response;
 
@@ -60,8 +56,10 @@ class responsible
 
     /**
      * [__construc :: Construct the Responsible API]
-     * @param [type] $DEFAULTS   [environment settings]
-     * @param array  $options [API options]
+     * @param array $DEFAULTS   
+     *        environment settings
+     * @param array  $options  
+     *        API options
      */
     public function __construct(array $options = [])
     {
@@ -70,17 +68,11 @@ class responsible
          */
         $this->setConfig($options);
 
-        $this->setRequestType(
-            (isset($this->getOptions()['requestType'])) ? $this->getOptions()['requestType'] : 'json'
-        );
+        $this->setRequestType(($options['requestType']) ?? 'json');
 
-        $this->setRateLimit(
-            (isset($this->getOptions()['rateLimit'])) ? $this->getOptions()['rateLimit'] : 100
-        );
+        $this->setRateLimit(($options['rateLimit']) ?? 100);
 
-        $this->setRateWindow(
-            (isset($this->getOptions()['rateWindow'])) ? $this->getOptions()['rateWindow'] : 'MINUTE'
-        );
+        $this->setRateWindow(($options['rateWindow']) ?? 'MINUTE');
 
         /**
          * Initiate the Responsible API server
@@ -89,7 +81,8 @@ class responsible
     }
 
     /**
-     * [setConfig]
+     * [setConfig Set the ResponsibleAPI configuration]
+     * @return void
      */
     private function setConfig($options)
     {
@@ -97,19 +90,18 @@ class responsible
         $config->baseApiRoot(dirname(__DIR__));
         $config->responsibleDefault($options);
 
-        $this->options($config->getOptions());
+        $this->setOptions($config->getOptions());
         $this->config($config->getConfig());
         $this->defaults($config->getDefaults());
     }
 
     /**
      * [server :: Initiate the Responsible core server]
-     * @param  [type] $CONFIG [environment settings]
-     * @return [void]
+     * @return void
      */
     private function server()
     {
-        $route = (isset($this->getOptions()['route'])) ? $this->getOptions()['route'] : '';
+        $route = ($options['route']) ?? '';
 
         /**
          * [$this->server :: Set the a new API server object]
@@ -140,7 +132,7 @@ class responsible
 
     /**
      * [getApiData Get the Responsible API router data]
-     * @return [array]
+     * @return array
      */
     public function Router()
     {
@@ -149,7 +141,7 @@ class responsible
 
     /**
      * [response :: Get the final API response as an output]
-     * @return [object / array]
+     * @return object|array
      */
     public function responseData($debug = 'coredata')
     {
@@ -157,26 +149,8 @@ class responsible
     }
 
     /**
-     * [options Set the Responsible API options]
-     * @param [array] $options
-     */
-    private function options($options)
-    {
-        $this->options = $options;
-    }
-
-    /**
-     * [getOptions Get the stored Responsible API options]
-     * @return [array]
-     */
-    public function getOptions()
-    {
-        return $this->options;
-    }
-
-    /**
      * [config Set the Responsible API configuration]
-     * @return [void]
+     * @return void
      */
     private function config($config)
     {
@@ -185,7 +159,7 @@ class responsible
 
     /**
      * [getConfig Get the stored Responsible API configuration]
-     * @return [array]
+     * @return array
      */
     public function getConfig()
     {
@@ -195,7 +169,7 @@ class responsible
     /**
      * [defaults Set the Responsible API defaults]
      * Configuration and Options merged
-     * @return [void]
+     * @return void
      */
     private function defaults($defaults)
     {
@@ -204,7 +178,7 @@ class responsible
 
     /**
      * [getDefaults Get the stored Responsible API defaults]
-     * @return [array]
+     * @return array
      */
     public function getDefaults()
     {
@@ -213,7 +187,7 @@ class responsible
 
     /**
      * [setRequestType :: Header request response format]
-     * @param [string] $type
+     * @param string $type
      */
     private function setRequestType($type)
     {
@@ -222,7 +196,7 @@ class responsible
 
     /**
      * [getRequestType :: Get the header request format]
-     * @return [string]
+     * @return string
      */
     private function getRequestType()
     {
@@ -236,7 +210,7 @@ class responsible
      *
      * EG: 100 requests per minute
      *
-     * @param [integer] $limit
+     * @param integer $limit
      */
     private function setRateLimit($limit)
     {
@@ -245,7 +219,7 @@ class responsible
 
     /**
      * [getRateLimit :: Get the Responsible API ratelimit]
-     * @return [integer]
+     * @return integer
      */
     private function getRateLimit()
     {
@@ -256,9 +230,8 @@ class responsible
      * [setRateWindow Set the Responsible API window for rate limits]
      * The window is a range set for API connection requests
      *
-     * @see [setRateLimit()]
-     *
-     * @param [mixed string or integer] $frame
+     * @see setRateLimit()
+     * @param string|integer $frame
      */
     private function setRateWindow($frame)
     {
@@ -272,7 +245,7 @@ class responsible
 
     /**
      * [getRateWindow Get the timeframe set for rate limits]
-     * @return [mixed: integer/string]
+     * @return integer|string
      */
     private function getRateWindow()
     {
@@ -288,7 +261,7 @@ class responsible
     /**
      * [API Initiate the Responsible API]
      * @param array $options
-     * @return [self/object]
+     * @return self|object
      */
     public static function API(array $options = [])
     {
@@ -297,7 +270,7 @@ class responsible
 
     /**
      * [unauthorised Set a custom unauthorized header]
-     * @return [void]
+     * @return void
      */
     public static function unauthorised()
     {
@@ -306,7 +279,7 @@ class responsible
 
     /**
      * [response Get the Responsible API response]
-     * @return [mixed: array / object]
+     * @return array|object
      */
     public static function response($echo = false)
     {
@@ -319,9 +292,9 @@ class responsible
 
     /**
      * [createUser Create a new user access]
-     * @param  [string] $name
-     * @param  [string] $mail
-     * @return [array]
+     * @param  string $name
+     * @param  string $mail
+     * @return array
      */
     public static function createUser($name, $mail, array $options = [])
     {
@@ -334,9 +307,9 @@ class responsible
 
     /**
      * [updateUser Update a user account]
-     * @param  [array] $properties
-     * @param  [array] $options
-     * @return [array]
+     * @param  array $properties
+     * @param  array $options
+     * @return array
      */
     public static function updateUser($properties, array $options = [])
     {
@@ -347,9 +320,9 @@ class responsible
 
     /**
      * [loadUser Load a stored account]
-     * @param  [mixed: interger/string] $property
-     * @param  [string] $type
-     * @return [array]
+     * @param  interger|string $property
+     * @param  string $type
+     * @return array
      */
     public static function loadUser($property, array $options = [])
     {

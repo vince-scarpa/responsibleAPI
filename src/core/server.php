@@ -43,7 +43,7 @@ class server
      * [$DB Database PDO connector]
      * @var object
      */
-    protected $DB;
+    protected $DB = null;
 
     /**
      * [$router The responsible API router]
@@ -77,8 +77,9 @@ class server
 
     /**
      * [__construct]
-     * @param array  $config [environment variables]
-     * @param boolean $db on / off
+     * @param array  $config 
+     *        environment variables
+     * @param boolean $db
      */
     public function __construct(array $config = [], array $options = [], $db = false)
     {
@@ -90,7 +91,9 @@ class server
                 $config->responsibleDefault();
                 $config = $config->getConfig();
             }
-            $this->DB = new connect\DB($config['DB_HOST'], $config['DB_NAME'], $config['DB_USER'], $config['DB_PASSWORD']);
+            if (is_null($this->DB)) {
+                $this->DB = new connect\DB($config['DB_HOST'], $config['DB_NAME'], $config['DB_USER'], $config['DB_PASSWORD']);
+            }
         }
 
         $this->header = new headers\header;
