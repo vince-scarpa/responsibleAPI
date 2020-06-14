@@ -43,12 +43,11 @@ class config
      */
     public function responsibleDefault($options = null)
     {
-        if (!isset($this->root)) {
+        if (empty($this->root)) {
             $this->root = dirname(dirname(dirname(__DIR__)));
         }
         
         $ENV_FILE = $this->root . '/config/.config';
-
         
         if (!file_exists($ENV_FILE)) {
             throw new \Exception(
