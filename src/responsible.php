@@ -101,6 +101,7 @@ class responsible
      */
     private function server()
     {
+        $options = $this->getOptions();
         $route = ($options['route']) ?? '';
 
         /**
@@ -109,7 +110,7 @@ class responsible
          */
         $this->server = new responsibleCore\server(
             $this->getConfig(),
-            $this->getOptions(),
+            $options,
             true
         );
 
