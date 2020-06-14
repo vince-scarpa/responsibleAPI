@@ -24,7 +24,7 @@ class cipher
      */
     public function jsonEncode(array $stdArray)
     {
-        return json_encode($stdArray, true);
+        return json_encode($stdArray);
     }
 
     /**
