@@ -187,6 +187,17 @@ class errorException extends \Exception
 
             if( isset($options['errors']) && $options['errors'] == 'catchAll' ) {
                 throw new self($eMessage, 1);
+                // return;
+            }
+
+            try {
+                if($eMessage) {
+                    throw new self($eMessage, 1);
+                }
+            }catch(\Exception $e) {
+                var_dump($eMessage);
+                echo $e->getMessage();
+                return;
             }
 
             echo $eMessage;
