@@ -76,8 +76,8 @@ class map extends route\router implements interfaces\optionsInterface
         /**
          * Check if a custom directory was set in the Responsible API options
          */
-        if( (isset($this->options['classRoute']) && !empty($this->options['classRoute'])) && 
-            (isset($this->options['classRoute']['directory']) && isset($this->options['classRoute']['namespace']))
+        if( (isset($options['classRoute']) && !empty($options['classRoute'])) && 
+            (isset($options['classRoute']['directory']) && isset($options['classRoute']['namespace']))
         ) {
             $customService = $this->options['classRoute'];
             $directory = $customService['directory'];
@@ -101,12 +101,17 @@ class map extends route\router implements interfaces\optionsInterface
                 ->error('NOT_EXTENDED');
         }
 
-        $scanned = array_values(
-            array_diff(
-                scandir($directory),
-                array('..', '.', '.DS_Store')
-            )
-        );
+        $scanned = '';
+        $scanDir = scandir($directory);
+
+        if (!empty($scanDir)) { 
+            $scanned = array_values(
+                array_diff(
+                    $scanDir,
+                    array('..', '.', '.DS_Store')
+                )
+            );
+        }
 
         if (empty($scanned)) {
             (new exception\errorException)
