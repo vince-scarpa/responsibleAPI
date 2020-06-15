@@ -107,7 +107,7 @@ class limiter
         if (isset($this->account->scope) &&
             ($this->account->scope == 'anonymous' || $this->account->scope == 'public')
         ) {
-           $this->scope = $this->account->scope;
+            $this->scope = $this->account->scope;
         }
 
         return $this;
