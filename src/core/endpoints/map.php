@@ -127,7 +127,11 @@ class map extends route\router implements interfaces\optionsInterface
                 $this->BASE_ENDPOINTS[] = $point;
 
                 $endpoint = str_replace('core', 'service', __NAMESPACE__) . '\\' . $point;
-                $endpoint = $middleware . '\\service\\endpoints\\' . $point;
+
+                if ($middleware !== 'responsible') {
+                    $endpoint = $middleware . '\\service\\endpoints\\' . $point;
+                }
+                
                 $child = $endpoint;
 
                 $this->NAMESPACE_ENDPOINTS[$point] = $endpoint;
