@@ -202,10 +202,11 @@ class limiter
      */
     private function save()
     {
+        $bucket = $this->bucketObj();
         $packer = $this->packerObj();
 
         $this->packed = $packer->pack(
-            $this->bucket->getTokenData()
+            $bucket->getTokenData()
         );
 
         /**
@@ -230,22 +231,24 @@ class limiter
             );
         }
 
+        $bucket = $this->bucketObj();
+
         $windowFrame = (is_string($this->getTimeframe()))
         ? $this->getTimeframe()
         : $this->getTimeframe() . 'secs'
         ;
 
-        if (is_null($this->bucket)) {
+        if (is_null($bucket)) {
             return;
         }
 
         return array(
             'limit' => $this->getCapacity(),
             'leakRate' => $this->getLeakRate(),
-            'leak' => $this->bucket->getLeakage(),
+            'leak' => $bucket->getLeakage(),
             'lastAccess' => $this->getLastAccessDate(),
             'description' => $this->getCapacity() . ' requests per ' . $windowFrame,
-            'bucket' => $this->bucket->getTokenData(),
+            'bucket' => $bucket->getTokenData(),
         );
     }
 
@@ -255,8 +258,10 @@ class limiter
      */
     private function getLastAccessDate()
     {
-        if (isset($this->bucket->getTokenData()['time'])) {
-            return date('m/d/y h:i:sa', $this->bucket->getTokenData()['time']);
+        $bucket = $this->bucketObj();
+
+        if (isset($bucket->getTokenData()['time'])) {
+            return date('m/d/y h:i:sa', $bucket->getTokenData()['time']);
         }
 
         return 'Can\'t be converted';
