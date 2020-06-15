@@ -131,7 +131,7 @@ class map extends route\router implements interfaces\optionsInterface
                 if ($middleware !== 'responsible') {
                     $endpoint = $middleware . '\\service\\endpoints\\' . $point;
                 }
-                
+
                 $child = $endpoint;
 
                 $this->NAMESPACE_ENDPOINTS[$point] = $endpoint;
@@ -151,10 +151,12 @@ class map extends route\router implements interfaces\optionsInterface
     }
 
     /**
-     * [isEndpoint Check the requested endpoint, scope and tier parts]
+     * [isSystemEndpoint Check if the endpoint request is a ResponsibleAPI reserved endpoint]
+     * @param  string  $api
+     * @param  string  $endpoint
      * @return object|null
      */
-    public function isEndpoint($api, $endpoint)
+    private function isSystemEndpoint($api, $endpoint)
     {
         $endpointSettings = [];
 
@@ -188,7 +190,27 @@ class map extends route\router implements interfaces\optionsInterface
             );
 
             return (object) $endpointSettings;
-        }        
+        }
+
+        return null;
+    }
+
+    /**
+     * [isEndpoint Check the requested endpoint, scope and tier parts]
+     * @param  string  $api
+     * @param  string  $endpoint
+     * @return object|null
+     */
+    public function isEndpoint($api, $endpoint)
+    {
+        $endpointSettings = [];
+
+        /**
+         * Return if it's a system endpoint
+         */
+        if (null !== ($endpointSettings = $this->isSystemEndpoint($api, $endpoint))) {
+            return $endpointSettings;
+        }
 
         $endpoint = htmlspecialchars($endpoint, ENT_QUOTES, 'UTF-8');
         $index = array_search($api, $this->BASE_ENDPOINTS);
