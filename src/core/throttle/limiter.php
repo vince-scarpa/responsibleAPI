@@ -74,7 +74,7 @@ class limiter
      * [$window Timeframe window]
      * @var integer|string
      */
-    private $window;
+    private $window = 'MINUTE';
 
     /**
      * [$unlimited Rate limiter bypass if true]
@@ -96,27 +96,18 @@ class limiter
     {
         $options = $this->getOptions();
 
-        if (isset($options['rateLimit'])) {
-            $this->setCapacity($options['rateLimit']);
-        }
+        $this->setCapacity($options);
 
-        if (isset($options['rateWindow'])) {
-            $this->setTimeframe($options['rateWindow']);
-        }
+        $this->setTimeframe($options);
 
-        if (isset($options['leak']) && !$options['leak']) {
-            $options['leakRate'] = 0;
-        }
+        $this->setLeakRate($options);
 
-        if (isset($options['leakRate'])) {
-            $this->setLeakRate($options['leakRate']);
-        }
+        $unlimited = 
+            (isset($options['unlimited']) && ($options['unlimited'] == 1 || $options['unlimited'] == true)) || 
+            (isset($options['requestType']) && $options['requestType'] === 'debug')
+        ;
 
-        if (isset($options['unlimited']) && ($options['unlimited'] == 1 || $options['unlimited'] == true)) {
-            $this->setUnlimited();
-        }
-
-        if (isset($options['requestType']) && $options['requestType'] == 'debug') {
+        if ($unlimited) {
             $this->setUnlimited();
         }
 
@@ -298,12 +289,37 @@ class limiter
     }
 
     /**
-     * [setCapacity Set the buckets capacity]
-     * @param integer $capacity
+     * [hasOptionProperty Check if an option property is set]
+     * @param  array  $options
+     * @param  string  $property
+     * @return boolean
      */
-    public function setCapacity($capacity)
+    private function hasOptionProperty(array $options, $property, $default = false)
     {
-        $this->capacity = $capacity;
+        $val = isset($options[$property]) ? $options[$property] : $default;
+
+        if ($val && empty($options[$property])) {
+            $val = $default;
+        }
+
+        return $val;
+    }
+
+    /**
+     * [setCapacity Set the buckets capacity]
+     * @param array $options
+     */
+    public function setCapacity($options)
+    {
+        $hasCapacityOption = $this->hasOptionProperty($options, 'rateLimit', false);
+
+        if ($hasCapacityOption) {
+            if (!is_integer($hasCapacityOption)||empty($hasCapacityOption)) {
+                $hasCapacityOption = false;
+            }
+        }
+
+        $this->capacity = ($hasCapacityOption) ? $hasCapacityOption : $this->capacity;
     }
 
     /**
@@ -317,10 +333,20 @@ class limiter
 
     /**
      * [setTimeframe Set the window timeframe]
-     * @param string|integer $timeframe
+     * @param array $options
      */
-    public function setTimeframe($timeframe)
+    public function setTimeframe($options)
     {
+        $timeframe = $this->hasOptionProperty($options, 'rateWindow', false);
+
+        if (!is_string($timeframe) && !is_numeric($timeframe)) {
+            $timeframe = $this->window;
+        }
+
+        if (!$timeframe) {
+            $timeframe = $this->window;
+        }
+
         if (is_numeric($timeframe)) {
             self::$timeframe['CUSTOM'] = $timeframe;
             $this->window = self::$timeframe['CUSTOM'];
@@ -347,10 +373,20 @@ class limiter
     /**
      * [setLeakRate Set the buckets leak rate]
      * Options: slow, medium, normal, default, fast or custom positive integer
-     * @param string|integer $leakRate
+     * @param array $options
      */
-    private function setLeakRate($leakRate)
+    private function setLeakRate($options)
     {
+        if (isset($options['leak']) && !$options['leak']) {
+            $options['leakRate'] = 'default';
+        }
+
+        $leakRate = $this->hasOptionProperty($options, 'leakRate', false);
+
+        if (empty($leakRate) || !is_string($leakRate)) {
+            $leakRate = 'default';
+        }
+
         $this->leakRate = $leakRate;
     }
 
