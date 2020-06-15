@@ -202,8 +202,6 @@ class map extends route\router implements interfaces\optionsInterface
      */
     public function isEndpoint($api, $endpoint)
     {
-        $endpointSettings = [];
-
         /**
          * Return if it's a system endpoint
          */
