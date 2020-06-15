@@ -102,14 +102,7 @@ class limiter
 
         $this->setLeakRate($options);
 
-        $unlimited = 
-            ((isset($options['unlimited']) && ($options['unlimited'] == 1 || $options['unlimited'] == true))) || 
-            ((isset($options['requestType']) && $options['requestType'] === 'debug'))
-        ;
-
-        if ($unlimited) {
-            $this->setUnlimited();
-        }
+        $this->setUnlimited($options);
 
         if( isset($this->account->scope) &&
             ($this->account->scope == 'anonymous' || $this->account->scope == 'public')
@@ -401,10 +394,21 @@ class limiter
 
     /**
      * [setUnlimited Rate limiter bypass]
+     * @param array $options
      */
-    private function setUnlimited()
+    private function setUnlimited($options)
     {
-        $this->unlimited = true;
+        $unlimited = false;
+
+        if(isset($options['unlimited']) && ($options['unlimited'] == 1 || $options['unlimited'] == true)) {
+            $unlimited = true;
+        }
+
+        if (isset($options['requestType']) && $options['requestType'] === 'debug') {
+            $unlimited = true;
+        }
+
+        $this->unlimited = $unlimited;
     }
 
     /**
