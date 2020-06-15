@@ -365,15 +365,11 @@ class server
             $response = $router->run();
 
         } else {
-            $response = [
+            /*$response = [
                 'system' => $router->getApi(),
-            ];
+            ];*/
 
-            $runResponse = $router->run();
-
-            if (!is_null($runResponse)) {
-                $response = $runResponse;
-            }
+            $response = $router->run();
         }
 
         $this->setResponse('', $response);
