@@ -23,7 +23,7 @@ class router extends server
 {
     /**
      * [$root Responsible API root path]
-     * @var [type]
+     * @var string
      */
     private $root;
 
@@ -53,7 +53,7 @@ class router extends server
 
     /**
      * [run Try run the request method]
-     * @return [mixed]
+     * @return array|object
      */
     public function run()
     {
@@ -92,7 +92,7 @@ class router extends server
 
     /**
      * [setPostBody Set the post body payload]
-     * @param [array] $payload
+     * @param array $payload
      */
     public function setPostBody($payload)
     {
@@ -110,7 +110,7 @@ class router extends server
 
     /**
      * [setRequestBody Set the request body payload]
-     * @param [string] $payload
+     * @param string $payload
      */
     public function setRequestBody($payload)
     {
@@ -121,7 +121,7 @@ class router extends server
 
     /**
      * [getRequestBody Get the request body defaults to empty array]
-     * @return [array]
+     * @return array
      */
     public function getRequestBody()
     {
@@ -132,9 +132,8 @@ class router extends server
     }
 
     /**
-     * [baseRoute description]
-     * @param  [type] $directory [description]
-     * @return [type]            [description]
+     * [baseRoute]
+     * @param  string $directory
      */
     public function baseApiRoot($directory)
     {
@@ -143,7 +142,7 @@ class router extends server
 
     /**
      * [route]
-     * @return [array]
+     * @return array
      */
     public function route($customRoute = '')
     {
@@ -184,8 +183,8 @@ class router extends server
     }
 
     /**
-     * [getRoutes description]
-     * @return [type] [description]
+     * [getRoutes]
+     * @return array
      */
     private function getRoutes($base_uri)
     {
@@ -205,7 +204,7 @@ class router extends server
 
     /**
      * [systemAccess Is system access allowed]
-     * @return [boolean]
+     * @return boolean|null
      */
     public function systemAccess($account)
     {
@@ -222,7 +221,7 @@ class router extends server
 
     /**
      * [queryString]
-     * @return [string]
+     * @return string|null
      */
     public function queryString()
     {
@@ -234,7 +233,7 @@ class router extends server
 
     /**
      * [setScope Set the router scope]
-     * @param [string] $scope
+     * @param string $scope
      */
     public function setScope($scope)
     {
@@ -243,7 +242,7 @@ class router extends server
 
     /**
      * [getScope Get the router scope]
-     * @return [string]
+     * @return string
      */
     public function getScope()
     {
@@ -252,7 +251,7 @@ class router extends server
 
     /**
      * [getApi Name of the API request]
-     * @return [string]
+     * @return string
      */
     public function getApi()
     {
@@ -261,7 +260,7 @@ class router extends server
 
     /**
      * [getController Controller build settings]
-     * @return [array]
+     * @return array
      */
     public function getController()
     {
@@ -273,7 +272,7 @@ class router extends server
 
     /**
      * [getSize Size of the tier request]
-     * @return [string]
+     * @return string
      */
     public function getSize()
     {
@@ -282,7 +281,7 @@ class router extends server
 
     /**
      * [getPath URi Path request]
-     * @return [string]
+     * @return string
      */
     public function getPath()
     {
@@ -291,7 +290,7 @@ class router extends server
 
     /**
      * [getIssuer Get the domain issuer]
-     * @return [string]
+     * @return string
      */
     public function getIssuer($protocol = false)
     {
