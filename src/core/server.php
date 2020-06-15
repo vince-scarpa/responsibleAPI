@@ -37,19 +37,13 @@ class server
      * [$options Variable store for the Responsible API options set]
      * @var array
      */
-    private $options;
+    private $options = null;
 
     /**
      * [$DB Database PDO connector]
      * @var object
      */
     protected $DB = null;
-
-    /**
-     * [$router The responsible API router]
-     * @var array
-     */
-    protected $router;
 
     /**
      * [$grant_access If grant type is set then allow system scope override]
@@ -70,6 +64,12 @@ class server
     protected $header = null;
 
     /**
+     * [$endpoints Endpoints class object]
+     * @var object|null
+     */
+    private $endpoints = null;
+
+    /**
      * [$keys Keys class object]
      * @var object|null
      */
@@ -80,6 +80,18 @@ class server
      * @var object|null
      */
     private $auth = null;
+
+    /**
+     * [$limiter Limiter class object]
+     * @var object|null
+     */
+    private $limiter = null;
+
+    /**
+     * [$router Router class object]
+     * @var object|null
+     */
+    protected $router = null;
 
     /**
      * [__construct]
@@ -168,8 +180,8 @@ class server
 
     /**
      * [setResponse Append the Responsible API response]
-     * @param [string/array] $key [Array key]
-     * @param array|null $response [Array value]
+     * @param string|array $key
+     * @param array|null $response
      */
     public function setResponse($key, $response)
     {
@@ -271,7 +283,7 @@ class server
      * 2. Build router
      * 3. Try run middleware
      *
-     * @return array
+     * @return self
      */
     public function route($route)
     {
@@ -357,7 +369,11 @@ class server
                 'system' => $router->getApi(),
             ];
 
-            $response = $router->run();
+            $runResponse = $router->run();
+
+            if (!is_null($runResponse)) {
+                $response = $runResponse;
+            }
         }
 
         $this->setResponse('', $response);
