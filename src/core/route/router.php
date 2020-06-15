@@ -41,9 +41,9 @@ class router extends server
 
     /**
      * [$routes]
-     * @var array
+     * @var object
      */
-    private $routes = array();
+    private $routes;
 
     /**
      * [$requestBody]
@@ -157,7 +157,7 @@ class router extends server
          */
         $routes = $this->getRoutes($base_uri);
 
-        $this->routes = array(
+        $routesArray = array(
             'base' => array(
                 'protocol' => $base->protocol(),
                 'path' => $base->basepath(),
@@ -177,7 +177,7 @@ class router extends server
             ),
         );
 
-        $this->routes = (object) $this->routes;
+        $this->routes = (object) $routesArray;
 
         return $this->routes;
     }
