@@ -103,8 +103,8 @@ class limiter
         $this->setLeakRate($options);
 
         $unlimited = 
-            (isset($options['unlimited']) && ($options['unlimited'] == 1 || $options['unlimited'] == true)) || 
-            (isset($options['requestType']) && $options['requestType'] === 'debug')
+            ((isset($options['unlimited']) && ($options['unlimited'] == 1 || $options['unlimited'] == true))) || 
+            ((isset($options['requestType']) && $options['requestType'] === 'debug'))
         ;
 
         if ($unlimited) {
@@ -311,7 +311,7 @@ class limiter
      */
     public function setCapacity($options)
     {
-        $hasCapacityOption = $this->hasOptionProperty($options, 'rateLimit', false);
+        $hasCapacityOption = $this->hasOptionProperty($options, 'rateLimit');
 
         if ($hasCapacityOption) {
             if (!is_integer($hasCapacityOption)||empty($hasCapacityOption)) {
@@ -337,7 +337,7 @@ class limiter
      */
     public function setTimeframe($options)
     {
-        $timeframe = $this->hasOptionProperty($options, 'rateWindow', false);
+        $timeframe = $this->hasOptionProperty($options, 'rateWindow');
 
         if (!is_string($timeframe) && !is_numeric($timeframe)) {
             $timeframe = $this->window;
@@ -381,7 +381,7 @@ class limiter
             $options['leakRate'] = 'default';
         }
 
-        $leakRate = $this->hasOptionProperty($options, 'leakRate', false);
+        $leakRate = $this->hasOptionProperty($options, 'leakRate');
 
         if (empty($leakRate) || !is_string($leakRate)) {
             $leakRate = 'default';
