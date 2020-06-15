@@ -67,25 +67,25 @@ class server
      * [$endpoints Endpoints class object]
      * @var object|null
      */
-    private $endpoints = null;
+    protected $endpoints = null;
 
     /**
      * [$keys Keys class object]
      * @var object|null
      */
-    private $keys = null;
+    protected $keys = null;
 
     /**
      * [$auth Auth class object]
      * @var object|null
      */
-    private $auth = null;
+    protected $auth = null;
 
     /**
      * [$limiter Limiter class object]
      * @var object|null
      */
-    private $limiter = null;
+    protected $limiter = null;
 
     /**
      * [$router Router class object]

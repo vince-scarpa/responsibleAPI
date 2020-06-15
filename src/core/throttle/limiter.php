@@ -88,6 +88,17 @@ class limiter
      */
     private $scope = 'private';
 
+    public function __construct($limit = null, $rate = null)
+    {
+        if (!is_null($limit)) {
+            $this->capacity = $limit;
+        }
+
+        if (!is_null($rate)) {
+            $this->window = $rate;
+        }
+    }
+
     /**
      * [setupOptions Set any Responsible API options]
      * @return self
