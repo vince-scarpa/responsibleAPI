@@ -45,8 +45,15 @@ class limiter
 
     /**
      * [$bucket]
+     * @var object|null
      */
     private $bucket;
+
+    /**
+     * [$tokenPacker Token packer class object]
+     * @var object|null
+     */
+    private $tokenPacker = null;
 
     /**
      * [$account User account object]
@@ -97,6 +104,9 @@ class limiter
         if (!is_null($rate)) {
             $this->window = $rate;
         }
+
+        $this->tokenPacker = new throttle\tokenPack;
+        $this->bucket = new throttle\tokenBucket;
     }
 
     /**
@@ -136,33 +146,8 @@ class limiter
 
         $account = $this->getAccount();
 
-        if (empty($account)) {
-            return false;
-        }
-
-        /**
-         * [$unpack Unpack the account bucket data]
-         */
-        $this->unpacked = (new throttle\tokenPack)->unpack(
-            $account->bucket
-        );
-        if (empty($this->unpacked)) {
-            $this->unpacked = array(
-                'drops' => 1,
-                'time' => $account->access,
-            );
-        }
-
-        $this->bucket = (new throttle\tokenBucket())
-            ->setTimeframe($this->getTimeframe())
-            ->setCapacity($this->getCapacity())
-            ->setLeakRate($this->getLeakRate())
-            ->pour($this->unpacked['drops'], $this->unpacked['time'])
-        ;
-
-        /**
-         * Check if the bucket still has capacity to fill
-         */
+        $this->unpackBucket();
+        
         if ($this->bucket->capacity()) {
             $this->bucket->pause(false);
             $this->bucket->fill();
@@ -185,12 +170,36 @@ class limiter
     }
 
     /**
+     * Unpack the account bucket data
+     */
+    private function unpackBucket()
+    {
+        $account = $this->getAccount();
+
+        $this->unpacked = $this->tokenPacker->unpack(
+            $account->bucket
+        );
+        if (empty($this->unpacked)) {
+            $this->unpacked = array(
+                'drops' => 1,
+                'time' => $account->access,
+            );
+        }
+
+        $this->bucket->setTimeframe($this->getTimeframe())
+            ->setCapacity($this->getCapacity())
+            ->setLeakRate($this->getLeakRate())
+            ->pour($this->unpacked['drops'], $this->unpacked['time'])
+        ;
+    }
+
+    /**
      * [updateBucket Store the buckets token data and user access time]
      * @return void
      */
     private function save()
     {
-        $this->packed = (new throttle\tokenPack)->pack(
+        $this->packed = $this->tokenPacker->pack(
             $this->bucket->getTokenData()
         );
 
@@ -263,7 +272,7 @@ class limiter
      */
     public function getAccount()
     {
-        if (is_null($this->account)) {
+        if (is_null($this->account)||empty($this->account)) {
             (new exception\errorException)
                 ->setOptions($this->getOptions())
                 ->error('UNAUTHORIZED');

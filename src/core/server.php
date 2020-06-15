@@ -181,7 +181,7 @@ class server
     /**
      * [setResponse Append the Responsible API response]
      * @param string|array $key
-     * @param array|null $response
+     * @param array|object|null $response
      */
     public function setResponse($key, $response)
     {

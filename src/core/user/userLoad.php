@@ -432,13 +432,4 @@ class userLoad extends user
             $this->column = 'USR.refresh_token';
         }
     }
-
-    /**
-     * [getColumn Get the set column]
-     * @return string
-     */
-    private function getColumn()
-    {
-        return $this->column;
-    }
 }
