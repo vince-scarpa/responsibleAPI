@@ -158,14 +158,13 @@ class map extends route\router implements interfaces\optionsInterface
      */
     private function isSystemEndpoint($api, $endpoint)
     {
-        $endpointSettings = [];
-
         if (isset(self::SYSTEM_ENDPOINTS[$api]) &&
             (
                 in_array($endpoint, self::SYSTEM_ENDPOINTS) ||
                 array_search($endpoint, self::SYSTEM_ENDPOINTS[$api]) !== false
             )
         ) {
+            $endpointSettings = [];
             $methodCreate = explode('/', $endpoint);
             $methodCreate = array_values(array_filter($methodCreate));
             $method = '';
