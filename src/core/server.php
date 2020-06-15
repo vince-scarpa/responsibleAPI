@@ -58,22 +58,28 @@ class server
     protected $grantAccess = false;
 
     /**
-     * [$ALLOWED_METHODS]
-     * @var array
-     */
-    private $ALLOWED_METHODS = array(
-        'GET',
-        'POST',
-        'PUT',
-        'PATCH',
-        'DELETE',
-    );
-
-    /**
      * [$RESPONSE]
      * @var array
      */
     protected $RESPONSE = array();
+
+    /**
+     * [$header Header class object]
+     * @var object|null
+     */
+    protected $header = null;
+
+    /**
+     * [$keys Keys class object]
+     * @var object|null
+     */
+    private $keys = null;
+
+    /**
+     * [$auth Auth class object]
+     * @var object|null
+     */
+    private $auth = null;
 
     /**
      * [__construct]

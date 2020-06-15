@@ -28,12 +28,6 @@ class authorise extends server
     public $user;
 
     /**
-     * [$header]
-     * @var object
-     */
-    public $header;
-
-    /**
      * [__construct Inherit Responsible API options]
      */
     public function __construct($options)
@@ -49,10 +43,6 @@ class authorise extends server
      */
     public function authorise()
     {
-        /*if (isset($this->config->getConfig()['MASTER_KEY'])) {
-            $key = $this->config->getConfig()['MASTER_KEY'];
-        }*/
-
         /**
          * Ignore if debug mode is initiated in Responsible API options
          */
