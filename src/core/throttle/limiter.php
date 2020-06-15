@@ -45,15 +45,15 @@ class limiter
 
     /**
      * [$bucket]
-     * @var object|null
+     * @var object
      */
     private $bucket;
 
     /**
      * [$tokenPacker Token packer class object]
-     * @var object|null
+     * @var object
      */
-    private $tokenPacker = null;
+    private $tokenPacker;
 
     /**
      * [$account User account object]
@@ -105,8 +105,8 @@ class limiter
             $this->window = $rate;
         }
 
-        $this->tokenPacker = new throttle\tokenPack;
         $this->bucket = new throttle\tokenBucket;
+        $this->tokenPacker = new throttle\tokenPack;
     }
 
     /**
@@ -145,20 +145,21 @@ class limiter
         }
 
         $account = $this->getAccount();
+        $bucket = $this->bucketObj();
 
         $this->unpackBucket();
         
-        if ($this->bucket->capacity()) {
-            $this->bucket->pause(false);
-            $this->bucket->fill();
+        if ($bucket->capacity()) {
+            $bucket->pause(false);
+            $bucket->fill();
         } else {
             if ($this->getLeakRate() <= 0) {
                 if ($this->unpacked['pauseAccess'] == false) {
-                    $this->bucket->pause(true);
+                    $bucket->pause(true);
                     $this->save();
                 }
 
-                if ($this->bucket->refill($account->access)) {
+                if ($bucket->refill($account->access)) {
                     $this->save();
                 }
             }
@@ -175,8 +176,10 @@ class limiter
     private function unpackBucket()
     {
         $account = $this->getAccount();
+        $bucket = $this->bucketObj();
+        $packer = $this->packerObj();
 
-        $this->unpacked = $this->tokenPacker->unpack(
+        $this->unpacked = $packer->unpack(
             $account->bucket
         );
         if (empty($this->unpacked)) {
@@ -186,7 +189,7 @@ class limiter
             );
         }
 
-        $this->bucket->setTimeframe($this->getTimeframe())
+        $bucket->setTimeframe($this->getTimeframe())
             ->setCapacity($this->getCapacity())
             ->setLeakRate($this->getLeakRate())
             ->pour($this->unpacked['drops'], $this->unpacked['time'])
@@ -199,7 +202,9 @@ class limiter
      */
     private function save()
     {
-        $this->packed = $this->tokenPacker->pack(
+        $packer = $this->packerObj();
+
+        $this->packed = $packer->pack(
             $this->bucket->getTokenData()
         );
 
@@ -280,6 +285,24 @@ class limiter
         }
 
         return $this->account;
+    }
+
+    /**
+     * [bucketObj Get the bucket class object]
+     * @return object
+     */
+    private function bucketObj()
+    {
+        return $this->bucket;
+    }
+
+    /**
+     * [packerObj Get the token packer class object]
+     * @return object
+     */
+    private function packerObj()
+    {
+        return $this->tokenPacker;
     }
 
     /**
