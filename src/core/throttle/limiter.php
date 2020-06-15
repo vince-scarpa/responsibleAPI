@@ -285,7 +285,7 @@ class limiter
      * [hasOptionProperty Check if an option property is set]
      * @param  array  $options
      * @param  string  $property
-     * @return string|boolean
+     * @return string|integer|boolean
      */
     private function hasOptionProperty(array $options, $property, $default = false)
     {
