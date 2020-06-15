@@ -104,7 +104,7 @@ class limiter
 
         $this->setUnlimited($options);
 
-        if( isset($this->account->scope) &&
+        if (isset($this->account->scope) &&
             ($this->account->scope == 'anonymous' || $this->account->scope == 'public')
         ) {
            $this->scope = $this->account->scope;
@@ -252,7 +252,7 @@ class limiter
      */
     public function getAccount()
     {
-        if(is_null($this->account)) {
+        if (is_null($this->account)) {
             (new exception\errorException)
                 ->setOptions($this->getOptions())
                 ->error('UNAUTHORIZED');
@@ -307,7 +307,7 @@ class limiter
         $hasCapacityOption = $this->hasOptionProperty($options, 'rateLimit');
 
         if ($hasCapacityOption) {
-            if (!is_integer($hasCapacityOption)||empty($hasCapacityOption)) {
+            if (!is_integer($hasCapacityOption) || empty($hasCapacityOption)) {
                 $hasCapacityOption = false;
             }
         }
@@ -400,7 +400,7 @@ class limiter
     {
         $unlimited = false;
 
-        if(isset($options['unlimited']) && ($options['unlimited'] == 1 || $options['unlimited'] == true)) {
+        if (isset($options['unlimited']) && ($options['unlimited'] == 1 || $options['unlimited'] == true)) {
             $unlimited = true;
         }
 
