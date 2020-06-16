@@ -114,15 +114,34 @@ class server
             }
         }
 
-        $this->header = new headers\header;
-        $this->header->setOptions($options);
+        $this->setDependencies();
+    }
 
-        $this->keys = new keys\key;
-        $this->endpoints = new endpoints\map;
-        $this->endpoints->setOptions($options);
+    /**
+     * [setDependencies Setup all dependent classes]
+     */
+    private function setDependencies()
+    {
+        $options = $this->getOptions();
 
-        $this->auth = new auth\authorise($options);
-        $this->auth->header = $this->header;
+        if (is_null($this->header)) {
+            $this->header = new headers\header;
+            $this->header->setOptions($options);
+        }
+
+        if (is_null($this->keys)) {
+            $this->keys = new keys\key;
+        }
+
+        if (is_null($this->endpoints)) {
+            $this->endpoints = new endpoints\map;
+            $this->endpoints->setOptions($options);
+        }
+
+        if (is_null($this->auth)) {
+            $this->auth = new auth\authorise($options);
+            $this->auth->header = $this->header;
+        }
     }
 
     /**
