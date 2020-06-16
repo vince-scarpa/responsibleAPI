@@ -152,22 +152,35 @@ class limiter
         if ($bucket->capacity()) {
             $bucket->pause(false);
             $bucket->fill();
+
         } else {
-            if ($this->getLeakRate() <= 0) {
-                if ($this->unpacked['pauseAccess'] == false) {
-                    $bucket->pause(true);
-                    $this->save();
-                }
-
-                if ($bucket->refill($account->access)) {
-                    $this->save();
-                }
-            }
-
-            (new exception\errorException)->error('TOO_MANY_REQUESTS');
+            $this->throttlePause();
         }
 
         $this->save();
+    }
+
+    /**
+     * [throttlePause Throttle the limiter when there are too many requests]
+     * @return void
+     */
+    private function throttlePause()
+    {
+        $account = $this->getAccount();
+        $bucket = $this->bucketObj();
+
+        if ($this->getLeakRate() <= 0) {
+            if ($this->unpacked['pauseAccess'] == false) {
+                $bucket->pause(true);
+                $this->save();
+            }
+
+            if ($bucket->refill($account->access)) {
+                $this->save();
+            }
+        }
+
+        (new exception\errorException)->error('TOO_MANY_REQUESTS');
     }
 
     /**
