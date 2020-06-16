@@ -98,11 +98,12 @@ class limiter
     public function __construct($limit = null, $rate = null)
     {
         if (!is_null($limit)) {
-            $this->capacity = $limit;
+            $this->setCapacity(['rateLimit' => $limit]);
         }
 
         if (!is_null($rate)) {
-            $this->window = $rate;
+            $this->setTimeframe(['rateWindow' => $rate]);
+            print_r($this->window);
         }
 
         $this->bucket = new throttle\tokenBucket;
@@ -144,7 +145,6 @@ class limiter
             return true;
         }
 
-        $account = $this->getAccount();
         $bucket = $this->bucketObj();
 
         $this->unpackBucket();
@@ -367,13 +367,11 @@ class limiter
     {
         $hasCapacityOption = $this->hasOptionProperty($options, 'rateLimit');
 
-        if ($hasCapacityOption) {
-            if (!is_integer($hasCapacityOption) || empty($hasCapacityOption)) {
-                $hasCapacityOption = false;
-            }
+        if (!is_numeric($hasCapacityOption) || empty($hasCapacityOption)) {
+            $hasCapacityOption = false;
         }
 
-        $this->capacity = ($hasCapacityOption) ? $hasCapacityOption : $this->capacity;
+        $this->capacity = ($hasCapacityOption) ? intval($hasCapacityOption) : intval($this->capacity);
     }
 
     /**
@@ -393,22 +391,19 @@ class limiter
     {
         $timeframe = $this->hasOptionProperty($options, 'rateWindow');
 
-        if (!is_string($timeframe) && !is_numeric($timeframe)) {
-            $timeframe = $this->window;
-        }
-
-        if (!$timeframe) {
-            $timeframe = $this->window;
+        if (is_string($timeframe)) {
+            if (isset(self::$timeframe[$timeframe])) {
+                $this->window = intval(self::$timeframe[$timeframe]);
+                return;
+            }
         }
 
         if (is_numeric($timeframe)) {
+            if ($timeframe < 0) {
+                $timeframe = ($timeframe*-1);
+            }
             self::$timeframe['CUSTOM'] = $timeframe;
-            $this->window = self::$timeframe['CUSTOM'];
-            return;
-        }
-
-        if (isset(self::$timeframe[$timeframe])) {
-            $this->window = self::$timeframe[$timeframe];
+            $this->window = intval(self::$timeframe['CUSTOM']);
             return;
         }
 
