@@ -103,7 +103,6 @@ class limiter
 
         if (!is_null($rate)) {
             $this->setTimeframe(['rateWindow' => $rate]);
-            print_r($this->window);
         }
 
         $this->bucket = new throttle\tokenBucket;
