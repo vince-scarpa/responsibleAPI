@@ -20,6 +20,8 @@ use responsible\core\user;
 
 class limiter
 {
+    use \responsible\core\traits\optionsTrait;
+
     /**
      * [$capacity Bucket volume]
      * @var integer
@@ -59,11 +61,6 @@ class limiter
      * [$account User account object]
      */
     private $account;
-
-    /**
-     * [$options Responisble options]
-     */
-    private $options;
 
     /**
      * [$timeframe Durations are in seconds]
@@ -320,25 +317,6 @@ class limiter
     private function packerObj()
     {
         return $this->tokenPacker;
-    }
-
-    /**
-     * [options Responsible API options]
-     * @param array $options
-     */
-    public function options($options)
-    {
-        $this->options = $options;
-        return $this;
-    }
-
-    /**
-     * [getOptions Get the stored Responsible API options]
-     * @return array
-     */
-    private function getOptions()
-    {
-        return $this->options;
     }
 
     /**

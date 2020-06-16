@@ -224,6 +224,7 @@ class server
     public function rateLimit($limit = null, $rate = null)
     {
         $this->limiter = new throttle\limiter($limit, $rate);
+        $this->limiter->setOptions($this->getOptions());
         return $this;
     }
 
@@ -267,7 +268,6 @@ class server
         }
         
         $this->limiter
-            ->options($this->getOptions())
             ->setAccount($this->auth->user())
             ->setupOptions()
             ->throttleRequest()
