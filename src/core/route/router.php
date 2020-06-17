@@ -28,12 +28,6 @@ class router extends server
     private $root;
 
     /**
-     * [$protocol]
-     * @var string
-     */
-    private $protocol = '';
-
-    /**
      * [$scope Router scope]
      * @var string
      */
@@ -177,7 +171,7 @@ class router extends server
             ),
         );
 
-        $this->routes = (object) $routesArray;
+        $this->routes = (object)$routesArray;
 
         return $this->routes;
     }
@@ -204,7 +198,7 @@ class router extends server
 
     /**
      * [systemAccess Is system access allowed]
-     * @return boolean|null
+     * @return boolean
      */
     public function systemAccess($account)
     {
@@ -213,7 +207,7 @@ class router extends server
         }
 
         if ($account->uid > 0 && $this->getScope() == 'system') {
-            return;
+            return false;
         }
 
         return true;
