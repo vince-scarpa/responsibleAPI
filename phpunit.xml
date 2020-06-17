@@ -30,6 +30,6 @@
     </php>
 
     <logging>
-        <log type="coverage-text" target="php://stdout" showUncoveredFiles="true"/>
+        <log type="coverage-text" target="build/logs/clover.xml" showUncoveredFiles="true"/>
     </logging>
 </phpunit>

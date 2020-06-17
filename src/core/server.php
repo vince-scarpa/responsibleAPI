@@ -35,13 +35,13 @@ class server
 
     /**
      * [$options Variable store for the Responsible API options set]
-     * @var array
+     * @var array|null
      */
     private $options = null;
 
     /**
      * [$DB Database PDO connector]
-     * @var object
+     * @var object|null
      */
     protected $DB = null;
 
