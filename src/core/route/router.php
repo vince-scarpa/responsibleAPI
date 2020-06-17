@@ -142,7 +142,7 @@ class router extends server
 
     /**
      * [route]
-     * @return array
+     * @return object
      */
     public function route($customRoute = '')
     {
