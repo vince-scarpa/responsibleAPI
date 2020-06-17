@@ -35,7 +35,7 @@ class application
 
     /**
      * [data]
-     * @return void
+     * @return mixed
      */
     public function data($data)
     {
