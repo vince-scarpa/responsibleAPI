@@ -59,9 +59,9 @@ class server
 
     /**
      * [$header Header class object]
-     * @var object|null
+     * @var object
      */
-    protected $header = null;
+    protected $header;
 
     /**
      * [$endpoints Endpoints class object]
