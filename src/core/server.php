@@ -398,7 +398,7 @@ class server
 
     /**
      * [getRouter Get the details of the Responsible API router]
-     * @return array
+     * @return object
      */
     public function getRouter()
     {
