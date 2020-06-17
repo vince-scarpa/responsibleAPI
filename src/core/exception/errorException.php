@@ -112,7 +112,7 @@ class errorException extends \Exception
 
     /**
      * [error]
-     * @return [void]
+     * @return void
      */
     public function error($type, $level = 'system')
     {
@@ -139,7 +139,7 @@ class errorException extends \Exception
 
     /**
      * [message Custom message override]
-     * @return [object / self]
+     * @return self
      */
     public function message($message)
     {
@@ -149,7 +149,6 @@ class errorException extends \Exception
 
     /**
      * [errorMessage]
-     * @return [object / exit]
      */
     private function throwError($level)
     {
@@ -171,7 +170,7 @@ class errorException extends \Exception
             ), JSON_PRETTY_PRINT);
 
             if( isset($options['errors']) && $options['errors'] == 'catchAll' ) {
-                throw new self($eMessage, 1);
+                throw new \Exception($eMessage, 1);
             }
 
             echo $eMessage;
@@ -186,7 +185,7 @@ class errorException extends \Exception
             ), JSON_PRETTY_PRINT);
 
             if( isset($options['errors']) && $options['errors'] == 'catchAll' ) {
-                throw new self($eMessage, 1);
+                throw new \Exception($eMessage, 1);
             }
 
             echo $eMessage;
@@ -196,7 +195,8 @@ class errorException extends \Exception
 
     /**
      * [setOptions Inherit Responsible API options]
-     * @param [array] $options
+     * @param array $options
+     * @return self
      */
     public function setOptions($options)
     {
@@ -206,7 +206,7 @@ class errorException extends \Exception
 
     /**
      * [getOptions Get available options]
-     * @return [array]
+     * @return array
      */
     public function getOptions()
     {
