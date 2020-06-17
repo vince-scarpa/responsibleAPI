@@ -120,7 +120,8 @@ class tokenBucket
      */
     public function full()
     {
-        return ceil($this->drops >= $this->capacity);
+        $isFull = ceil($this->drops) >= $this->capacity;
+        return $isFull;
     }
 
     /**
@@ -210,10 +211,11 @@ class tokenBucket
             }
 
             if (is_numeric($leakRate)) {
-                if ($leakRate < 0) {
-                    $leakRate = 0;
+                $nLeakRate = $leakRate;
+                if ($nLeakRate < 0) {
+                    $nLeakRate = 0;
                 }
-                $this->leakage = $leakRate;
+                $this->leakage = (float)$nLeakRate;
             }
         }
 
