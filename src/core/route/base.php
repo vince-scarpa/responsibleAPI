@@ -18,7 +18,7 @@ class base
 {
     /**
      * [base_url]
-     * @return [string]
+     * @return string
      */
     public function url()
     {
@@ -31,7 +31,7 @@ class base
 
     /**
      * [base_uri]
-     * @return [string]
+     * @return string
      */
     public function uri()
     {
@@ -49,7 +49,7 @@ class base
 
     /**
      * [basepath]
-     * @return [string]
+     * @return string
      */
     public function basepath()
     {
@@ -58,7 +58,7 @@ class base
 
     /**
      * [protocol]
-     * @return [string]
+     * @return string
      */
     public function protocol()
     {
