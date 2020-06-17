@@ -18,7 +18,7 @@ class key
 {
     /**
      * [accountIdGenerate Generate a user account id]
-     * @return integer
+     * @return string
      */
     public function accountIdGenerate($length = 8)
     {
