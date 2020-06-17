@@ -23,8 +23,14 @@ use responsible\responsible;
 class system extends map
 {
     /**
+     * [$settings]
+     * @var array
+     */
+    private $settings = [];
+
+    /**
      * [$RESPONSE Set the internal system response]
-     * @var [array]
+     * @var array
      */
     protected $RESPONSE;
 
@@ -36,7 +42,7 @@ class system extends map
 
     /**
      * [settings Inherited settings]
-     * @return [void]
+     * @return void
      */
     public function settings(array $settings)
     {
@@ -45,7 +51,7 @@ class system extends map
 
     /**
      * [headerMethods]
-     * @return [void]
+     * @return void
      */
     public function headerMethods()
     {
@@ -56,59 +62,16 @@ class system extends map
     }
 
     /**
-     * [userCreate Create a new user]
-     * @return [$account]
-     */
-    public function userCreate()
-    {
-        $options = array(
-            'jwt' => [
-                'issuedAt' => time(),
-                'expires' => time() + 86400, // Default 86400
-                'notBeFor' => time() + 10,
-            ],
-        );
-        $responsibleUser = responsible::createUser(
-            'Vince 1978', // Unique user name
-            'vinnie@example.com', // Unique email address
-            $options
-        );
-
-        $this->RESPONSE = $responsibleUser;
-    }
-
-    /**
-     * [userCreate Load a user account]
-     * @return [$account]
-     */
-    public function userLoad()
-    {
-        $options = array(
-            'jwt' => [
-                'issuedAt' => time(),
-                'expires' => time() + 600,
-                'notBeFor' => time() + 10,
-            ],
-            'loadBy' => 'email',
-        );
-        $responsibleUser = responsible::loadUser('vinnie@example.com', $options);
-
-        $this->RESPONSE = $responsibleUser;
-
-        return $responsibleUser;
-    }
-
-    /**
      * [tokenAccess_token Empty function, not handled in this class. See header for method]
      * @see [header->accessCredentialsHeaders()]
-     * @return [void]
+     * @return void
      */
     public function tokenAccessToken()
     {}
 
     /**
      * [run Get the system response]
-     * @return [array]
+     * @return object|null
      */
     public function run()
     {
