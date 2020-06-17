@@ -90,10 +90,6 @@ class cipher
      */
     public function hashCompare($a, $b)
     {
-        if (!is_string($a) || !is_string($b)) {
-            return false;
-        }
-
         $len = strlen($a);
         if ($len !== strlen($b)) {
             return false;

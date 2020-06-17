@@ -19,8 +19,14 @@ use responsible\core\exception;
 class application
 {
     /**
+     * [$requestType description]
+     * @var string
+     */
+    private $requestType;
+
+    /**
      * [__construct]
-     * @param [string] $application
+     * @param string $application
      */
     public function __construct($application)
     {
@@ -29,7 +35,7 @@ class application
 
     /**
      * [data]
-     * @return [type]
+     * @return mixed
      */
     public function data($data)
     {
@@ -53,7 +59,7 @@ class application
 
     /**
      * [arrayResponse]
-     * @return [array]
+     * @return array
      */
     private function arrayResponse($data)
     {
@@ -62,7 +68,7 @@ class application
 
     /**
      * [objectResponse]
-     * @return [object]
+     * @return object
      */
     private function objectResponse($data)
     {
@@ -71,7 +77,7 @@ class application
 
     /**
      * [json]
-     * @return [json object]
+     * @return string
      */
     private function jsonResponse($data)
     {
@@ -81,7 +87,7 @@ class application
     /**
      * [xml]
      * [TODO]
-     * @return [xml nodes]
+     * @return void
      */
     private function xmlResponse($data)
     {
@@ -91,7 +97,7 @@ class application
     /**
      * [html]
      * [TODO]
-     * @return [html DOM]
+     * @return string
      */
     private function htmlResponse($data)
     {
@@ -100,7 +106,7 @@ class application
 
     /**
      * [debug]
-     * @return [array]
+     * @return array
      */
     private function debugResponse($data)
     {

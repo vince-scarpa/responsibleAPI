@@ -59,39 +59,39 @@ class server
 
     /**
      * [$header Header class object]
-     * @var object|null
+     * @var object
      */
-    protected $header = null;
+    protected $header;
 
     /**
      * [$endpoints Endpoints class object]
-     * @var object|null
+     * @var object
      */
-    protected $endpoints = null;
+    protected $endpoints;
 
     /**
      * [$keys Keys class object]
-     * @var object|null
+     * @var object
      */
-    protected $keys = null;
+    protected $keys;
 
     /**
      * [$auth Auth class object]
-     * @var object|null
+     * @var object
      */
-    protected $auth = null;
+    protected $auth;
 
     /**
      * [$limiter Limiter class object]
-     * @var object|null
+     * @var object
      */
-    protected $limiter = null;
+    protected $limiter;
 
     /**
      * [$router Router class object]
-     * @var object|null
+     * @var object
      */
-    protected $router = null;
+    protected $router;
 
     /**
      * [__construct]
@@ -114,15 +114,34 @@ class server
             }
         }
 
-        $this->header = new headers\header;
-        $this->header->setOptions($options);
+        $this->setDependencies();
+    }
 
-        $this->keys = new keys\key;
-        $this->endpoints = new endpoints\map;
-        $this->endpoints->setOptions($options);
+    /**
+     * [setDependencies Setup all dependent classes]
+     */
+    private function setDependencies()
+    {
+        $options = $this->getOptions();
 
-        $this->auth = new auth\authorise($options);
-        $this->auth->header = $this->header;
+        if (is_null($this->header)) {
+            $this->header = new headers\header;
+            $this->header->setOptions($options);
+        }
+
+        if (is_null($this->keys)) {
+            $this->keys = new keys\key;
+        }
+
+        if (is_null($this->endpoints)) {
+            $this->endpoints = new endpoints\map;
+            $this->endpoints->setOptions($options);
+        }
+
+        if (is_null($this->auth)) {
+            $this->auth = new auth\authorise($options);
+            $this->auth->header = $this->header;
+        }
     }
 
     /**
@@ -379,7 +398,7 @@ class server
 
     /**
      * [getRouter Get the details of the Responsible API router]
-     * @return array
+     * @return object
      */
     public function getRouter()
     {
