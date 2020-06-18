@@ -42,7 +42,7 @@ class tokenBucket
 
     /**
      * [$timeframe The window timeframe]
-     * @var integer
+     * @var integer|string
      */
     private $timeframe;
 

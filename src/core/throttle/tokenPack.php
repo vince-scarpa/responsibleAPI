@@ -20,6 +20,12 @@ use responsible\core\encoder;
 class tokenPack
 {
     /**
+     * [$cipher]
+     * @var object
+     */
+    private $cipher;
+
+    /**
      * [__construct Call cipher class]
      */
     public function __construct()

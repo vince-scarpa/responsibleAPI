@@ -55,6 +55,18 @@ class responsible
     private $requestType = 'json';
 
     /**
+     * [$requestType Request limit]
+     * @var integer
+     */
+    private $requestLimit;
+
+    /**
+     * [$requestType Request window rate]
+     * @var string|integer
+     */
+    private $requestRateWindow;
+
+    /**
      * [__construc :: Construct the Responsible API]
      * @param array $DEFAULTS   
      *        environment settings
@@ -309,10 +321,9 @@ class responsible
     /**
      * [updateUser Update a user account]
      * @param  array $properties
-     * @param  array $options
      * @return array
      */
-    public static function updateUser($properties, array $options = [])
+    public static function updateUser($properties)
     {
         return (new user\user)
             ->update($properties)
