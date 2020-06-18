@@ -47,12 +47,18 @@ final class LimiterTest extends TestCase
 
         $getOptionsSet = $limiter->getOptions();
 
-        $this->assertContains('requestType', $getOptionsSet);
-        $this->assertContains('rateLimit', $getOptionsSet);
-        $this->assertContains('rateWindow', $getOptionsSet);
-        $this->assertContains('unlimited', $getOptionsSet);
-        $this->assertContains('leak', $getOptionsSet);
-        $this->assertContains('leakRate', $getOptionsSet);
+        $expectedKeys = [
+            'requestType',
+            'rateLimit',
+            'rateWindow',
+            'unlimited',
+            'leak',
+            'leakRate',
+        ];
+
+        foreach ($expectedKeys as $i => $key) {
+            $this->assertArrayHasKey($key, $getOptionsSet);
+        }
     }
 
     /**
@@ -66,12 +72,18 @@ final class LimiterTest extends TestCase
 
         $getOptionsSet = $limiter->getOptions();
 
-        $this->assertContains('requestType', $getOptionsSet);
-        $this->assertContains('rateLimit', $getOptionsSet);
-        $this->assertContains('rateWindow', $getOptionsSet);
-        $this->assertContains('unlimited', $getOptionsSet);
-        $this->assertContains('leak', $getOptionsSet);
-        $this->assertContains('leakRate', $getOptionsSet);
+        $expectedKeys = [
+            'requestType',
+            'rateLimit',
+            'rateWindow',
+            'unlimited',
+            'leak',
+            'leakRate',
+        ];
+
+        foreach ($expectedKeys as $i => $key) {
+            $this->assertArrayHasKey($key, $getOptionsSet);
+        }
     }
 
     /**
@@ -81,7 +93,11 @@ final class LimiterTest extends TestCase
     public function testWrongRateWindowInput(): void
     {
         $limiter = $this->limiterConstructor;
-        
+
+        /**
+         * Key = Expected value
+         * Value = Actual value
+         */
         $wrongPossibilities = [
             60 => [],
             60 => new \stdClass,
@@ -91,13 +107,13 @@ final class LimiterTest extends TestCase
 
         $possition = 0;
 
-        foreach ($wrongPossibilities as $resolveTo => $possibleTest) {
+        foreach ($wrongPossibilities as $expectedValue => $possibleTest) {
             $this->options['rateWindow'] = $possibleTest;
             $limiter->setOptions($this->options);
             $limiter->setupOptions();
             $getOptionsSet = $limiter->getOptions();
 
-            $this->assertEquals($resolveTo, $limiter->getTimeframe(), "Time frame not reset to {$resolveTo} value. Failed at possition {$possition}");
+            $this->assertEquals($expectedValue, $limiter->getTimeframe(), "Time frame not reset to {$expectedValue} value. Failed at possition {$possition}");
 
             $possition++;
         }
