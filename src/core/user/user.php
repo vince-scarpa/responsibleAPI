@@ -155,10 +155,31 @@ class user
     private function updateAccount($properties)
     {
         if( is_array($properties) ) {
-            $properties = (object) $properties; //json_decode(json_encode($properties));
+            $properties = (object) $properties;
         }
 
-        if( !isset($properties->update) || 
+        $this->checkUpdateProperties($properties);
+        
+        $updateSet = $this->buildUpdateSet($properties);
+        
+        return $this->DB()->
+            query(
+                "UPDATE responsible_api_users USR
+                        set {$updateSet['set']}
+                        WHERE {$updateSet['where']}
+                ;",
+                $updateSet['binds']
+        );
+    }
+
+    /**
+     * [checkUpdateProperties Check if we have the correct update properties]
+     * @param  object $properties
+     * @return void
+     */
+    private function checkUpdateProperties($properties)
+    {
+        if (!isset($properties->update) || 
             !isset($properties->where) || 
             (isset($properties->update) && !is_array($properties->update)) ||
             (isset($properties->where) && !is_array($properties->where))
@@ -167,23 +188,24 @@ class user
                 ->message('No update property was provided. Please read the documentation on updating user accounts.')
                 ->error('ACCOUNT_UPDATE');
         }
-        
+    }
+
+    /**
+     * [buildUpdateSet description]
+     * @param  object $properties
+     * @return array
+     */
+    private function buildUpdateSet($properties)
+    {
         $allowedFileds = $binds = [];
         $set = '';
 
-        /**
-         * Get the available table field names to set allowed updates
-         */
         $columns = $this->DB()->query("SHOW COLUMNS FROM responsible_api_users");
         
         foreach ($columns as $f => $field) {
             $allowedFileds[] = $field['Field'];
         }
 
-        /**
-         * Remove any properties that arn't a table column
-         * @var [type]
-         */
         foreach ($properties->update as $u => $update) {
             if( !in_array($u, $allowedFileds) ) {
                 unset($properties->update[$u]);
@@ -196,14 +218,11 @@ class user
         $set = rtrim($set, ',');
         $where =  key($properties->where) . ' = ' . $properties->where[key($properties->where)];
 
-        return $this->DB()->
-            query(
-                "UPDATE responsible_api_users USR
-                        set {$set}
-                        WHERE {$where}
-                ;",
-                $binds
-        );
+        return [
+            'set' => $set,
+            'where' => $where,
+            'binds' => $binds
+        ];
     }
 
     /**
