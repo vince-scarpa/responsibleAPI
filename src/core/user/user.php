@@ -23,32 +23,56 @@ use responsible\core\headers;
 class user
 {
     /**
+     * [$DB Data base object]
+     * @var object
+     */
+    private $DB;
+
+    /**
      * [$name Account username]
-     * @var [string]
+     * @var string
      */
     private $name;
 
     /**
      * [$name Account email address]
-     * @var [string]
+     * @var string
      */
     private $mail;
 
     /**
+     * [$ACCOUNT_ID]
+     * @var string
+     */
+    private $ACCOUNT_ID;
+
+    /**
      * [$timestamp Time now]
-     * @var [integer]
+     * @var integer
      */
     protected $timestamp;
 
     /**
+     * [$bucketToken]
+     * @var string
+     */
+    private $bucketToken;
+
+    /**
      * [$options Resposible API options]
-     * @var [array]
+     * @var array
      */
     protected $options;
 
     /**
+     * [$credentials User credentials]
+     * @var array
+     */
+    protected $credentials;
+
+    /**
      * [create Create a new access account]
-     * @return [array]
+     * @return array
      */
     public function create()
     {
@@ -60,7 +84,7 @@ class user
 
     /**
      * [update Update an access account]
-     * @return [array]
+     * @return array
      */
     public function update($properties)
     {
@@ -69,7 +93,7 @@ class user
 
     /**
      * [load Load a stored account]
-     * @return [array]
+     * @return array
      */
     public function load($property, array $options)
     {
@@ -184,8 +208,10 @@ class user
 
     /**
      * [credentials Set the new account credentials]
-     * @param  [string] $name [username]
-     * @param  [string] $mail [email address]
+     * @param  string $name 
+     *         username
+     * @param  string $mail 
+     *         email address
      */
     public function credentials($name, $mail)
     {
@@ -207,7 +233,7 @@ class user
 
     /**
      * [validate - Validate the new account credentials]
-     * @return [boolean]
+     * @return boolean
      */
     private function validate($type, $property)
     {
@@ -222,7 +248,7 @@ class user
 
             case 'name':
                 if (!is_string($property) && !$skipValidatation) {
-                    return;
+                    return false;
                 }
                 $this->name = preg_replace('/\s+/', '-', strtolower($property));
 
@@ -231,18 +257,20 @@ class user
 
             case 'mail':
                 if( !filter_var($property, FILTER_VALIDATE_EMAIL) && !$skipValidatation) {
-                    return;
+                    return false;
                 }
                 $this->mail = $property;
 
                 return true;
                 break;
         }
+
+        return false;
     }
 
     /**
      * [getJWT Get the JWT payload]
-     * @return [array]
+     * @return array
      */
     protected function getJWT($key)
     {
@@ -264,7 +292,7 @@ class user
      */
     protected function DB()
     {
-        if (!isset($this->DB)) {
+        if (is_null($this->DB)) {
             $defaults = $this->getDefaults();
             $config = $defaults['config'];
 
@@ -275,7 +303,7 @@ class user
 
     /**
      * [getDefaults Get the Responsible API defaults ]
-     * @return [array]
+     * @return array
      */
     protected function getDefaults()
     {
@@ -286,7 +314,7 @@ class user
 
     /**
      * [setOptions Set the REsponsible API options]
-     * @param [array] $options
+     * @param array $options
      */
     public function setOptions($options)
     {
@@ -296,7 +324,7 @@ class user
 
     /**
      * [getOptions Get the Responsible API options]
-     * @return [array]
+     * @return array
      */
     protected function getOptions()
     {
@@ -305,7 +333,7 @@ class user
 
     /**
      * [timeNow Create a timestamp of now]
-     * @return [integer]
+     * @return integer
      */
     protected function timeNow()
     {
@@ -324,7 +352,7 @@ class user
 
     /**
      * [getAccountID]
-     * @return [integer]
+     * @return integer
      */
     protected function getAccountID()
     {
@@ -333,7 +361,7 @@ class user
 
     /**
      * [setBucket Bucket data token]
-     * @param [string] $packed
+     * @param string $packed
      */
     public function setBucketToken($packed)
     {
@@ -343,7 +371,7 @@ class user
 
     /**
      * [getBucketToken Bucket data token]
-     * @param [string] $packed
+     * @param string $packed
      */
     public function getBucketToken()
     {
@@ -352,8 +380,8 @@ class user
 
     /**
      * [getClaim Check if a claim is set and not empty]
-     * @param  [string] $claim
-     * @return [mixed]
+     * @param  string $claim
+     * @return mixed
      */
     public function checkVal($option, $key, $default = false)
     {
