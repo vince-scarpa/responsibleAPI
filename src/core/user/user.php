@@ -132,15 +132,15 @@ class user
     private function updateAccess()
     {
         return $this->DB()->
-            query(
-                "UPDATE responsible_api_users USR
+            query("
+                UPDATE responsible_api_users USR
                         JOIN responsible_token_bucket TKN
                             ON (USR.account_id = TKN.account_id)
                         set
                             USR.access = :unix,
                             TKN.bucket = :bkt
                         WHERE USR.account_id = :aid;",
-                array(
+            array(
                 'unix' => (new \DateTime('now'))->getTimestamp(),
                 'aid' => $this->getAccountID(),
                 'bkt' => $this->getBucketToken(),
@@ -154,21 +154,20 @@ class user
      */
     private function updateAccount($properties)
     {
-        if( is_array($properties) ) {
+        if (is_array($properties)) {
             $properties = (object) $properties;
         }
 
         $this->checkUpdateProperties($properties);
-        
+
         $updateSet = $this->buildUpdateSet($properties);
-        
-        return $this->DB()->
-            query(
-                "UPDATE responsible_api_users USR
+
+        return $this->DB()->query("
+            UPDATE responsible_api_users USR
                         set {$updateSet['set']}
                         WHERE {$updateSet['where']}
                 ;",
-                $updateSet['binds']
+            $updateSet['binds']
         );
     }
 
@@ -179,8 +178,8 @@ class user
      */
     private function checkUpdateProperties($properties)
     {
-        if (!isset($properties->update) || 
-            !isset($properties->where) || 
+        if (!isset($properties->update) ||
+            !isset($properties->where) ||
             (isset($properties->update) && !is_array($properties->update)) ||
             (isset($properties->where) && !is_array($properties->where))
         ) {
@@ -201,35 +200,35 @@ class user
         $set = '';
 
         $columns = $this->DB()->query("SHOW COLUMNS FROM responsible_api_users");
-        
+
         foreach ($columns as $f => $field) {
             $allowedFileds[] = $field['Field'];
         }
 
         foreach ($properties->update as $u => $update) {
-            if( !in_array($u, $allowedFileds) ) {
+            if (!in_array($u, $allowedFileds)) {
                 unset($properties->update[$u]);
-            }else{
+            } else {
                 $set .= $u . ' = :' . $u . ',';
                 $binds[$u] = $update;
             }
         }
 
         $set = rtrim($set, ',');
-        $where =  key($properties->where) . ' = ' . $properties->where[key($properties->where)];
+        $where = key($properties->where) . ' = ' . $properties->where[key($properties->where)];
 
         return [
             'set' => $set,
             'where' => $where,
-            'binds' => $binds
+            'binds' => $binds,
         ];
     }
 
     /**
      * [credentials Set the new account credentials]
-     * @param  string $name 
+     * @param  string $name
      *         username
-     * @param  string $mail 
+     * @param  string $mail
      *         email address
      */
     public function credentials($name, $mail)
@@ -259,7 +258,7 @@ class user
         $options = $this->getOptions();
         $skipValidatation = false;
 
-        if( isset($options['validate']) && $options['validate'] == false ) {
+        if (isset($options['validate']) && $options['validate'] == false) {
             $skipValidatation = true;
         }
 
@@ -275,7 +274,7 @@ class user
                 break;
 
             case 'mail':
-                if( !filter_var($property, FILTER_VALIDATE_EMAIL) && !$skipValidatation) {
+                if (!filter_var($property, FILTER_VALIDATE_EMAIL) && !$skipValidatation) {
                     return false;
                 }
                 $this->mail = $property;
