@@ -22,6 +22,18 @@ use responsible\core\route;
 class userCreate extends user
 {
     /**
+     * [$keys]
+     * @var object
+     */
+    private $keys;
+
+    /**
+     * [$jwt]
+     * @var object
+     */
+    private $jwt;
+
+    /**
      * [$credentials]
      * @var array
      */
@@ -47,7 +59,7 @@ class userCreate extends user
 
     /**
      * [create - Create a user account]
-     * @return [array]
+     * @return array
      */
     public function createAccount()
     {
@@ -81,7 +93,7 @@ class userCreate extends user
 
     /**
      * [createPayload Create a new payload for the new account]
-     * @return [array]
+     * @return array
      */
     private function createPayload()
     {
@@ -99,7 +111,7 @@ class userCreate extends user
 
         /**
          * [$jwtOptions JWT options may be set as Responsible option overrides]
-         * @var [array]
+         * @var array
          */
         if (false !== ($jwtOptions = $this->checkVal($this->options, 'jwt'))) {
             if (false !== ($exp = $this->checkVal($jwtOptions, 'expires'))) {
@@ -118,13 +130,13 @@ class userCreate extends user
 
     /**
      * [accountExists description]
-     * @return [type] [description]
+     * @return object
      */
     private function accountExists()
     {
         $account = $this->DB()
-            ->row(
-                "SELECT uid
+            ->row("
+                SELECT uid
                 FROM responsible_api_users
                 WHERE
                     name = :name
@@ -148,8 +160,8 @@ class userCreate extends user
     }
 
     /**
-     * [accountInsert description]
-     * @return [type] [description]
+     * [accountInsert]
+     * @return array
      */
     private function accountInsert()
     {
@@ -193,7 +205,7 @@ class userCreate extends user
 
     /**
      * [setOptions Set the Responsible API options]
-     * @param [array] $options
+     * @param array $options
      */
     public function setOptions($options)
     {
@@ -202,8 +214,8 @@ class userCreate extends user
     }
 
     /**
-     * [setToken description]
-     * @param [type] $token [description]
+     * [setToken]
+     * @param string $token
      */
     private function setToken($token)
     {
@@ -211,8 +223,8 @@ class userCreate extends user
     }
 
     /**
-     * [getToken description]
-     * @return [type] [description]
+     * [getToken]
+     * @return string
      */
     private function getToken()
     {
