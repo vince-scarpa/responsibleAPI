@@ -105,7 +105,7 @@ class user
 
     /**
      * [updateAccountAccess Update the requests account access]
-     * @return [boolean]
+     * @return void
      */
     public function updateAccountAccess($ACCOUNT_ID = null)
     {
@@ -127,7 +127,7 @@ class user
 
     /**
      * [updateAccess Update access for limit requests]
-     * @return [boolean]
+     * @return boolean
      */
     private function updateAccess()
     {
@@ -150,7 +150,7 @@ class user
 
     /**
      * [updateAccount Update access for limit requests]
-     * @return [boolean]
+     * @return boolean
      */
     private function updateAccount($properties)
     {
@@ -352,7 +352,7 @@ class user
 
     /**
      * [getAccountID]
-     * @return integer
+     * @return string
      */
     protected function getAccountID()
     {
