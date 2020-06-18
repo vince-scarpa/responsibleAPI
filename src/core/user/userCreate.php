@@ -194,7 +194,7 @@ class userCreate extends user
                 )
             );
 
-        if ($newAccount) {
+        if ($newAccount && $newTokenBucket) {
             return $this->load($this->credentials['mail'], array('loadBy' => 'mail'));
         }
 
@@ -211,23 +211,5 @@ class userCreate extends user
     {
         $this->options = $options;
         return $this;
-    }
-
-    /**
-     * [setToken]
-     * @param string $token
-     */
-    private function setToken($token)
-    {
-        $this->token = $token;
-    }
-
-    /**
-     * [getToken]
-     * @return string
-     */
-    private function getToken()
-    {
-        return $this->token;
     }
 }
