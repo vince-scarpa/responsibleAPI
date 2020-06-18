@@ -77,7 +77,8 @@ class router extends server
 
             $controller->headerMethods();
             $controller->settings((array) $controllerSettings);
-            $controller->responsible = $this->routes;
+            $controller->responsible = new \stdClass;
+            $controller->responsible = $this->getRoutes();
             $response = $controller->run();
 
             return $response;
@@ -149,7 +150,7 @@ class router extends server
         /**
          * Get the routes exit if any errors
          */
-        $routes = $this->getRoutes($base_uri);
+        $routes = $this->getTierList($base_uri);
 
         $routesArray = array(
             'base' => array(
@@ -171,16 +172,16 @@ class router extends server
             ),
         );
 
-        $this->routes = (object)$routesArray;
+        $this->setRoutes((object)$routesArray);
 
-        return $this->routes;
+        return $this->getRoutes();
     }
 
     /**
-     * [getRoutes]
+     * [getTierList]
      * @return array
      */
-    private function getRoutes($base_uri)
+    private function getTierList($base_uri)
     {
         $routes = explode('/', $base_uri);
         $routes = array_values(array_filter($routes));
@@ -203,7 +204,7 @@ class router extends server
     public function systemAccess($account)
     {
         if (empty($account) || !isset($account->uid)) {
-            return;
+            return false;
         }
 
         if ($account->uid > 0 && $this->getScope() == 'system') {
@@ -231,7 +232,7 @@ class router extends server
      */
     public function setScope($scope)
     {
-        $this->routes->route['scope'] = $scope;
+        $this->getRoutes()->route['scope'] = $scope;
     }
 
     /**
@@ -240,7 +241,7 @@ class router extends server
      */
     public function getScope()
     {
-        return $this->routes->route['scope'];
+        return $this->getRoutes()->route['scope'];
     }
 
     /**
@@ -249,7 +250,7 @@ class router extends server
      */
     public function getApi()
     {
-        return $this->routes->route['api'];
+        return $this->getRoutes()->route['api'];
     }
 
     /**
@@ -258,10 +259,10 @@ class router extends server
      */
     public function getController()
     {
-        if (!isset($this->routes->endpoint)) {
+        if (!isset($this->getRoutes()->endpoint)) {
             (new exception\errorException)->error('NOT_FOUND');
         }
-        return $this->routes->endpoint;
+        return $this->getRoutes()->endpoint;
     }
 
     /**
@@ -270,7 +271,7 @@ class router extends server
      */
     public function getSize()
     {
-        return $this->routes->route['size'];
+        return $this->getRoutes()->route['size'];
     }
 
     /**
@@ -279,7 +280,7 @@ class router extends server
      */
     public function getPath()
     {
-        return $this->routes->url['path'];
+        return $this->getRoutes()->url['path'];
     }
 
     /**
@@ -288,7 +289,7 @@ class router extends server
      */
     public function getIssuer($protocol = false)
     {
-        if (!isset($this->routes->base)) {
+        if (!isset($this->getRoutes()->base)) {
             $base = new route\base;
             return $base->url();
         }
@@ -296,14 +297,33 @@ class router extends server
         if (!$protocol) {
             return str_replace(
                 array(
-                    $this->routes->base['protocol'],
+                    $this->getRoutes()->base['protocol'],
                     '://',
                 ),
                 '',
-                $this->routes->base['url']
+                $this->getRoutes()->base['url']
             );
         }
 
-        return $this->routes->base['url'];
+        return $this->getRoutes()->base['url'];
+    }
+
+    /**
+     * [setRoutes Set the routers object]
+     * @param object $routes
+     */
+    public function setRoutes(object $routes)
+    {
+        $this->routes = new \stdClass;
+        $this->routes = $routes;
+    }
+
+    /**
+     * [getRoutes Get the routers object]
+     * @return object
+     */
+    public function getRoutes()
+    {
+        return $this->routes;
     }
 }
