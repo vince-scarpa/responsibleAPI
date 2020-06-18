@@ -312,7 +312,7 @@ class router extends server
      * [setRoutes Set the routers object]
      * @param object $routes
      */
-    public function setRoutes(object $routes)
+    public function setRoutes($routes)
     {
         $this->routes = new \stdClass;
         $this->routes = $routes;
