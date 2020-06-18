@@ -62,7 +62,7 @@ final class AuthTest extends TestCase
     {
         $jwt = new auth\jwt;
 
-        $this->expectException(exception\errorException::class);
+        $this->expectException(\Exception::class);
 
         $decoded = $jwt
                 ->setOptions($this->options)
