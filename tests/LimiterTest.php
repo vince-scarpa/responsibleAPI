@@ -39,11 +39,10 @@ final class LimiterTest extends TestCase
     /**
      * Test if the Responsible API limiter options no constructor
      */
-    public function testCanSetOptions(): void
+    public function testCanSetNoConstructorOptions(): void
     {
         $limiter = $this->limiterNoConstructor;
         $limiter->setOptions($this->options);
-
         $limiter->setupOptions();
 
         $getOptionsSet = $limiter->getOptions();
@@ -63,7 +62,6 @@ final class LimiterTest extends TestCase
     {
         $limiter = $this->limiterConstructor;
         $limiter->setOptions($this->options);
-
         $limiter->setupOptions();
 
         $getOptionsSet = $limiter->getOptions();
@@ -74,5 +72,34 @@ final class LimiterTest extends TestCase
         $this->assertContains('unlimited', $getOptionsSet);
         $this->assertContains('leak', $getOptionsSet);
         $this->assertContains('leakRate', $getOptionsSet);
+    }
+
+    /**
+     * Test if the Responsible API limiter rate window 
+     * resolves the value when wrong input is given
+     */
+    public function testWrongRateWindowInput(): void
+    {
+        $limiter = $this->limiterConstructor;
+        
+        $wrongPossibilities = [
+            60 => [],
+            60 => new \stdClass,
+            60 => 'foo/bar',
+            10 => -10
+        ];
+
+        $possition = 0;
+
+        foreach ($wrongPossibilities as $resolveTo => $possibleTest) {
+            $this->options['rateWindow'] = $possibleTest;
+            $limiter->setOptions($this->options);
+            $limiter->setupOptions();
+            $getOptionsSet = $limiter->getOptions();
+
+            $this->assertEquals($resolveTo, $limiter->getTimeframe(), "Time frame not reset to {$resolveTo} value. Failed at possition {$possition}");
+
+            $possition++;
+        }
     }
 }
