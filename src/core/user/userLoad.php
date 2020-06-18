@@ -418,18 +418,18 @@ class userLoad extends user
     {
         if ($column == 'account_id' || strtolower($column == 'accountid')) {
             $this->column = 'BINARY USR.account_id';
-        }
 
-        if ($column == 'username' || $column == 'name') {
+        }elseif ($column == 'username' || $column == 'name') {
             $this->column = 'USR.name';
-        }
 
-        if ($column == 'email' || $column == 'mail') {
+        }elseif ($column == 'email' || $column == 'mail') {
             $this->column = 'USR.mail';
-        }
 
-        if ($column == 'refresh_token') {
+        }elseif ($column == 'refresh_token') {
             $this->column = 'USR.refresh_token';
+
+        }else {
+            $this->column = '';
         }
     }
 }
