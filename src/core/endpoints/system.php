@@ -71,7 +71,7 @@ class system extends map
 
     /**
      * [run Get the system response]
-     * @return object|null
+     * @return mixed
      */
     public function run()
     {
