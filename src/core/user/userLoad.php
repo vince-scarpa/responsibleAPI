@@ -416,20 +416,26 @@ class userLoad extends user
      */
     private function setColumn($column)
     {
-        if ($column == 'account_id' || strtolower($column == 'accountid')) {
-            $this->column = 'BINARY USR.account_id';
+        switch ($column) {
+            case ($column == 'account_id' || strtolower($column == 'accountid')):
+                $this->column = 'BINARY USR.account_id';
+                break;
 
-        }elseif ($column == 'username' || $column == 'name') {
-            $this->column = 'USR.name';
+            case ($column == 'username' || $column == 'name'):
+                $this->column = 'USR.name';
+                break;
 
-        }elseif ($column == 'email' || $column == 'mail') {
-            $this->column = 'USR.mail';
+            case ($column == 'email' || $column == 'mail'):
+                $this->column = 'USR.mail';
+                break;
 
-        }elseif ($column == 'refresh_token') {
-            $this->column = 'USR.refresh_token';
-
-        }else {
-            $this->column = '';
+            case ($column == 'refresh_token'):
+                $this->column = 'USR.refresh_token';
+                break;
+            
+            default:
+                $this->column = '';
+                break;
         }
     }
 }
