@@ -71,7 +71,6 @@ class jwtValidate extends jwt
         }
 
         if (
-            !is_array($payloadObject) ||
             !self::iss($payloadObject) ||
             !self::sub($payloadObject) ||
             !self::iat($payloadObject) ||
