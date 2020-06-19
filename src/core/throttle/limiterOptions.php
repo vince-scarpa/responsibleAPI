@@ -100,9 +100,13 @@ class limiterOptions
     /**
      * [setCapacity Set the buckets capacity]
      */
-    protected function setCapacity()
+    protected function setCapacity($limit = null)
     {
         $options = $this->getOptions();
+
+        if (!is_null($limit)) {
+            $options['rateLimit'] = $limit;
+        }
 
         $hasCapacityOption = $this->hasOptionProperty($options, 'rateLimit');
 
@@ -125,9 +129,13 @@ class limiterOptions
     /**
      * [setTimeframe Set the window timeframe]
      */
-    protected function setTimeframe()
+    protected function setTimeframe($rate = null)
     {
         $options = $this->getOptions();
+        
+        if (!is_null($rate)) {
+            $options['rateWindow'] = $rate;
+        }
 
         $timeframe = $this->hasOptionProperty($options, 'rateWindow');
 

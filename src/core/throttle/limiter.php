@@ -47,11 +47,11 @@ class limiter extends limiterOptions
     public function __construct($limit = null, $rate = null)
     {
         if (!is_null($limit)) {
-            $this->setCapacity(['rateLimit' => $limit]);
+            $this->setCapacity($limit);
         }
 
         if (!is_null($rate)) {
-            $this->setTimeframe(['rateWindow' => $rate]);
+            $this->setTimeframe($rate);
         }
 
         $this->bucket = new throttle\tokenBucket;
