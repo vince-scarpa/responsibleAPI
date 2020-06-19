@@ -235,9 +235,6 @@ class limiter
      */
     public function getThrottle()
     {
-        // $server = new server();
-        // var_dump($server->isMockTest());
-
         if ($this->isUnlimited() || $this->scope !== 'private') {
             return array(
                 'unlimited' => true,
