@@ -256,34 +256,42 @@ class user
     private function validate($type, $property)
     {
         $options = $this->getOptions();
-        $skipValidatation = false;
-
-        if (isset($options['validate']) && $options['validate'] == false) {
-            $skipValidatation = true;
-        }
+        $valid = false;
+        $skipValidatation = (isset($options['validate']) && $options['validate'] == false);
 
         switch ($type) {
 
             case 'name':
-                if (!is_string($property) && !$skipValidatation) {
-                    return false;
-                }
-                $this->name = preg_replace('/\s+/', '-', strtolower($property));
-
-                return true;
+                $valid = $this->validateName($property, $skipValidatation);
                 break;
 
             case 'mail':
-                if (!filter_var($property, FILTER_VALIDATE_EMAIL) && !$skipValidatation) {
-                    return false;
-                }
-                $this->mail = $property;
-
-                return true;
+                $valid = $this->validateMail($property, $skipValidatation);
                 break;
         }
 
-        return false;
+        return $valid;
+    }
+
+
+    private function validateName($property, $skipValidatation)
+    {
+        if (!is_string($property) && !$skipValidatation) {
+            return false;
+        }
+        $this->name = preg_replace('/\s+/', '-', strtolower($property));
+
+        return true;
+    }
+
+    private function validateMail($property, $skipValidatation)
+    {
+        if (!filter_var($property, FILTER_VALIDATE_EMAIL) && !$skipValidatation) {
+            return false;
+        }
+        $this->mail = $property;
+
+        return true;
     }
 
     /**

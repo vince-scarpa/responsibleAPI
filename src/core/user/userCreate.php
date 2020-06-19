@@ -37,7 +37,7 @@ class userCreate extends user
      * [$credentials]
      * @var array
      */
-    private $credentials = array();
+    protected $credentials;
 
     /**
      * [$KEY Sectret key]
