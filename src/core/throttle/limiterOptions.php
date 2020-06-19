@@ -70,9 +70,9 @@ class limiterOptions
 
     /**
      * [$mockAccount Set the mock account]
-     * @var array
+     * @var object
      */
-    protected $mockAccount = [];
+    protected $mockAccount;
 
     /**
      * [$scope Set the default scope]
@@ -132,7 +132,7 @@ class limiterOptions
     protected function setTimeframe($rate = null)
     {
         $options = $this->getOptions();
-        
+
         if (!is_null($rate)) {
             $options['rateWindow'] = $rate;
         }
