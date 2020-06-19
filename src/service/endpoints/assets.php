@@ -11,10 +11,15 @@ use responsible\service\interfaces;
 
 class assets implements interfaces\endpointsInterface
 {
-
+    /**
+     * [$settings]
+     * @var array
+     */
+    private $settings = [];
+    
     /**
      * [settings Inherited settings]
-     * @return [void]
+     * @return void
      */
     public function settings(array $settings)
     {
@@ -23,7 +28,7 @@ class assets implements interfaces\endpointsInterface
 
     /**
      * [headerMethods]
-     * @return [void]
+     * @return void
      */
     public function headerMethods()
     {
@@ -35,7 +40,7 @@ class assets implements interfaces\endpointsInterface
 
     /**
      * [register]
-     * @return [array]
+     * @return array
      */
     public function register()
     {
@@ -49,7 +54,7 @@ class assets implements interfaces\endpointsInterface
 
     /**
      * [scope Routing scope access]
-     * @return [string]
+     * @return string
      */
     public function scope()
     {
@@ -58,7 +63,7 @@ class assets implements interfaces\endpointsInterface
 
     /**
      * [run Run the method request]
-     * @return [void]
+     * @return void
      */
     public function run()
     {

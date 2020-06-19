@@ -12,10 +12,15 @@ use responsible\core\exception;
 
 class blog implements interfaces\endpointsInterface
 {
-
+    /**
+     * [$settings]
+     * @var array
+     */
+    private $settings = [];
+    
     /**
      * [settings Inherited settings]
-     * @return [void]
+     * @return void
      */
     public function settings(array $settings)
     {
@@ -24,7 +29,7 @@ class blog implements interfaces\endpointsInterface
 
     /**
      * [headerMethods]
-     * @return [void]
+     * @return void
      */
     public function headerMethods()
     {
@@ -36,7 +41,7 @@ class blog implements interfaces\endpointsInterface
 
     /**
      * [register]
-     * @return [array]
+     * @return array
      */
     public function register()
     {
@@ -49,7 +54,7 @@ class blog implements interfaces\endpointsInterface
 
     /**
      * [scope Routing scope access]
-     * @return [string]
+     * @return string
      */
     public function scope()
     {
@@ -58,7 +63,7 @@ class blog implements interfaces\endpointsInterface
 
     /**
      * [run Run the method request]
-     * @return [void]
+     * @return array
      */
     public function run()
     {

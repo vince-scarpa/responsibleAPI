@@ -12,6 +12,11 @@ use responsible\core\exception;
 
 class mock implements interfaces\endpointsInterface
 {
+    /**
+     * [$settings]
+     * @var array
+     */
+    private $settings = [];
 
     /**
      * [settings Inherited settings]
