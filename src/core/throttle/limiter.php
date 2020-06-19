@@ -138,6 +138,8 @@ class limiter
 
         $this->setUnlimited($options);
 
+        $this->setDebugMode($options);
+
         if (isset($this->account->scope) &&
             ($this->account->scope == 'anonymous' || $this->account->scope == 'public')
         ) {
@@ -488,6 +490,17 @@ class limiter
         if (isset($options['unlimited']) && ($options['unlimited'] == 1 || $options['unlimited'] == true)) {
             $unlimited = true;
         }
+
+        $this->unlimited = $unlimited;
+    }
+
+    /**
+     * [setUnlimited Rate limiter bypass in debug mode]
+     * @param array $options
+     */
+    private function setDebugMode($options)
+    {
+        $unlimited = false;
 
         if (isset($options['requestType']) && $options['requestType'] === 'debug') {
             $unlimited = true;
