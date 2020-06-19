@@ -66,7 +66,7 @@ class jwtValidate extends jwt
      */
     public static function payload(array $payloadObject = [])
     {
-        if( isset($payloadObject['scope']) && $payloadObject['scope'] == 'anonymous' ) {
+        if( self::isAnonymousScope($payloadObject) ) {
             return true;
         }
 
@@ -83,6 +83,15 @@ class jwtValidate extends jwt
                 ->message(self::messages('denied_token'))
                 ->error('UNAUTHORIZED');
         }
+    }
+
+    /**
+     * Check if the scope is anonymous
+     * @return boolean
+     */
+    private static function isAnonymousScope($payloadObject)
+    {
+        return (isset($payloadObject['scope']) && $payloadObject['scope'] == 'anonymous');
     }
 
     /**
