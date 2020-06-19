@@ -3,7 +3,7 @@
 use PHPUnit\Framework\TestCase;
 use responsible\responsible;
 use responsible\core\throttle\limiter;
-use responsible\core\exception;
+use responsible\core\exception as ResponsibleError;
 
 final class LimiterTest extends TestCase
 {
@@ -114,7 +114,6 @@ final class LimiterTest extends TestCase
             $this->options['rateWindow'] = $possibleTest;
             $limiter->setOptions($this->options);
             $limiter->setupOptions();
-            $getOptionsSet = $limiter->getOptions();
 
             $this->assertEquals($expectedValue, $limiter->getTimeframe(), "Time frame did not resolve to {$expectedValue}. Failed at possition {$possition}");
 
@@ -148,7 +147,6 @@ final class LimiterTest extends TestCase
             $this->options['leakRate'] = $possibleTest;
             $limiter->setOptions($this->options);
             $limiter->setupOptions();
-            $getOptionsSet = $limiter->getOptions();
 
             $this->assertEquals($expectedValue, $limiter->getLeakRate(), "Leak rate did not resolve to {$expectedValue}. Failed at possition {$possition}");
 

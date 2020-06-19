@@ -2,7 +2,7 @@
 
 use PHPUnit\Framework\TestCase;
 use responsible\responsible;
-use responsible\core\exception;
+use responsible\core\exception as ResponsibleError;
 
 final class ApiTest extends TestCase
 {

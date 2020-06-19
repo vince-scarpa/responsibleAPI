@@ -4,7 +4,7 @@ use PHPUnit\Framework\TestCase;
 use responsible\responsible;
 use responsible\core\auth;
 use responsible\core\headers;
-use responsible\core\exception;
+use responsible\core\exception as ResponsibleError;
 
 final class AuthTest extends TestCase
 {
@@ -40,7 +40,7 @@ final class AuthTest extends TestCase
         $encoded = $jwt->key(self::SECRET_KEY)
             ->setOptions($this->options)
             ->setPayload($payload)
-            ->encode($payload)
+            ->encode()
         ;
 
         $this->assertEquals(true, is_string($encoded));
@@ -64,11 +64,10 @@ final class AuthTest extends TestCase
 
         $this->expectException(\Exception::class);
 
-        $decoded = $jwt
-                ->setOptions($this->options)
-                ->token(self::TOKEN)
-                ->key(self::SECRET_KEY)
-                ->decode()
-            ;
+        $jwt->setOptions($this->options)
+            ->token(self::TOKEN)
+            ->key(self::SECRET_KEY)
+            ->decode()
+        ;
     }
 }

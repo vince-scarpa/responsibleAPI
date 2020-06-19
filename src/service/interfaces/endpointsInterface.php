@@ -11,7 +11,8 @@ interface endpointsInterface
 
     /**
      * [settings The controller settings are passed on by the router]
-     * @param  [array] $settings [methods, args ect..]
+     * @param  array $settings 
+     *         methods, args ect..
      * @return void
      */
     public function settings(array $settings);
