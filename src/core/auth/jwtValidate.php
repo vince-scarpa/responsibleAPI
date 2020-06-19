@@ -187,7 +187,6 @@ class jwtValidate extends jwt
     public static function sub($payloadObject)
     {
         $server = new server([], parent::$options);
-        $config = $server->getConfig();
         if ($server->isMockTest()) {
             return true;
         }

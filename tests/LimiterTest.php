@@ -155,4 +155,23 @@ final class LimiterTest extends TestCase
             $possition++;
         }
     }
+
+    /**
+     * Test the Responsible API limiter throttle
+     * request works
+     */
+    public function testLimiterThrottle(): void
+    {
+        // $this->options['leakRate'] = 'slow';
+
+        $limiter = $this->limiterConstructor;
+        $limiter->setOptions($this->options);
+        $limiter->setupOptions();
+
+        for ($i = 0; $i < 11; $i++) {
+            $limiter->throttleRequest();
+        }
+
+        $this->expectException(\Exception::class);
+    }
 }
