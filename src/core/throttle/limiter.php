@@ -195,7 +195,9 @@ class limiter
             }
         }
 
-        (new exception\errorException)->error('TOO_MANY_REQUESTS');
+        (new exception\errorException)
+                ->setOptions($this->getOptions())
+                ->error('TOO_MANY_REQUESTS');
     }
 
     /**
@@ -331,6 +333,7 @@ class limiter
 
     /**
      * Build a mock account for testing
+     * @return void
      */
     private function getMockAccount()
     {

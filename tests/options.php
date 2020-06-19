@@ -37,7 +37,7 @@ class options
             ],
 
             /**
-             * Rate limiter
+             * Rate limiter is in conjunction with leaky bucket drip
              */
             'rateLimit' => 10, // API call Limit
             'rateWindow' => 'MINUTE', // Window timeframe SECOND, MINUTE, HOUR, DAY, [CUSTOM/ A POSITIVE INTEGER]

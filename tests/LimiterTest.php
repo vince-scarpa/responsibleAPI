@@ -159,19 +159,23 @@ final class LimiterTest extends TestCase
     /**
      * Test the Responsible API limiter throttle
      * request works
+     *
+     * Rate limiter is in conjunction with leaky bucket drip
+     * Hitting the server too fast, too offten "many times" 
+     * will cause the bucket to fill and hult access 
+     * and return a 426 error code "TOO MANY REQUESTS"
+     *
      */
     public function testLimiterThrottle(): void
     {
-        // $this->options['leakRate'] = 'slow';
-
         $limiter = $this->limiterConstructor;
         $limiter->setOptions($this->options);
         $limiter->setupOptions();
 
-        for ($i = 0; $i < 11; $i++) {
+        $this->expectException(\Exception::class);
+
+        for ($i = 0; $i < $this->options['rateLimit']; $i++) {
             $limiter->throttleRequest();
         }
-
-        $this->expectException(\Exception::class);
     }
 }
