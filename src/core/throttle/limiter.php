@@ -69,15 +69,15 @@ class limiter extends limiterOptions
         $server = new server([], $options);
         $this->isMockTest = $server->isMockTest();
 
-        $this->setCapacity($options);
+        $this->setCapacity();
 
-        $this->setTimeframe($options);
+        $this->setTimeframe();
 
-        $this->setLeakRate($options);
+        $this->setLeakRate();
 
-        $this->setUnlimited($options);
+        $this->setUnlimited();
 
-        $this->setDebugMode($options);
+        $this->setDebugMode();
 
         if (isset($this->account->scope) &&
             ($this->account->scope == 'anonymous' || $this->account->scope == 'public')

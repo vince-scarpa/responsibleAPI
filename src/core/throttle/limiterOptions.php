@@ -99,10 +99,11 @@ class limiterOptions
 
     /**
      * [setCapacity Set the buckets capacity]
-     * @param array $options
      */
-    protected function setCapacity($options)
+    protected function setCapacity()
     {
+        $options = $this->getOptions();
+
         $hasCapacityOption = $this->hasOptionProperty($options, 'rateLimit');
 
         if (!is_numeric($hasCapacityOption) || empty($hasCapacityOption)) {
@@ -123,10 +124,11 @@ class limiterOptions
 
     /**
      * [setTimeframe Set the window timeframe]
-     * @param array $options
      */
-    protected function setTimeframe($options)
+    protected function setTimeframe()
     {
+        $options = $this->getOptions();
+
         $timeframe = $this->hasOptionProperty($options, 'rateWindow');
 
         if (is_string($timeframe)) {
@@ -160,10 +162,11 @@ class limiterOptions
     /**
      * [setLeakRate Set the buckets leak rate]
      * Options: slow, medium, normal, default, fast or custom positive integer
-     * @param array $options
      */
-    protected function setLeakRate($options)
+    protected function setLeakRate()
     {
+        $options = $this->getOptions();
+
         if (isset($options['leak']) && !$options['leak']) {
             $options['leakRate'] = 'default';
         }
@@ -188,10 +191,11 @@ class limiterOptions
 
     /**
      * [setUnlimited Rate limiter bypass]
-     * @param array $options
      */
-    protected function setUnlimited($options)
+    protected function setUnlimited()
     {
+        $options = $this->getOptions();
+
         $unlimited = false;
 
         if (isset($options['unlimited']) && ($options['unlimited'] == 1 || $options['unlimited'] == true)) {
@@ -203,10 +207,11 @@ class limiterOptions
 
     /**
      * [setUnlimited Rate limiter bypass in debug mode]
-     * @param array $options
      */
-    protected function setDebugMode($options)
+    protected function setDebugMode()
     {
+        $options = $this->getOptions();
+
         $unlimited = false;
 
         if (isset($options['requestType']) && $options['requestType'] === 'debug') {
