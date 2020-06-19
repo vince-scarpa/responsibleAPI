@@ -14,6 +14,7 @@
  */
 namespace responsible\core\auth;
 
+use responsible\core\server;
 use responsible\core\encoder;
 use responsible\core\exception;
 use responsible\core\route;
@@ -185,9 +186,9 @@ class jwtValidate extends jwt
      */
     public static function sub($payloadObject)
     {
-        if (isset(parent::$options['mock']) && 
-            parent::$options['mock'] == 'mock:3$_\7ucJ#D4,Yy=qzwY{&E+Mk_h,7L8:key'
-        ) {
+        $server = new server([], parent::$options);
+        $config = $server->getConfig();
+        if ($server->isMockTest()) {
             return true;
         }
 

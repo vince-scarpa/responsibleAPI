@@ -105,9 +105,7 @@ class server
 
         if ($db && !$this->isMockTest()) {
             if (empty($config)) {
-                $config = new configuration\config;
-                $config->responsibleDefault();
-                $config = $config->getConfig();
+                $config = $this->getConfig();
             }
             if (is_null($this->DB)) {
                 $this->DB = new connect\DB($config['DB_HOST'], $config['DB_NAME'], $config['DB_USER'], $config['DB_PASSWORD']);
@@ -115,6 +113,19 @@ class server
         }
 
         $this->setDependencies();
+    }
+
+    /**
+     * [getConfig]
+     * @return array
+     */
+    public function getConfig()
+    {
+        $config = new configuration\config;
+        $config->responsibleDefault();
+        $config = $config->getConfig();
+
+        return $config;
     }
 
     /**
@@ -451,17 +462,13 @@ class server
 
     /**
      * isMockTest
-     *     Check if there's a mook server request
+     *     Check if there's a mock test request
      * @return boolean
      */
     public function isMockTest():bool
     {
-        if (isset($this->options['mock']) && 
-            $this->options['mock'] == 'mock:3$_\7ucJ#D4,Yy=qzwY{&E+Mk_h,7L8:key'
-        ) {
-            return true;
-        }
+        $config = $this->getConfig();
 
-        return false;
+        return (isset($this->options['mock']) && $this->options['mock'] == $config['MASTER_KEY']);
     }
 }

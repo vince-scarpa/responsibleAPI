@@ -17,6 +17,7 @@ namespace responsible\core\throttle;
 use responsible\core\exception;
 use responsible\core\throttle;
 use responsible\core\user;
+use responsible\core\server;
 
 class limiter
 {
@@ -234,6 +235,9 @@ class limiter
      */
     public function getThrottle()
     {
+        // $server = new server();
+        // var_dump($server->isMockTest());
+
         if ($this->isUnlimited() || $this->scope !== 'private') {
             return array(
                 'unlimited' => true,
@@ -420,7 +424,7 @@ class limiter
      * [getLeakRate Get the buckets leak rate]
      * @return string|integer
      */
-    private function getLeakRate()
+    public function getLeakRate()
     {
         return $this->leakRate;
     }
