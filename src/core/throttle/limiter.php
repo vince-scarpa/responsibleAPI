@@ -88,6 +88,18 @@ class limiter
     private $unlimited = false;
 
     /**
+     * [$isMockTest Set the mock test]
+     * @var boolean
+     */
+    private $isMockTest = false;
+
+    /**
+     * [$isMockTest Set the mock account]
+     * @var array
+     */
+    private $mockAccount = [];
+
+    /**
      * [$scope Set the default scope]
      * @var string
      */
@@ -114,6 +126,9 @@ class limiter
     public function setupOptions()
     {
         $options = $this->getOptions();
+
+        $server = new server([], $options);
+        $this->isMockTest = $server->isMockTest();
 
         $this->setCapacity($options);
 
@@ -154,6 +169,9 @@ class limiter
             $this->throttlePause();
         }
 
+        // print_r($this->unpacked);
+        // echo PHP_EOL;
+
         $this->save();
     }
 
@@ -177,7 +195,9 @@ class limiter
             }
         }
 
-        (new exception\errorException)->error('TOO_MANY_REQUESTS');
+        (new exception\errorException)
+                ->setOptions($this->getOptions())
+                ->error('TOO_MANY_REQUESTS');
     }
 
     /**
@@ -218,6 +238,10 @@ class limiter
         $this->packed = $packer->pack(
             $bucket->getTokenData()
         );
+
+        if($this->isMockTest) {
+            return;
+        }
 
         /**
          * [Update account access]
@@ -292,6 +316,11 @@ class limiter
      */
     public function getAccount()
     {
+        if($this->isMockTest) {
+            $this->getMockAccount();
+            return $this->mockAccount;
+        }
+
         if (is_null($this->account)||empty($this->account)) {
             (new exception\errorException)
                 ->setOptions($this->getOptions())
@@ -300,6 +329,28 @@ class limiter
         }
 
         return $this->account;
+    }
+
+    /**
+     * Build a mock account for testing
+     * @return void
+     */
+    private function getMockAccount()
+    {
+        $bucket = $this->bucketObj();
+        $packer = $this->packerObj();
+
+        $mockAccount = [];
+
+        if(!isset($mockAccount['bucket'])) {
+            $mockAccount['bucket'] = $packer->pack(
+                $bucket->getTokenData()
+            );
+        }
+
+        $mockAccount['access'] = time();
+
+        $this->mockAccount = (object)$mockAccount;
     }
 
     /**
