@@ -69,7 +69,7 @@ class limiterOptions
     protected $isMockTest = false;
 
     /**
-     * [$isMockTest Set the mock account]
+     * [$mockAccount Set the mock account]
      * @var array
      */
     protected $mockAccount = [];
