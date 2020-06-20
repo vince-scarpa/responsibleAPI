@@ -19,7 +19,6 @@ use responsible\core\exception;
 use responsible\core\server;
 use responsible\core\user;
 use responsible\core\auth;
-use responsible\core\helpers\help as helper;
 use responsible\core\interfaces;
 
 class header extends server implements interfaces\optionsInterface
@@ -56,9 +55,16 @@ class header extends server implements interfaces\optionsInterface
     private $REQUEST_METHOD = [];
 
     /**
-     * [__construct Silence...]
+     * [$headerAuth Header authorise class object]
+     * @var object
      */
-    public function __construct() {}
+    protected $headerAuth;
+
+    /**
+     * [__construct]
+     */
+    public function __construct()
+    {}
 
     /**
      * [requestType]
@@ -339,21 +345,16 @@ class header extends server implements interfaces\optionsInterface
     }
 
     /**
-     * [setHeaderStatus]
-     * @param void
+     * [headerAuth]
+     * @return object
      */
-    public function setHeaderStatus($status)
+    public function headerAuth()
     {
-        http_response_code($status);
-    }
-
-    /**
-     * [getHeaderStatus]
-     * @return integer
-     */
-    public function getHeaderStatus()
-    {
-        return http_response_code();
+        if (is_null($this->headerAuth)) {
+            $this->headerAuth = new headerAuth;
+        }
+        $this->headerAuth->setOptions($this->getOptions());
+        return $this->headerAuth;
     }
 
     /**
@@ -362,39 +363,7 @@ class header extends server implements interfaces\optionsInterface
      */
     public function authorizationHeaders($skipError = false)
     {
-        if ($grant = $this->isGrantRequest()) {
-            return $grant;
-        }
-
-        if ($clientToken = $this->hasBearerToken()) {
-            return $clientToken;
-        }
-
-        if (!$skipError) {
-            $this->unauthorised();
-        }
-    }
-
-    /**
-     * [hasBearerValue Check if Authorization headers has Bearer value]
-     * @throws Exception
-     *         Unauthorised
-     * @return boolean
-     */
-    private function hasBearerValue()
-    {
-        $auth_headers = $this->getHeaders();
-
-        if (isset($auth_headers["Authorization"]) && !empty($auth_headers["Authorization"])) {
-            
-            list($type, $clientToken) = explode(" ", $auth_headers["Authorization"], 2);
-
-            if (strcasecmp(trim($type), "Bearer") == 0) {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->headerAuth()->authorizationHeaders($skipError = false);
     }
 
     /**
@@ -403,141 +372,7 @@ class header extends server implements interfaces\optionsInterface
      */
     public function hasBearerToken()
     {
-        $auth_headers = $this->getHeaders();
-
-        if( $this->hasBearerValue() ) {
-
-            list($type, $clientToken) = explode(" ", $auth_headers["Authorization"], 2);
-
-            if (strcasecmp(trim($type), "Bearer") == 0 && !empty($clientToken)) {
-                return $clientToken;
-            }
-        }
-
-        return;
-    }
-
-    /**
-     * Check if the request is a token grant
-     * @return array|boolean
-     */
-    public function isGrantRequest()
-    {
-        $auth_headers = $this->getHeaders();
-        $helper = new helper;
-
-        if (isset($auth_headers["Authorization"]) && !empty($auth_headers["Authorization"])) {
-            if( $grantType = $helper->checkVal($_REQUEST, 'grant_type') ) {
-
-                $refreshToken = false;
-
-                if ($grantType == 'client_credentials') {
-                    $refreshToken = $this->accessCredentialHeaders($auth_headers);
-                }
-
-                if ($grantType == 'refresh_token') {
-                    $refreshToken = $this->accessRefreshHeaders($auth_headers);
-                }
-
-                if ($refreshToken) {
-                    return [
-                        'client_access_request' => $refreshToken,
-                    ];
-                }
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * [accessRefreshHeaders description]
-     * @return string|array [mixed: string / error]
-     */
-    private function accessRefreshHeaders($auth_headers)
-    {
-        list($type, $clientToken) = explode(" ", $auth_headers["Authorization"], 2);
-
-        if (strcasecmp($type, "Bearer") == 0 && !empty($clientToken)) {
-
-            $user = new user\user;
-            $account = $user
-                ->setOptions($this->options)
-                ->load(
-                    $clientToken,
-                    array(
-                        'loadBy' => 'refresh_token',
-                        'getJWT' => true,
-                        'authorizationRefresh' => true,
-                    )
-                );
-
-            if( empty($account) ) {
-                $this->unauthorised();
-            }
-
-            $tokens = [
-                'token' => $account['JWT'],
-                'refresh_token' => $account['refreshToken']['token']
-            ];
-
-            $account['refreshToken'] = $tokens;
-
-            return $account;
-
-        } else {
-            $this->unauthorised();
-        }
-    }
-
-    /**
-     * [accessCredentialHeaders Check if the credentials are correct]
-     * @param  array $auth_headers
-     * @return string|array [mixed: string / error]
-     */
-    private function accessCredentialHeaders($auth_headers)
-    {
-        $cipher = new encoder\cipher;
-
-        list($type, $clientCredentials) = explode(" ", $auth_headers["Authorization"], 2);
-
-        if (strcasecmp($type, "Basic") == 0 && !empty($clientCredentials)) {
-            $credentails = explode('/', $clientCredentials);
-            if (!empty($credentails) && is_array($credentails)) {
-                $credentails = explode(':', $cipher->decode($clientCredentials));
-
-                if (!empty($credentails) && is_array($credentails) && sizeof($credentails) == 2) {
-                    $user = new user\user;
-                    $user->setAccountID($credentails[0]);
-
-                    $account = $user
-                        ->setOptions($this->options)
-                        ->load(
-                            $credentails[0],
-                            array(
-                                'loadBy' => 'account_id',
-                                'getJWT' => true,
-                                'authorizationRefresh' => true,
-                            )
-                        );
-
-                    $tokens = [
-                        'token' => $account['JWT'],
-                        'refresh_token' => $account['refreshToken']['token']
-                    ];
-
-                    $account['refreshToken'] = $tokens;
-
-                    if (!empty($account)) {
-                        if (strcasecmp($account['secret'], $credentails[1]) == 0) {
-                            return $account;
-                        }
-                    }
-                }
-            }
-        } else {
-            $this->unauthorised();
-        }
+        return $this->headerAuth()->hasBearerToken();
     }
 
     /**
@@ -546,13 +381,7 @@ class header extends server implements interfaces\optionsInterface
      */
     public function unauthorised()
     {
-        $this->setHeaders();
-
-        $this->setHeader('HTTP/1.1', array(
-            'Unauthorized',
-        ), 401);
-
-        (new exception\errorException)->error('UNAUTHORIZED');
+        $this->headerAuth()->setUnauthorised();
     }
 
     /**
@@ -573,6 +402,24 @@ class header extends server implements interfaces\optionsInterface
             }
         }
         return self::MAX_WINDOW;
+    }
+
+    /**
+     * [setHeaderStatus]
+     * @param void
+     */
+    public function setHeaderStatus($status)
+    {
+        http_response_code($status);
+    }
+
+    /**
+     * [getHeaderStatus]
+     * @return integer
+     */
+    public function getHeaderStatus()
+    {
+        return http_response_code();
     }
 
     /**
