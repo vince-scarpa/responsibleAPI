@@ -19,6 +19,7 @@ use responsible\core\exception;
 use responsible\core\server;
 use responsible\core\user;
 use responsible\core\auth;
+use responsible\core\helpers\help as helper;
 use responsible\core\interfaces;
 
 class header extends server implements interfaces\optionsInterface
@@ -375,6 +376,35 @@ class header extends server implements interfaces\optionsInterface
     }
 
     /**
+     * Check if the request is a token grant
+     * @return array|boolean
+     */
+    public function isGrantRequest($auth_headers)
+    {
+        $helper = new helper;
+
+        if( $grantType = $helper->checkVal($_REQUEST, 'grant_type') ) {
+
+            $refreshToken = false;
+
+            if ($grantType == 'client_credentials') {
+                $refreshToken = $this->accessCredentialHeaders($auth_headers);
+            }
+
+            if ($grantType == 'refresh_token') {
+                $refreshToken = $this->accessRefreshHeaders($auth_headers);
+            }
+
+            if ($refreshToken) {
+                return [
+                    'client_access_request' => $refreshToken,
+                ];
+            }
+        }
+        return false;
+    }
+
+    /**
      * [authorizationHeaders Scan for "Authorization" header]
      * @return string|array [mixed: string / error]
      */
@@ -384,26 +414,8 @@ class header extends server implements interfaces\optionsInterface
 
         if (isset($auth_headers["Authorization"]) && !empty($auth_headers["Authorization"])) {
 
-            /**
-             * Test if it's a Authorization Basic & client_credentials
-             */
-            if (isset($_REQUEST['grant_type']) && $_REQUEST['grant_type'] == 'client_credentials') {
-                if ($refreshToken = $this->accessCredentialHeaders($auth_headers)) {
-                    return [
-                        'client_access_request' => $refreshToken,
-                    ];
-                }
-            }
-
-            /**
-             * Test if it's a Authorization Bearer & refresh_token
-             */
-            if (isset($_REQUEST['grant_type']) && $_REQUEST['grant_type'] == 'refresh_token') {
-                if ($refreshToken = $this->accessRefreshHeaders($auth_headers)) {
-                    return [
-                        'client_access_request' => $refreshToken,
-                    ];
-                }
+            if ($grant = $this->isGrantRequest($auth_headers)) {
+                return $grant;
             }
 
             /**
