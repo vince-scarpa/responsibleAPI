@@ -1,6 +1,9 @@
 # Allow the .htaccess
 !example/.htaccess
 
+#Ignore test coverage build diretory
+tests/build/*
+
 #Ignore Config file
 config/.config
 

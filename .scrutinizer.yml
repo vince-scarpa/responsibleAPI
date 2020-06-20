@@ -1,0 +1,48 @@
+before_commands:
+    - "composer install --prefer-source"
+
+inherit: true
+filter:
+    paths:
+        - src
+
+tools:
+    php_code_coverage:
+        enabled:              true
+        test_command:         phpunit
+
+    php_code_sniffer:
+        enabled:              true
+        command:              phpcs
+        config:
+            standard:         PSR2
+
+    php_cs_fixer:
+        enabled:              true
+        command:              php-cs-fixer
+        config:
+            level:            psr2
+
+    php_loc:
+        enabled:              true
+        command:              phploc
+
+    php_mess_detector:
+        enabled:              true
+        command:              phpmd
+        config:
+            rulesets:
+                - codesize
+                - unusedcode
+                - naming
+                - design
+                - controversial
+
+    php_pdepend:
+        enabled:              true
+        command:              pdepend
+
+    php_analyzer:
+        enabled:              true
+
+    sensiolabs_security_checker: true
