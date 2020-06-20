@@ -357,6 +357,47 @@ class header extends server implements interfaces\optionsInterface
     }
 
     /**
+     * [authorizationHeaders Scan for "Authorization" header]
+     * @return string|array [mixed: string / error]
+     */
+    public function authorizationHeaders($skipError = false)
+    {
+        if ($grant = $this->isGrantRequest()) {
+            return $grant;
+        }
+
+        if ($clientToken = $this->hasBearerToken()) {
+            return $clientToken;
+        }
+
+        if (!$skipError) {
+            $this->unauthorised();
+        }
+    }
+
+    /**
+     * [hasBearerValue Check if Authorization headers has Bearer value]
+     * @throws Exception
+     *         Unauthorised
+     * @return boolean
+     */
+    private function hasBearerValue()
+    {
+        $auth_headers = $this->getHeaders();
+
+        if (isset($auth_headers["Authorization"]) && !empty($auth_headers["Authorization"])) {
+            
+            list($type, $clientToken) = explode(" ", $auth_headers["Authorization"], 2);
+
+            if (strcasecmp(trim($type), "Bearer") == 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * [hasBearerToken Check if bearer token is present]
      * @return string|null
      */
@@ -364,14 +405,15 @@ class header extends server implements interfaces\optionsInterface
     {
         $auth_headers = $this->getHeaders();
 
-        if (isset($auth_headers["Authorization"]) && !empty($auth_headers["Authorization"])) {
+        if( $this->hasBearerValue() ) {
 
             list($type, $clientToken) = explode(" ", $auth_headers["Authorization"], 2);
 
-            if (strcasecmp($type, "Bearer") == 0 && !empty($clientToken)) {
+            if (strcasecmp(trim($type), "Bearer") == 0 && !empty($clientToken)) {
                 return $clientToken;
             }
         }
+
         return;
     }
 
@@ -379,68 +421,33 @@ class header extends server implements interfaces\optionsInterface
      * Check if the request is a token grant
      * @return array|boolean
      */
-    public function isGrantRequest($auth_headers)
-    {
-        $helper = new helper;
-
-        if( $grantType = $helper->checkVal($_REQUEST, 'grant_type') ) {
-
-            $refreshToken = false;
-
-            if ($grantType == 'client_credentials') {
-                $refreshToken = $this->accessCredentialHeaders($auth_headers);
-            }
-
-            if ($grantType == 'refresh_token') {
-                $refreshToken = $this->accessRefreshHeaders($auth_headers);
-            }
-
-            if ($refreshToken) {
-                return [
-                    'client_access_request' => $refreshToken,
-                ];
-            }
-        }
-        return false;
-    }
-
-    /**
-     * [authorizationHeaders Scan for "Authorization" header]
-     * @return string|array [mixed: string / error]
-     */
-    public function authorizationHeaders($skipError = false)
+    public function isGrantRequest()
     {
         $auth_headers = $this->getHeaders();
+        $helper = new helper;
 
         if (isset($auth_headers["Authorization"]) && !empty($auth_headers["Authorization"])) {
+            if( $grantType = $helper->checkVal($_REQUEST, 'grant_type') ) {
 
-            if ($grant = $this->isGrantRequest($auth_headers)) {
-                return $grant;
-            }
+                $refreshToken = false;
 
-            /**
-             * Test if it's a Authorization Bearer token
-             */
-            if (strcasecmp(trim($auth_headers["Authorization"]), "Bearer") == 0) {
-                $this->unauthorised();
-            }
-
-            list($type, $clientToken) = explode(" ", $auth_headers["Authorization"], 2);
-
-            if (strcasecmp($type, "Bearer") == 0 && !empty($clientToken)) {
-                return $clientToken;
-            } else {
-                if (!$skipError) {
-                    $this->unauthorised();
+                if ($grantType == 'client_credentials') {
+                    $refreshToken = $this->accessCredentialHeaders($auth_headers);
                 }
-            }
-        } else {
-            if (!$skipError) {
-                $this->unauthorised();
+
+                if ($grantType == 'refresh_token') {
+                    $refreshToken = $this->accessRefreshHeaders($auth_headers);
+                }
+
+                if ($refreshToken) {
+                    return [
+                        'client_access_request' => $refreshToken,
+                    ];
+                }
             }
         }
 
-        return '';
+        return false;
     }
 
     /**
