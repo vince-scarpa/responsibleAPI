@@ -77,7 +77,7 @@ class headerAuth extends header
     {
         $auth_headers = $this->getHeaders();
 
-        if( $this->hasBearerValue() ) {
+        if ($this->hasBearerValue() ) {
 
             list($type, $clientToken) = explode(" ", $auth_headers["Authorization"], 2);
 
@@ -99,7 +99,7 @@ class headerAuth extends header
         $helper = new helper;
 
         if (isset($auth_headers["Authorization"]) && !empty($auth_headers["Authorization"])) {
-            if( $grantType = $helper->checkVal($_REQUEST, 'grant_type') ) {
+            if ($grantType = $helper->checkVal($_REQUEST, 'grant_type') ) {
 
                 $refreshToken = false;
 
@@ -144,7 +144,7 @@ class headerAuth extends header
                     )
                 );
 
-            if( empty($account) ) {
+            if (empty($account) ) {
                 $this->setUnauthorised();
             }
 

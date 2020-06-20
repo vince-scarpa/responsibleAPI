@@ -14,12 +14,10 @@
  */
 namespace responsible\core\headers;
 
-use responsible\core\encoder;
-use responsible\core\exception;
-use responsible\core\server;
-use responsible\core\user;
 use responsible\core\auth;
+use responsible\core\exception;
 use responsible\core\interfaces;
+use responsible\core\server;
 
 class header extends server implements interfaces\optionsInterface
 {
@@ -111,7 +109,7 @@ class header extends server implements interfaces\optionsInterface
 
             case 'options':
                 $this->REQUEST_METHOD = ['method' => 'options', 'data' => $_POST];
-                echo json_encode(['success'=>true]);
+                echo json_encode(['success' => true]);
                 $this->setHeaders();
                 exit;
                 break;
@@ -191,8 +189,8 @@ class header extends server implements interfaces\optionsInterface
         $headers_list = headers_list();
         foreach ($headers_list as $index => $headValue) {
             @list($key, $value) = explode(": ", $headValue);
-            
-            if (!is_null($key) && !is_null($value) ) {
+
+            if (!is_null($key) && !is_null($value)) {
                 $headers_list[$key] = $value;
                 unset($headers_list[$index]);
             }
@@ -204,7 +202,7 @@ class header extends server implements interfaces\optionsInterface
             $apacheRequestHeaders = apache_request_headers();
         }
 
-        if( is_null($apacheRequestHeaders) || empty($apacheRequestHeaders) ) {
+        if (is_null($apacheRequestHeaders) || empty($apacheRequestHeaders)) {
             return [];
         }
 
@@ -262,7 +260,7 @@ class header extends server implements interfaces\optionsInterface
             '*',
         ));
 
-        if( !array_key_exists('Access-Control-Allow-Methods', $this->getHeaders()) ) {
+        if (!array_key_exists('Access-Control-Allow-Methods', $this->getHeaders())) {
             $this->setHeader('Access-Control-Allow-Methods', array(
                 'GET,POST,OPTIONS',
             ));
@@ -363,7 +361,7 @@ class header extends server implements interfaces\optionsInterface
      */
     public function authorizationHeaders($skipError = false)
     {
-        return $this->headerAuth()->authorizationHeaders($skipError = false);
+        return $this->headerAuth()->authorizationHeaders($skipError);
     }
 
     /**
@@ -427,7 +425,7 @@ class header extends server implements interfaces\optionsInterface
      * @param array $data
      * @return void
      */
-    public function setData($data = []) 
+    public function setData($data = [])
     {
         $this->REQUEST_METHOD['data'] = $data;
     }
