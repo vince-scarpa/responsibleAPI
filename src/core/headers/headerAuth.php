@@ -14,6 +14,7 @@
  */
 namespace responsible\core\headers;
 
+use responsible\core\exception;
 use responsible\core\encoder;
 use responsible\core\user;
 use responsible\core\helpers\help as helper;
@@ -42,7 +43,7 @@ class headerAuth extends header
         }
 
         if (!$skipError) {
-            $this->unauthorised();
+            $this->setUnauthorised();
         }
     }
 
@@ -144,7 +145,7 @@ class headerAuth extends header
                 );
 
             if( empty($account) ) {
-                $this->unauthorised();
+                $this->setUnauthorised();
             }
 
             $tokens = [
@@ -157,7 +158,7 @@ class headerAuth extends header
             return $account;
 
         } else {
-            $this->unauthorised();
+            $this->setUnauthorised();
         }
     }
 
@@ -207,7 +208,7 @@ class headerAuth extends header
                 }
             }
         } else {
-            $this->unauthorised();
+            $this->setUnauthorised();
         }
     }
 
