@@ -41,6 +41,18 @@ class jwtValidate extends jwt
     private static $ALGORITHM;
 
     /**
+     * [$isPayloadValid Validation placeholders]
+     * @var array
+     */
+    protected static $isPayloadValid = [
+        "iss" => false,
+        "sub" => false,
+        "iat" => false,
+        "nbf" => false,
+        "exp" => false,
+    ];
+
+    /**
      * [header Validate the header object]
      * First segment of the token
      * @return bool
@@ -70,13 +82,13 @@ class jwtValidate extends jwt
             return true;
         }
 
-        if (
-            !self::iss($payloadObject) ||
-            !self::sub($payloadObject) ||
-            !self::iat($payloadObject) ||
-            !self::nbf($payloadObject) ||
-            !self::exp($payloadObject)
-        ) {
+        self::iss($payloadObject);
+        self::sub($payloadObject);
+        self::iat($payloadObject);
+        self::nbf($payloadObject);
+        self::exp($payloadObject);
+
+        if ((true === in_array(false, self::$isPayloadValid))) {
             (new exception\errorException)
                 ->setOptions(parent::$options)
                 ->message(self::messages('denied_token'))
@@ -183,6 +195,7 @@ class jwtValidate extends jwt
             return;
         }
 
+        self::$isPayloadValid['iss'] = true;
         return true;
     }
 
@@ -196,6 +209,7 @@ class jwtValidate extends jwt
     {
         $server = new server([], parent::$options);
         if ($server->isMockTest()) {
+            self::$isPayloadValid['sub'] = true;
             return true;
         }
 
@@ -222,6 +236,7 @@ class jwtValidate extends jwt
             }
         }
 
+        self::$isPayloadValid['sub'] = true;
         return true;
     }
 
@@ -245,6 +260,7 @@ class jwtValidate extends jwt
                 ->error('NO_CONTENT');
         }
 
+        self::$isPayloadValid['iat'] = true;
         return true;
     }
 
@@ -268,6 +284,7 @@ class jwtValidate extends jwt
                 ->error('NO_CONTENT');
         }
 
+        self::$isPayloadValid['nbf'] = true;
         return true;
     }
 
@@ -281,7 +298,7 @@ class jwtValidate extends jwt
         if (!isset($payloadObject['exp']) ||
             (isset($payloadObject['exp']) && empty($payloadObject))
         ) {
-            return true;
+            return;
         }
 
         if ($payloadObject['exp'] <= (int) (self::$TIMESTAMP - self::$LEEWAY)) {
@@ -291,6 +308,7 @@ class jwtValidate extends jwt
                 ->error('UNAUTHORIZED');
         }
 
+        self::$isPayloadValid['exp'] = true;
         return true;
     }
 
