@@ -6,7 +6,7 @@ external requests fused by Json Web Tokens (JWT).\
 [ResponsibleSDK](https://github.com/vince-scarpa/responsibleSDK "ResponsibleAPI software development kit") is recommended to connect to the ResponsibleAPI\
 
 ### Development
-Version 1.2\
+Version 1.4\
 This repo is open for contributions.
 
 Features include:
