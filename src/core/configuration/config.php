@@ -20,23 +20,34 @@ class config
 {
     /**
      * [$DEFAULTS]
-     * @var [array]
+     * @var array
      */
     private $DEFAULTS;
 
     /**
+     * [$CONFIG]
+     * @var array
+     */
+    private $CONFIG;
+
+    /**
+     * [$root Root path]
+     * @var string
+     */
+    private $root = '';
+
+    /**
      * [responsibleDefault Responsible default options and config]
-     * @param  [type] $options
-     * @return [void]
+     * @param  array|null $options
+     * @return void
      */
     public function responsibleDefault($options = null)
     {
-        if (!isset($this->root)) {
+        if (empty($this->root)) {
             $this->root = dirname(dirname(dirname(__DIR__)));
         }
         
         $ENV_FILE = $this->root . '/config/.config';
-
         
         if (!file_exists($ENV_FILE)) {
             throw new \Exception(
@@ -64,7 +75,7 @@ class config
 
     /**
      * [defaults Defaults is a merged array of Config and Options]
-     * @return [void]
+     * @return void
      */
     private function defaults($defaults)
     {
@@ -73,7 +84,7 @@ class config
 
     /**
      * [getDefaults Get default config and options as a single array]
-     * @return [array]
+     * @return array
      */
     public function getDefaults()
     {
@@ -82,7 +93,7 @@ class config
 
     /**
      * [getConfig Get config array]
-     * @return [array]
+     * @return array
      */
     public function getConfig()
     {
@@ -91,7 +102,7 @@ class config
 
     /**
      * [getOptions description Get options array]
-     * @return [type]
+     * @return array
      */
     public function getOptions()
     {
@@ -100,7 +111,7 @@ class config
 
     /**
      * [baseApiRoot Set the responsible API root directory]
-     * @return [void]
+     * @return void
      */
     public function baseApiRoot($directory)
     {

@@ -1,0 +1,17 @@
+build:
+  environment:
+    php:
+      version: 7.2
+      
+checks:
+  php:
+    code_rating: true
+    duplication: true
+
+filter:
+  excluded_paths:
+    - config/*
+    - example/*
+    - tests/*
+  paths:
+    - src/

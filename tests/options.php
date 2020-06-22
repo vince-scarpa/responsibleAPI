@@ -1,11 +1,11 @@
 <?php 
-
+use responsible\core\server;
 
 class options
 {
     public function getApiOptions()
     {
-        return array(
+        $options = array(
             /**
              * Output type
              */
@@ -37,7 +37,7 @@ class options
             ],
 
             /**
-             * Rate limiter
+             * Rate limiter is in conjunction with leaky bucket drip
              */
             'rateLimit' => 10, // API call Limit
             'rateWindow' => 'MINUTE', // Window timeframe SECOND, MINUTE, HOUR, DAY, [CUSTOM/ A POSITIVE INTEGER]
@@ -60,8 +60,12 @@ class options
             'leakRate' => 'default', // slow, medium, normal, default, fast or custom positive integer
 
             'errors' => 'catchAll',
-
-            'mock' => 'mock:3$_\7ucJ#D4,Yy=qzwY{&E+Mk_h,7L8:key',
         );
+
+        $server = new server([], $options);
+        $config = $server->getConfig();
+        $options['mock'] = $config['MASTER_KEY'];
+
+        return $options;
     }
 }

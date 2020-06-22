@@ -23,32 +23,56 @@ use responsible\core\headers;
 class user
 {
     /**
+     * [$DB Data base object]
+     * @var object
+     */
+    private $DB;
+
+    /**
      * [$name Account username]
-     * @var [string]
+     * @var string
      */
     private $name;
 
     /**
      * [$name Account email address]
-     * @var [string]
+     * @var string
      */
     private $mail;
 
     /**
+     * [$ACCOUNT_ID]
+     * @var string
+     */
+    private $ACCOUNT_ID;
+
+    /**
      * [$timestamp Time now]
-     * @var [integer]
+     * @var integer
      */
     protected $timestamp;
 
     /**
+     * [$bucketToken]
+     * @var string
+     */
+    private $bucketToken;
+
+    /**
      * [$options Resposible API options]
-     * @var [array]
+     * @var array
      */
     protected $options;
 
     /**
+     * [$credentials User credentials]
+     * @var array
+     */
+    protected $credentials;
+
+    /**
      * [create Create a new access account]
-     * @return [array]
+     * @return array
      */
     public function create()
     {
@@ -60,7 +84,7 @@ class user
 
     /**
      * [update Update an access account]
-     * @return [array]
+     * @return array
      */
     public function update($properties)
     {
@@ -69,7 +93,7 @@ class user
 
     /**
      * [load Load a stored account]
-     * @return [array]
+     * @return array
      */
     public function load($property, array $options)
     {
@@ -81,7 +105,7 @@ class user
 
     /**
      * [updateAccountAccess Update the requests account access]
-     * @return [boolean]
+     * @return void
      */
     public function updateAccountAccess($ACCOUNT_ID = null)
     {
@@ -103,20 +127,20 @@ class user
 
     /**
      * [updateAccess Update access for limit requests]
-     * @return [boolean]
+     * @return boolean
      */
     private function updateAccess()
     {
         return $this->DB()->
-            query(
-                "UPDATE responsible_api_users USR
+            query("
+                UPDATE responsible_api_users USR
                         JOIN responsible_token_bucket TKN
                             ON (USR.account_id = TKN.account_id)
                         set
                             USR.access = :unix,
                             TKN.bucket = :bkt
                         WHERE USR.account_id = :aid;",
-                array(
+            array(
                 'unix' => (new \DateTime('now'))->getTimestamp(),
                 'aid' => $this->getAccountID(),
                 'bkt' => $this->getBucketToken(),
@@ -126,16 +150,36 @@ class user
 
     /**
      * [updateAccount Update access for limit requests]
-     * @return [boolean]
+     * @return boolean
      */
     private function updateAccount($properties)
     {
-        if( is_array($properties) ) {
-            $properties = (object) $properties; //json_decode(json_encode($properties));
+        if (is_array($properties)) {
+            $properties = (object) $properties;
         }
 
-        if( !isset($properties->update) || 
-            !isset($properties->where) || 
+        $this->checkUpdateProperties($properties);
+
+        $updateSet = $this->buildUpdateSet($properties);
+
+        return $this->DB()->query("
+            UPDATE responsible_api_users USR
+                        set {$updateSet['set']}
+                        WHERE {$updateSet['where']}
+                ;",
+            $updateSet['binds']
+        );
+    }
+
+    /**
+     * [checkUpdateProperties Check if we have the correct update properties]
+     * @param  object $properties
+     * @return void
+     */
+    private function checkUpdateProperties($properties)
+    {
+        if (!isset($properties->update) ||
+            !isset($properties->where) ||
             (isset($properties->update) && !is_array($properties->update)) ||
             (isset($properties->where) && !is_array($properties->where))
         ) {
@@ -143,49 +187,49 @@ class user
                 ->message('No update property was provided. Please read the documentation on updating user accounts.')
                 ->error('ACCOUNT_UPDATE');
         }
-        
+    }
+
+    /**
+     * [buildUpdateSet description]
+     * @param  object $properties
+     * @return array
+     */
+    private function buildUpdateSet($properties)
+    {
         $allowedFileds = $binds = [];
         $set = '';
 
-        /**
-         * Get the available table field names to set allowed updates
-         */
         $columns = $this->DB()->query("SHOW COLUMNS FROM responsible_api_users");
-        
+
         foreach ($columns as $f => $field) {
             $allowedFileds[] = $field['Field'];
         }
 
-        /**
-         * Remove any properties that arn't a table column
-         * @var [type]
-         */
         foreach ($properties->update as $u => $update) {
-            if( !in_array($u, $allowedFileds) ) {
+            if (!in_array($u, $allowedFileds)) {
                 unset($properties->update[$u]);
-            }else{
+            } else {
                 $set .= $u . ' = :' . $u . ',';
                 $binds[$u] = $update;
             }
         }
 
         $set = rtrim($set, ',');
-        $where =  key($properties->where) . ' = ' . $properties->where[key($properties->where)];
+        $where = key($properties->where) . ' = ' . $properties->where[key($properties->where)];
 
-        return $this->DB()->
-            query(
-                "UPDATE responsible_api_users USR
-                        set {$set}
-                        WHERE {$where}
-                ;",
-                $binds
-        );
+        return [
+            'set' => $set,
+            'where' => $where,
+            'binds' => $binds,
+        ];
     }
 
     /**
      * [credentials Set the new account credentials]
-     * @param  [string] $name [username]
-     * @param  [string] $mail [email address]
+     * @param  string $name
+     *         username
+     * @param  string $mail
+     *         email address
      */
     public function credentials($name, $mail)
     {
@@ -207,42 +251,52 @@ class user
 
     /**
      * [validate - Validate the new account credentials]
-     * @return [boolean]
+     * @return boolean
      */
     private function validate($type, $property)
     {
         $options = $this->getOptions();
-        $skipValidatation = false;
-
-        if( isset($options['validate']) && $options['validate'] == false ) {
-            $skipValidatation = true;
-        }
+        $valid = false;
+        $skipValidatation = (isset($options['validate']) && $options['validate'] == false);
 
         switch ($type) {
 
             case 'name':
-                if (!is_string($property) && !$skipValidatation) {
-                    return;
-                }
-                $this->name = preg_replace('/\s+/', '-', strtolower($property));
-
-                return true;
+                $valid = $this->validateName($property, $skipValidatation);
                 break;
 
             case 'mail':
-                if( !filter_var($property, FILTER_VALIDATE_EMAIL) && !$skipValidatation) {
-                    return;
-                }
-                $this->mail = $property;
-
-                return true;
+                $valid = $this->validateMail($property, $skipValidatation);
                 break;
         }
+
+        return $valid;
+    }
+
+
+    private function validateName($property, $skipValidatation)
+    {
+        if (!is_string($property) && !$skipValidatation) {
+            return false;
+        }
+        $this->name = preg_replace('/\s+/', '-', strtolower($property));
+
+        return true;
+    }
+
+    private function validateMail($property, $skipValidatation)
+    {
+        if (!filter_var($property, FILTER_VALIDATE_EMAIL) && !$skipValidatation) {
+            return false;
+        }
+        $this->mail = $property;
+
+        return true;
     }
 
     /**
      * [getJWT Get the JWT payload]
-     * @return [array]
+     * @return array
      */
     protected function getJWT($key)
     {
@@ -264,7 +318,7 @@ class user
      */
     protected function DB()
     {
-        if (!isset($this->DB)) {
+        if (is_null($this->DB)) {
             $defaults = $this->getDefaults();
             $config = $defaults['config'];
 
@@ -275,7 +329,7 @@ class user
 
     /**
      * [getDefaults Get the Responsible API defaults ]
-     * @return [array]
+     * @return array
      */
     protected function getDefaults()
     {
@@ -286,7 +340,7 @@ class user
 
     /**
      * [setOptions Set the REsponsible API options]
-     * @param [array] $options
+     * @param array $options
      */
     public function setOptions($options)
     {
@@ -296,7 +350,7 @@ class user
 
     /**
      * [getOptions Get the Responsible API options]
-     * @return [array]
+     * @return array
      */
     protected function getOptions()
     {
@@ -305,7 +359,7 @@ class user
 
     /**
      * [timeNow Create a timestamp of now]
-     * @return [integer]
+     * @return integer
      */
     protected function timeNow()
     {
@@ -324,7 +378,7 @@ class user
 
     /**
      * [getAccountID]
-     * @return [integer]
+     * @return string
      */
     protected function getAccountID()
     {
@@ -333,7 +387,7 @@ class user
 
     /**
      * [setBucket Bucket data token]
-     * @param [string] $packed
+     * @param string $packed
      */
     public function setBucketToken($packed)
     {
@@ -343,7 +397,7 @@ class user
 
     /**
      * [getBucketToken Bucket data token]
-     * @param [string] $packed
+     * @param string $packed
      */
     public function getBucketToken()
     {
@@ -352,8 +406,8 @@ class user
 
     /**
      * [getClaim Check if a claim is set and not empty]
-     * @param  [string] $claim
-     * @return [mixed]
+     * @param  string $claim
+     * @return mixed
      */
     public function checkVal($option, $key, $default = false)
     {

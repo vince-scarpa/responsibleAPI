@@ -16,7 +16,7 @@ namespace responsible\core\exception;
 
 use responsible\core\headers;
 
-class errorException extends \Exception
+class errorException extends httpExceptions
 {
     /**
      * Responsible API options
@@ -112,7 +112,7 @@ class errorException extends \Exception
 
     /**
      * [error]
-     * @return [void]
+     * @return void
      */
     public function error($type, $level = 'system')
     {
@@ -139,7 +139,7 @@ class errorException extends \Exception
 
     /**
      * [message Custom message override]
-     * @return [object / self]
+     * @return self
      */
     public function message($message)
     {
@@ -149,7 +149,6 @@ class errorException extends \Exception
 
     /**
      * [errorMessage]
-     * @return [object / exit]
      */
     private function throwError($level)
     {
@@ -163,51 +162,19 @@ class errorException extends \Exception
         ? $this->ERRORS['MESSAGE']
         : $this->ERROR_STATE['MESSAGE'];
 
-        if ($level == 'normal') {
-            $eMessage = json_encode(array(
-                'ERROR_CODE' => $this->ERROR_STATE['ERROR_CODE'],
-                'ERROR_STATUS' => $this->ERROR_STATE['ERROR_STATUS'],
-                'MESSAGE' => $message,
-            ), JSON_PRETTY_PRINT);
+        $eMessage = json_encode(array(
+            'ERROR_CODE' => $this->ERROR_STATE['ERROR_CODE'],
+            'ERROR_STATUS' => $this->ERROR_STATE['ERROR_STATUS'],
+            'MESSAGE' => $message,
+        ), JSON_PRETTY_PRINT);
 
-            if( isset($options['errors']) && $options['errors'] == 'catchAll' ) {
-                throw new self($eMessage, 1);
-            }
-
-            echo $eMessage;
-            exit;
-        }
-
-        if ($level == 'system') {
-            $eMessage = json_encode(array(
-                'ERROR_CODE' => $this->ERROR_STATE['ERROR_CODE'],
-                'ERROR_STATUS' => $this->ERROR_STATE['ERROR_STATUS'],
-                'MESSAGE' => $message,
-            ), JSON_PRETTY_PRINT);
-
-            if( isset($options['errors']) && $options['errors'] == 'catchAll' ) {
-                throw new self($eMessage, 1);
-                // return;
-            }
-
-            try {
-                if($eMessage) {
-                    throw new self($eMessage, 1);
-                }
-            }catch(\Exception $e) {
-                var_dump($eMessage);
-                echo $e->getMessage();
-                return;
-            }
-
-            echo $eMessage;
-            exit;
-        }
+        throw new httpExceptions($eMessage, 1);
     }
 
     /**
      * [setOptions Inherit Responsible API options]
-     * @param [array] $options
+     * @param array $options
+     * @return self
      */
     public function setOptions($options)
     {
@@ -217,7 +184,7 @@ class errorException extends \Exception
 
     /**
      * [getOptions Get available options]
-     * @return [array]
+     * @return array
      */
     public function getOptions()
     {

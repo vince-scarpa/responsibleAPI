@@ -44,4 +44,21 @@ class help
 
         return $str;
     }
+
+
+    /**
+     * [getClaim Check if a claim is set and not empty]
+     * @param  string $claim
+     * @return mixed
+     */
+    public function checkVal($option, $key, $default = false)
+    {
+        $val = isset($option[$key]) ? $option[$key] : $default;
+
+        if ($val && empty($option[$key])) {
+            $val = $default;
+        }
+
+        return $val;
+    }
 }

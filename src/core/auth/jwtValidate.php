@@ -14,6 +14,7 @@
  */
 namespace responsible\core\auth;
 
+use responsible\core\server;
 use responsible\core\encoder;
 use responsible\core\exception;
 use responsible\core\route;
@@ -38,6 +39,18 @@ class jwtValidate extends jwt
      * @var string
      */
     private static $ALGORITHM;
+
+    /**
+     * [$isPayloadValid Validation placeholders]
+     * @var array
+     */
+    protected static $isPayloadValid = [
+        "iss" => false,
+        "sub" => false,
+        "iat" => false,
+        "nbf" => false,
+        "exp" => false,
+    ];
 
     /**
      * [header Validate the header object]
@@ -65,23 +78,31 @@ class jwtValidate extends jwt
      */
     public static function payload(array $payloadObject = [])
     {
-        if( isset($payloadObject['scope']) && $payloadObject['scope'] == 'anonymous' ) {
+        if( self::isAnonymousScope($payloadObject) ) {
             return true;
         }
 
-        if (
-            !is_array($payloadObject) ||
-            !self::iss($payloadObject) ||
-            !self::sub($payloadObject) ||
-            !self::iat($payloadObject) ||
-            !self::nbf($payloadObject) ||
-            !self::exp($payloadObject)
-        ) {
+        self::iss($payloadObject);
+        self::sub($payloadObject);
+        self::iat($payloadObject);
+        self::nbf($payloadObject);
+        self::exp($payloadObject);
+
+        if ((true === in_array(false, self::$isPayloadValid))) {
             (new exception\errorException)
                 ->setOptions(parent::$options)
                 ->message(self::messages('denied_token'))
                 ->error('UNAUTHORIZED');
         }
+    }
+
+    /**
+     * Check if the scope is anonymous
+     * @return boolean
+     */
+    private static function isAnonymousScope($payloadObject)
+    {
+        return (isset($payloadObject['scope']) && $payloadObject['scope'] == 'anonymous');
     }
 
     /**
@@ -174,6 +195,7 @@ class jwtValidate extends jwt
             return;
         }
 
+        self::$isPayloadValid['iss'] = true;
         return true;
     }
 
@@ -185,9 +207,9 @@ class jwtValidate extends jwt
      */
     public static function sub($payloadObject)
     {
-        if (isset(parent::$options['mock']) && 
-            parent::$options['mock'] == 'mock:3$_\7ucJ#D4,Yy=qzwY{&E+Mk_h,7L8:key'
-        ) {
+        $server = new server([], parent::$options);
+        if ($server->isMockTest()) {
+            self::$isPayloadValid['sub'] = true;
             return true;
         }
 
@@ -214,6 +236,7 @@ class jwtValidate extends jwt
             }
         }
 
+        self::$isPayloadValid['sub'] = true;
         return true;
     }
 
@@ -237,6 +260,7 @@ class jwtValidate extends jwt
                 ->error('NO_CONTENT');
         }
 
+        self::$isPayloadValid['iat'] = true;
         return true;
     }
 
@@ -260,6 +284,7 @@ class jwtValidate extends jwt
                 ->error('NO_CONTENT');
         }
 
+        self::$isPayloadValid['nbf'] = true;
         return true;
     }
 
@@ -273,7 +298,7 @@ class jwtValidate extends jwt
         if (!isset($payloadObject['exp']) ||
             (isset($payloadObject['exp']) && empty($payloadObject))
         ) {
-            return true;
+            return;
         }
 
         if ($payloadObject['exp'] <= (int) (self::$TIMESTAMP - self::$LEEWAY)) {
@@ -283,6 +308,7 @@ class jwtValidate extends jwt
                 ->error('UNAUTHORIZED');
         }
 
+        self::$isPayloadValid['exp'] = true;
         return true;
     }
 

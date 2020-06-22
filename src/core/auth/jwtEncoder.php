@@ -20,6 +20,18 @@ use responsible\core\encoder;
 class jwtEncoder extends jwt
 {
     /**
+     * [$cipher Cipher class]
+     * @var object
+     */
+    private $cipher;
+
+    /**
+     * [$claims Claims class]
+     * @var object
+     */
+    private $claims;
+
+    /**
      * [$stringToSign Set the string to sign]
      * @var string
      */
@@ -67,7 +79,7 @@ class jwtEncoder extends jwt
 
     /**
      * [sign] Sign the segments
-     * @return [string] the JWT
+     * @return string the JWT
      */
     private function sign()
     {
@@ -82,8 +94,9 @@ class jwtEncoder extends jwt
 
     /**
      * [key Set the clients supplied secret key]
-     * @param  [string] - Hashed string
-     * @return [string]
+     * @param  string $key
+     *         Hashed string
+     * @return self
      */
     public function key($key = null)
     {
@@ -94,8 +107,8 @@ class jwtEncoder extends jwt
 
     /**
      * [payload Set the clients payload]
-     * @param  [array] $payload
-     * @return [self]
+     * @param  array $payload
+     * @return self
      */
     public function payload($payload)
     {

@@ -23,15 +23,9 @@ class router extends server
 {
     /**
      * [$root Responsible API root path]
-     * @var [type]
-     */
-    private $root;
-
-    /**
-     * [$protocol]
      * @var string
      */
-    private $protocol = '';
+    private $root;
 
     /**
      * [$scope Router scope]
@@ -41,9 +35,9 @@ class router extends server
 
     /**
      * [$routes]
-     * @var array
+     * @var object
      */
-    private $routes = array();
+    private $routes;
 
     /**
      * [$requestBody]
@@ -53,7 +47,7 @@ class router extends server
 
     /**
      * [run Try run the request method]
-     * @return [mixed]
+     * @return array|object
      */
     public function run()
     {
@@ -83,7 +77,8 @@ class router extends server
 
             $controller->headerMethods();
             $controller->settings((array) $controllerSettings);
-            $controller->responsible = $this->routes;
+            $controller->responsible = new \stdClass;
+            $controller->responsible = $this->getRoutes();
             $response = $controller->run();
 
             return $response;
@@ -92,7 +87,7 @@ class router extends server
 
     /**
      * [setPostBody Set the post body payload]
-     * @param [array] $payload
+     * @param array $payload
      */
     public function setPostBody($payload)
     {
@@ -110,7 +105,7 @@ class router extends server
 
     /**
      * [setRequestBody Set the request body payload]
-     * @param [string] $payload
+     * @param string $payload
      */
     public function setRequestBody($payload)
     {
@@ -121,7 +116,7 @@ class router extends server
 
     /**
      * [getRequestBody Get the request body defaults to empty array]
-     * @return [array]
+     * @return array
      */
     public function getRequestBody()
     {
@@ -132,9 +127,8 @@ class router extends server
     }
 
     /**
-     * [baseRoute description]
-     * @param  [type] $directory [description]
-     * @return [type]            [description]
+     * [baseRoute]
+     * @param  string $directory
      */
     public function baseApiRoot($directory)
     {
@@ -143,7 +137,7 @@ class router extends server
 
     /**
      * [route]
-     * @return [array]
+     * @return object
      */
     public function route($customRoute = '')
     {
@@ -156,9 +150,9 @@ class router extends server
         /**
          * Get the routes exit if any errors
          */
-        $routes = $this->getRoutes($base_uri);
+        $routes = $this->getTierList($base_uri);
 
-        $this->routes = array(
+        $routesArray = array(
             'base' => array(
                 'protocol' => $base->protocol(),
                 'path' => $base->basepath(),
@@ -178,16 +172,16 @@ class router extends server
             ),
         );
 
-        $this->routes = (object) $this->routes;
+        $this->setRoutes((object)$routesArray);
 
-        return $this->routes;
+        return $this->getRoutes();
     }
 
     /**
-     * [getRoutes description]
-     * @return [type] [description]
+     * [getTierList]
+     * @return array
      */
-    private function getRoutes($base_uri)
+    private function getTierList($base_uri)
     {
         $routes = explode('/', $base_uri);
         $routes = array_values(array_filter($routes));
@@ -205,16 +199,16 @@ class router extends server
 
     /**
      * [systemAccess Is system access allowed]
-     * @return [boolean]
+     * @return boolean
      */
     public function systemAccess($account)
     {
         if (empty($account) || !isset($account->uid)) {
-            return;
+            return false;
         }
 
         if ($account->uid > 0 && $this->getScope() == 'system') {
-            return;
+            return false;
         }
 
         return true;
@@ -222,7 +216,7 @@ class router extends server
 
     /**
      * [queryString]
-     * @return [string]
+     * @return string|null
      */
     public function queryString()
     {
@@ -234,68 +228,68 @@ class router extends server
 
     /**
      * [setScope Set the router scope]
-     * @param [string] $scope
+     * @param string $scope
      */
     public function setScope($scope)
     {
-        $this->routes->route['scope'] = $scope;
+        $this->getRoutes()->route['scope'] = $scope;
     }
 
     /**
      * [getScope Get the router scope]
-     * @return [string]
+     * @return string
      */
     public function getScope()
     {
-        return $this->routes->route['scope'];
+        return $this->getRoutes()->route['scope'];
     }
 
     /**
      * [getApi Name of the API request]
-     * @return [string]
+     * @return string
      */
     public function getApi()
     {
-        return $this->routes->route['api'];
+        return $this->getRoutes()->route['api'];
     }
 
     /**
      * [getController Controller build settings]
-     * @return [array]
+     * @return array
      */
     public function getController()
     {
-        if (!isset($this->routes->endpoint)) {
+        if (!isset($this->getRoutes()->endpoint)) {
             (new exception\errorException)->error('NOT_FOUND');
         }
-        return $this->routes->endpoint;
+        return $this->getRoutes()->endpoint;
     }
 
     /**
      * [getSize Size of the tier request]
-     * @return [string]
+     * @return string
      */
     public function getSize()
     {
-        return $this->routes->route['size'];
+        return $this->getRoutes()->route['size'];
     }
 
     /**
      * [getPath URi Path request]
-     * @return [string]
+     * @return string
      */
     public function getPath()
     {
-        return $this->routes->url['path'];
+        return $this->getRoutes()->url['path'];
     }
 
     /**
      * [getIssuer Get the domain issuer]
-     * @return [string]
+     * @return string
      */
     public function getIssuer($protocol = false)
     {
-        if (!isset($this->routes->base)) {
+        if (!isset($this->getRoutes()->base)) {
             $base = new route\base;
             return $base->url();
         }
@@ -303,14 +297,33 @@ class router extends server
         if (!$protocol) {
             return str_replace(
                 array(
-                    $this->routes->base['protocol'],
+                    $this->getRoutes()->base['protocol'],
                     '://',
                 ),
                 '',
-                $this->routes->base['url']
+                $this->getRoutes()->base['url']
             );
         }
 
-        return $this->routes->base['url'];
+        return $this->getRoutes()->base['url'];
+    }
+
+    /**
+     * [setRoutes Set the routers object]
+     * @param object $routes
+     */
+    public function setRoutes($routes)
+    {
+        $this->routes = new \stdClass;
+        $this->routes = $routes;
+    }
+
+    /**
+     * [getRoutes Get the routers object]
+     * @return object
+     */
+    public function getRoutes()
+    {
+        return $this->routes;
     }
 }

@@ -188,11 +188,17 @@ class userLoad extends user
                 ];
             }
 
+            if (isset($account->tokenExpire['tokenExpire']['expiresIn'])) {
+                $account->refreshToken['expiresIn'] = $account->tokenExpire['tokenExpire']['expiresIn'];
+            }
+
             if ($this->getToken) {
                 $account->JWT = $this->getUserJWT();
                 $account->refresh_token = $this->refreshTokenGenerate($account);
                 $account->refreshToken = ['token' => $account->refresh_token];
             }
+
+            // print_r($account);
 
             return (array) $account;
         }
@@ -416,29 +422,26 @@ class userLoad extends user
      */
     private function setColumn($column)
     {
-        if ($column == 'account_id' || strtolower($column == 'accountid')) {
-            $this->column = 'BINARY USR.account_id';
-        }
+        switch ($column) {
+            case ($column == 'account_id' || strtolower($column == 'accountid')):
+                $this->column = 'BINARY USR.account_id';
+                break;
 
-        if ($column == 'username' || $column == 'name') {
-            $this->column = 'USR.name';
-        }
+            case ($column == 'username' || $column == 'name'):
+                $this->column = 'USR.name';
+                break;
 
-        if ($column == 'email' || $column == 'mail') {
-            $this->column = 'USR.mail';
-        }
+            case ($column == 'email' || $column == 'mail'):
+                $this->column = 'USR.mail';
+                break;
 
-        if ($column == 'refresh_token') {
-            $this->column = 'USR.refresh_token';
+            case ($column == 'refresh_token'):
+                $this->column = 'USR.refresh_token';
+                break;
+            
+            default:
+                $this->column = '';
+                break;
         }
-    }
-
-    /**
-     * [getColumn Get the set column]
-     * @return string
-     */
-    private function getColumn()
-    {
-        return $this->column;
     }
 }

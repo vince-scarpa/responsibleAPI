@@ -76,8 +76,8 @@ class map extends route\router implements interfaces\optionsInterface
         /**
          * Check if a custom directory was set in the Responsible API options
          */
-        if( (isset($this->options['classRoute']) && !empty($this->options['classRoute'])) && 
-            (isset($this->options['classRoute']['directory']) && isset($this->options['classRoute']['namespace']))
+        if( (isset($options['classRoute']) && !empty($options['classRoute'])) && 
+            (isset($options['classRoute']['directory']) && isset($options['classRoute']['namespace']))
         ) {
             $customService = $this->options['classRoute'];
             $directory = $customService['directory'];
@@ -101,12 +101,17 @@ class map extends route\router implements interfaces\optionsInterface
                 ->error('NOT_EXTENDED');
         }
 
-        $scanned = array_values(
-            array_diff(
-                scandir($directory),
-                array('..', '.', '.DS_Store')
-            )
-        );
+        $scanned = '';
+        $scanDir = scandir($directory);
+
+        if (!empty($scanDir)) { 
+            $scanned = array_values(
+                array_diff(
+                    $scanDir,
+                    array('..', '.', '.DS_Store')
+                )
+            );
+        }
 
         if (empty($scanned)) {
             (new exception\errorException)
@@ -122,7 +127,11 @@ class map extends route\router implements interfaces\optionsInterface
                 $this->BASE_ENDPOINTS[] = $point;
 
                 $endpoint = str_replace('core', 'service', __NAMESPACE__) . '\\' . $point;
-                $endpoint = $middleware . '\\service\\endpoints\\' . $point;
+
+                if ($middleware !== 'responsible') {
+                    $endpoint = $middleware . '\\service\\endpoints\\' . $point;
+                }
+
                 $child = $endpoint;
 
                 $this->NAMESPACE_ENDPOINTS[$point] = $endpoint;
@@ -142,19 +151,20 @@ class map extends route\router implements interfaces\optionsInterface
     }
 
     /**
-     * [isEndpoint Check the requested endpoint, scope and tier parts]
+     * [isSystemEndpoint Check if the endpoint request is a ResponsibleAPI reserved endpoint]
+     * @param  string  $api
+     * @param  string  $endpoint
      * @return object|null
      */
-    public function isEndpoint($api, $endpoint)
+    private function isSystemEndpoint($api, $endpoint)
     {
-        $endpointSettings = [];
-
         if (isset(self::SYSTEM_ENDPOINTS[$api]) &&
             (
                 in_array($endpoint, self::SYSTEM_ENDPOINTS) ||
                 array_search($endpoint, self::SYSTEM_ENDPOINTS[$api]) !== false
             )
         ) {
+            $endpointSettings = [];
             $methodCreate = explode('/', $endpoint);
             $methodCreate = array_values(array_filter($methodCreate));
             $method = '';
@@ -179,7 +189,25 @@ class map extends route\router implements interfaces\optionsInterface
             );
 
             return (object) $endpointSettings;
-        }        
+        }
+
+        return null;
+    }
+
+    /**
+     * [isEndpoint Check the requested endpoint, scope and tier parts]
+     * @param  string  $api
+     * @param  string  $endpoint
+     * @return object|null
+     */
+    public function isEndpoint($api, $endpoint)
+    {
+        /**
+         * Return if it's a system endpoint
+         */
+        if (null !== ($endpointSettings = $this->isSystemEndpoint($api, $endpoint))) {
+            return $endpointSettings;
+        }
 
         $endpoint = htmlspecialchars($endpoint, ENT_QUOTES, 'UTF-8');
         $index = array_search($api, $this->BASE_ENDPOINTS);

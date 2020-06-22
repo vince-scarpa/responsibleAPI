@@ -67,7 +67,7 @@ class jwt extends \responsible\core\auth\authorise
 
     /**
      * [$payload Clients payload]
-     * @var string
+     * @var array
      */
     protected $payload;
 
@@ -160,7 +160,7 @@ class jwt extends \responsible\core\auth\authorise
 
     /**
      * [payload Set the clients payload]
-     * @param  string $payload
+     * @param  array $payload
      * @return self
      */
     public function setPayload($payload)
@@ -189,7 +189,7 @@ class jwt extends \responsible\core\auth\authorise
 
     /**
      * [getPayload Get the clients payload]
-     * @return string
+     * @return array
      */
     protected function getPayload()
     {

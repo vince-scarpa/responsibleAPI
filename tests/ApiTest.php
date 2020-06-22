@@ -2,7 +2,7 @@
 
 use PHPUnit\Framework\TestCase;
 use responsible\responsible;
-use responsible\core\exception;
+use responsible\core\exception as ResponsibleError;
 
 final class ApiTest extends TestCase
 {
@@ -19,8 +19,10 @@ final class ApiTest extends TestCase
      */
     public function testApiCanInitialise(): void
     {
-        // $this->expectException(exception\errorException::class);
+        // Temporary until case is writen
+        $this->assertEquals(true, true);
 
+        // $this->expectException(\Exception::class);
         // $responsible = responsible::API($this->options);
 
         // var_dump($responsible);

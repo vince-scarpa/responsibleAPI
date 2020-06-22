@@ -19,6 +19,7 @@ use responsible\core as responsibleCore;
 use responsible\core\configuration;
 use responsible\core\user;
 use responsible\core\headers;
+use responsible\core\exception\httpExceptions;
 
 class responsible
 {
@@ -53,6 +54,18 @@ class responsible
      * @var string
      */
     private $requestType = 'json';
+
+    /**
+     * [$requestType Request limit]
+     * @var integer
+     */
+    private $requestLimit;
+
+    /**
+     * [$requestType Request window rate]
+     * @var string|integer
+     */
+    private $requestRateWindow;
 
     /**
      * [__construc :: Construct the Responsible API]
@@ -101,6 +114,7 @@ class responsible
      */
     private function server()
     {
+        $options = $this->getOptions();
         $route = ($options['route']) ?? '';
 
         /**
@@ -109,23 +123,39 @@ class responsible
          */
         $this->server = new responsibleCore\server(
             $this->getConfig(),
-            $this->getOptions(),
+            $options,
             true
         );
 
-        $this->server
         // Set the header request format
-            ->requestType($this->getRequestType())
+        $this->server->requestType($this->getRequestType());
+
+        // Authenticate the API connections
+        try {
+            $this->server->authenticate();
+        }catch (httpExceptions | \Exception $e) {
+            self::$response = $e->getMessage();
+            return;
+        }
+
         // Set the rate limit and timeframe for API connection limits
-            ->rateLimit(
+        try {
+            $this->server->rateLimit(
                 $this->getRateLimit(),
                 $this->getRateWindow()
-            )
-        // Authenticate the API connections
-            ->authenticate()
+            );
+        }catch (httpExceptions | \Exception $e) {
+            self::$response = $e->getMessage();
+            return;
+        }
+
         // Build the APIs internal router
-            ->route($route)
-        ;
+        try {
+            $this->server->route($route);
+        }catch (httpExceptions | \Exception $e) {
+            self::$response = $e->getMessage();
+            return;
+        }
 
         self::$response = $this->server->response();
     }
@@ -308,10 +338,9 @@ class responsible
     /**
      * [updateUser Update a user account]
      * @param  array $properties
-     * @param  array $options
      * @return array
      */
-    public static function updateUser($properties, array $options = [])
+    public static function updateUser($properties)
     {
         return (new user\user)
             ->update($properties)
@@ -320,7 +349,7 @@ class responsible
 
     /**
      * [loadUser Load a stored account]
-     * @param  interger|string $property
+     * @param  integer|string $property
      * @param  string $type
      * @return array
      */

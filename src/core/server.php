@@ -35,21 +35,15 @@ class server
 
     /**
      * [$options Variable store for the Responsible API options set]
-     * @var array
+     * @var array|null
      */
-    private $options;
+    private $options = null;
 
     /**
      * [$DB Database PDO connector]
-     * @var object
+     * @var object|null
      */
     protected $DB = null;
-
-    /**
-     * [$router The responsible API router]
-     * @var array
-     */
-    protected $router;
 
     /**
      * [$grant_access If grant type is set then allow system scope override]
@@ -58,22 +52,52 @@ class server
     protected $grantAccess = false;
 
     /**
-     * [$ALLOWED_METHODS]
-     * @var array
-     */
-    private $ALLOWED_METHODS = array(
-        'GET',
-        'POST',
-        'PUT',
-        'PATCH',
-        'DELETE',
-    );
-
-    /**
      * [$RESPONSE]
      * @var array
      */
     protected $RESPONSE = array();
+
+    /**
+     * [$header Header class object]
+     * @var object
+     */
+    protected $header;
+
+    /**
+     * [$endpoints Endpoints class object]
+     * @var object
+     */
+    protected $endpoints;
+
+    /**
+     * [$keys Keys class object]
+     * @var object
+     */
+    protected $keys;
+
+    /**
+     * [$auth Auth class object]
+     * @var object
+     */
+    protected $auth;
+
+    /**
+     * [$limiter Limiter class object]
+     * @var object
+     */
+    protected $limiter;
+
+    /**
+     * [$router Router class object]
+     * @var object
+     */
+    protected $router;
+
+    /**
+     * [$renderError]
+     * @var boolean
+     */
+    protected $renderError = false;
 
     /**
      * [__construct]
@@ -87,24 +111,54 @@ class server
 
         if ($db && !$this->isMockTest()) {
             if (empty($config)) {
-                $config = new configuration\config;
-                $config->responsibleDefault();
-                $config = $config->getConfig();
+                $config = $this->getConfig();
             }
             if (is_null($this->DB)) {
                 $this->DB = new connect\DB($config['DB_HOST'], $config['DB_NAME'], $config['DB_USER'], $config['DB_PASSWORD']);
             }
         }
 
-        $this->header = new headers\header;
-        $this->header->setOptions($options);
+        $this->setDependencies();
+    }
 
-        $this->keys = new keys\key;
-        $this->endpoints = new endpoints\map;
-        $this->endpoints->setOptions($options);
+    /**
+     * [getConfig]
+     * @return array
+     */
+    public function getConfig()
+    {
+        $config = new configuration\config;
+        $config->responsibleDefault();
+        $config = $config->getConfig();
 
-        $this->auth = new auth\authorise($options);
-        $this->auth->header = $this->header;
+        return $config;
+    }
+
+    /**
+     * [setDependencies Setup all dependent classes]
+     */
+    private function setDependencies()
+    {
+        $options = $this->getOptions();
+
+        if (is_null($this->header)) {
+            $this->header = new headers\header;
+            $this->header->setOptions($options);
+        }
+
+        if (is_null($this->keys)) {
+            $this->keys = new keys\key;
+        }
+
+        if (is_null($this->endpoints)) {
+            $this->endpoints = new endpoints\map;
+            $this->endpoints->setOptions($options);
+        }
+
+        if (is_null($this->auth)) {
+            $this->auth = new auth\authorise($options);
+            $this->auth->header = $this->header;
+        }
     }
 
     /**
@@ -123,9 +177,9 @@ class server
 
     /**
      * [getOptions Get the stored Responsible API options]
-     * @return array
+     * @return array|null
      */
-    public function getOptions():array
+    public function getOptions():?array
     {
         return $this->options;
     }
@@ -162,8 +216,8 @@ class server
 
     /**
      * [setResponse Append the Responsible API response]
-     * @param [string/array] $key [Array key]
-     * @param array|null $response [Array value]
+     * @param string|array $key
+     * @param array|object|null $response
      */
     public function setResponse($key, $response)
     {
@@ -206,6 +260,7 @@ class server
     public function rateLimit($limit = null, $rate = null)
     {
         $this->limiter = new throttle\limiter($limit, $rate);
+        $this->limiter->setOptions($this->getOptions());
         return $this;
     }
 
@@ -249,7 +304,6 @@ class server
         }
         
         $this->limiter
-            ->options($this->getOptions())
             ->setAccount($this->auth->user())
             ->setupOptions()
             ->throttleRequest()
@@ -265,7 +319,7 @@ class server
      * 2. Build router
      * 3. Try run middleware
      *
-     * @return array
+     * @return self
      */
     public function route($route)
     {
@@ -347,9 +401,9 @@ class server
             $response = $router->run();
 
         } else {
-            $response = [
+            /*$response = [
                 'system' => $router->getApi(),
-            ];
+            ];*/
 
             $response = $router->run();
         }
@@ -361,7 +415,7 @@ class server
 
     /**
      * [getRouter Get the details of the Responsible API router]
-     * @return array
+     * @return object
      */
     public function getRouter()
     {
@@ -414,17 +468,13 @@ class server
 
     /**
      * isMockTest
-     *     Check if there's a mook server request
+     *     Check if there's a mock test request
      * @return boolean
      */
     public function isMockTest():bool
     {
-        if (isset($this->options['mock']) && 
-            $this->options['mock'] == 'mock:3$_\7ucJ#D4,Yy=qzwY{&E+Mk_h,7L8:key'
-        ) {
-            return true;
-        }
+        $config = $this->getConfig();
 
-        return false;
+        return (isset($this->options['mock']) && $this->options['mock'] == $config['MASTER_KEY']);
     }
 }

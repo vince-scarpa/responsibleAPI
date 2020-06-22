@@ -20,9 +20,10 @@ interface optionsInterface
      * setOptions 
      *     Set the Responsible API options
      *     
+     * @param array $options  
      * @return void
      */
-    public function setOptions(array $options):void;
+    public function setOptions($options):void;
 
     /**
      * getOptions 

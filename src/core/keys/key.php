@@ -18,7 +18,7 @@ class key
 {
     /**
      * [accountIdGenerate Generate a user account id]
-     * @return [integer]
+     * @return string
      */
     public function accountIdGenerate($length = 8)
     {
@@ -30,8 +30,8 @@ class key
 
     /**
      * [apiKeyGenerate Generate an API key for the new user account]
-     * @param  [integer] $length
-     * @return [string]
+     * @param  integer $length
+     * @return string
      */
     public function apiKeyGenerate($length = 32)
     {
@@ -45,7 +45,7 @@ class key
 
     /**
      * [secretGenerate Generate a strong secret key]
-     * @return [string] [hash string]
+     * @return string
      */
     public function secretGenerate($length = 32)
     {
@@ -66,10 +66,10 @@ class key
 
     /**
      * [tokenGenerate This is a JWT this is a pseudo token used for the leaky bucket]
-     * @return [string]
+     * @return string
      */
-    public function tokenGenerate($ACCOUNT_ID)
+    public function tokenGenerate($ACCOUNT_ID, $key = '')
     {
-        return hash_hmac('sha256', $ACCOUNT_ID);
+        return hash_hmac('sha256', $ACCOUNT_ID, $key);
     }
 }
