@@ -1,5 +1,6 @@
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/vince-scarpa/responsibleAPI/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/vince-scarpa/responsibleAPI/?branch=master)
-[![Build Status](https://scrutinizer-ci.com/g/vince-scarpa/responsibleAPI/badges/build.png?b=master)](https://scrutinizer-ci.com/g/vince-scarpa/responsibleAPI/build-status/master)  
+[![Build Status](https://scrutinizer-ci.com/g/vince-scarpa/responsibleAPI/badges/build.png?b=master)](https://scrutinizer-ci.com/g/vince-scarpa/responsibleAPI/build-status/master)
+![Packagist Downloads](https://img.shields.io/packagist/dm/vince-scarpa/responsibleapi)
 # ResponsibleAPI RESTfull API
 Responsible API is a secure PHP RESTfull application that allows easy HTTP requests from\
 external requests fused by Json Web Tokens (JWT).\
