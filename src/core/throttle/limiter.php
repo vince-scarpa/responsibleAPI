@@ -18,6 +18,7 @@ use responsible\core\exception;
 use responsible\core\throttle;
 use responsible\core\user;
 use responsible\core\server;
+use responsible\core\headers\header;
 
 class limiter extends limiterOptions
 {
@@ -259,10 +260,8 @@ class limiter extends limiterOptions
             return $this->mockAccount;
         }
 
-        if (is_null($this->account)||empty($this->account)) {
-            (new exception\errorException)
-                ->setOptions($this->getOptions())
-                ->error('UNAUTHORIZED');
+        if (is_null($this->account) || empty($this->account)) {
+            (new header)->unauthorised();
             return;
         }
 

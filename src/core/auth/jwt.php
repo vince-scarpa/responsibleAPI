@@ -18,6 +18,7 @@ use responsible\core\auth;
 use responsible\core\exception;
 use responsible\core\keys;
 use responsible\core\configuration;
+use responsible\core\headers\header;
 
 class jwt extends \responsible\core\auth\authorise
 {
@@ -127,10 +128,7 @@ class jwt extends \responsible\core\auth\authorise
     public function token($token = null)
     {
         if (is_null($token) || empty($token) || !is_string($token)) {
-            (new exception\errorException)
-                ->setOptions(self::$options)
-                ->message(self::messages('denied_token'))
-                ->error('UNAUTHORIZED');
+            (new header)->unauthorised();
         }
 
         $this->token = $token;
@@ -147,10 +145,7 @@ class jwt extends \responsible\core\auth\authorise
     public function key($key = null)
     {
         if (is_null($key) || empty($key) || !is_string($key)) {
-            (new exception\errorException)
-                ->setOptions(self::$options)
-                ->message(self::messages('denied_key'))
-                ->error('UNAUTHORIZED');
+            (new header)->unauthorised();
         }
 
         $this->key = $key;

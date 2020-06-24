@@ -16,7 +16,7 @@ namespace responsible\core\exception;
 
 use responsible\core\headers;
 
-class errorException extends httpExceptions
+class errorException extends httpException
 {
     /**
      * Responsible API options
@@ -168,7 +168,7 @@ class errorException extends httpExceptions
             'MESSAGE' => $message,
         ), JSON_PRETTY_PRINT);
 
-        throw new httpExceptions($eMessage, 1);
+        throw new httpException($eMessage, 1);
     }
 
     /**

@@ -19,6 +19,7 @@ use responsible\core\encoder;
 use responsible\core\exception;
 use responsible\core\route;
 use responsible\core\user;
+use responsible\core\headers\header;
 
 class jwtValidate extends jwt
 {
@@ -64,10 +65,7 @@ class jwtValidate extends jwt
             !self::typ($headObject) ||
             !self::alg($headObject)
         ) {
-            (new exception\errorException)
-                ->setOptions(parent::$options)
-                ->message(self::messages('denied_token'))
-                ->error('UNAUTHORIZED');
+            (new header)->unauthorised();
         }
     }
 
@@ -89,10 +87,7 @@ class jwtValidate extends jwt
         self::exp($payloadObject);
 
         if ((true === in_array(false, self::$isPayloadValid))) {
-            (new exception\errorException)
-                ->setOptions(parent::$options)
-                ->message(self::messages('denied_token'))
-                ->error('UNAUTHORIZED');
+            (new header)->unauthorised();
         }
     }
 
@@ -117,10 +112,7 @@ class jwtValidate extends jwt
             empty($signature) ||
             empty($key)
         ) {
-            (new exception\errorException)
-                ->setOptions(parent::$options)
-                ->message(self::messages('denied_token'))
-                ->error('UNAUTHORIZED');
+            (new header)->unauthorised();
         }
 
         $cipher = new encoder\cipher;
@@ -134,10 +126,7 @@ class jwtValidate extends jwt
         );
 
         if (!$cipher->hashCompare($signature, $hashed)) {
-            (new exception\errorException)
-                ->setOptions(parent::$options)
-                ->message(self::messages('denied_token'))
-                ->error('UNAUTHORIZED');
+            (new header)->unauthorised();
         }
     }
 
@@ -302,10 +291,7 @@ class jwtValidate extends jwt
         }
 
         if ($payloadObject['exp'] <= (int) (self::$TIMESTAMP - self::$LEEWAY)) {
-            (new exception\errorException)
-                ->setOptions(parent::$options)
-                ->message(self::messages('expired'))
-                ->error('UNAUTHORIZED');
+            (new header)->unauthorised();
         }
 
         self::$isPayloadValid['exp'] = true;

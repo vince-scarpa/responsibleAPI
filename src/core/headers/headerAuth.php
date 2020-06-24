@@ -227,6 +227,10 @@ class headerAuth extends header
             'Unauthorized',
         ), 401);
 
+        $this->setHeader('WWW-Authenticate', array(
+            'Basic',
+        ));
+        
         (new exception\errorException)->error('UNAUTHORIZED');
     }
 }

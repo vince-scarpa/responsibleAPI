@@ -109,6 +109,7 @@ class server
     {
         $this->setOptions($options);
 
+        // @codeCoverageIgnoreStart
         if ($db && !$this->isMockTest()) {
             if (empty($config)) {
                 $config = $this->getConfig();
@@ -117,6 +118,7 @@ class server
                 $this->DB = new connect\DB($config['DB_HOST'], $config['DB_NAME'], $config['DB_USER'], $config['DB_PASSWORD']);
             }
         }
+        // @codeCoverageIgnoreEnd
 
         $this->setDependencies();
     }
@@ -186,6 +188,7 @@ class server
 
     /**
      * [DB Get the database instance]
+     * @codeCoverageIgnore
      * @return object
      */
     public function DB()
@@ -246,7 +249,7 @@ class server
      * [getResponse Get the Responsible API output response]
      * @return array
      */
-    private function getResponse()
+    public function getResponse()
     {
         return $this->RESPONSE;
     }
@@ -388,11 +391,13 @@ class server
 
         $router->setScope($this->router->endpoint->model['scope']);
         
-        if (!$this->auth->isGrantType()) {
+        // @codeCoverageIgnoreStart
+        if (!$this->auth->isGrantType() && !$this->isMockTest()) {
             if (!$router->systemAccess($this->auth->user())) {
                 $this->header->unauthorised();
             }
         }
+        // @codeCoverageIgnoreEnd
 
         /**
          * Try run the requests

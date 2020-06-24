@@ -44,7 +44,7 @@ class header extends server implements interfaces\optionsInterface
      * [$REQUEST_TYPE / Default is json]
      * @var string
      */
-    private $REQUEST_TYPE;
+    private $REQUEST_TYPE = 'json';
 
     /**
      * [$REQUEST_METHOD]

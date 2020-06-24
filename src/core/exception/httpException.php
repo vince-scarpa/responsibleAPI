@@ -14,7 +14,7 @@
  */
 namespace responsible\core\exception;
 
-class httpExceptions extends \Exception
+class httpException extends \Exception
 {
     /**
      * [__construct Use parent constructor]

@@ -35,7 +35,7 @@ class mock implements interfaces\endpointsInterface
     {
         $headers = new headers\header;
         $headers->setAllowedMethods(
-            ['GET', 'POST']
+            ['GET']
         );
     }
 
@@ -48,6 +48,7 @@ class mock implements interfaces\endpointsInterface
         return array(
             '/mock',
             '/mock/{mockId}',
+            '/mock/{mockId}/public',
         );
     }
 
@@ -57,7 +58,11 @@ class mock implements interfaces\endpointsInterface
      */
     public function scope()
     {
-        return 'private';
+        return [
+            'private',
+            'private',
+            'anonymous',
+        ];
     }
 
     /**
@@ -66,6 +71,8 @@ class mock implements interfaces\endpointsInterface
      */
     public function run()
     {
-        return [];
+        return ['mock_run' => [
+            'passed' => true
+        ]];
     }
 }

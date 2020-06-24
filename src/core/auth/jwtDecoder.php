@@ -17,6 +17,7 @@ namespace responsible\core\auth;
 use responsible\core\auth;
 use responsible\core\encoder;
 use responsible\core\exception;
+use responsible\core\headers\header;
 
 class jwtDecoder extends jwt
 {
@@ -84,11 +85,7 @@ class jwtDecoder extends jwt
         $segment = explode('.', $token);
 
         if (sizeof($segment) != 3 || empty($token)) {
-            (new exception\errorException)
-                ->setOptions(parent::$options)
-                ->message(self::messages('denied_token'))
-                ->error('UNAUTHORIZED');
-
+            (new header)->unauthorised();
             return;
         }
 
@@ -103,10 +100,7 @@ class jwtDecoder extends jwt
     public function token($token = null)
     {
         if (is_null($token) || empty($token)) {
-            (new exception\errorException)
-                ->setOptions(parent::$options)
-                ->message(self::messages('denied_token'))
-                ->error('UNAUTHORIZED');
+            (new header)->unauthorised();
         }
 
         $this->token = $token;

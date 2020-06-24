@@ -3,7 +3,7 @@
 use PHPUnit\Framework\TestCase;
 use responsible\responsible;
 use responsible\core\throttle\limiter;
-use responsible\core\exception as ResponsibleError;
+use responsible\core\exception\httpException;
 
 final class LimiterTest extends TestCase
 {
@@ -31,7 +31,7 @@ final class LimiterTest extends TestCase
         $limiter = $this->limiterConstructor;
         $limiter->setOptions($this->options);
 
-        $this->expectException(\Exception::class);
+        $this->expectException(httpException::class);
 
         $limiter->throttleRequest();
     }
@@ -170,10 +170,25 @@ final class LimiterTest extends TestCase
         $limiter->setOptions($this->options);
         $limiter->setupOptions();
 
-        $this->expectException(\Exception::class);
+        $this->expectException(httpException::class);
 
         for ($i = 0; $i < $this->options['rateLimit']; $i++) {
             $limiter->throttleRequest();
         }
+    }
+
+    /**
+     * Test no account exception is caught
+     */
+    public function testNoAccountException(): void
+    {
+        unset($this->options['mock']);
+
+        $limiter = $this->limiterConstructor;
+        $limiter->setOptions($this->options);
+        $limiter->setupOptions();
+
+        $this->expectException(httpException::class);
+        $limiter->getAccount();
     }
 }
