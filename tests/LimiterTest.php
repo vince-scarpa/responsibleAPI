@@ -166,13 +166,18 @@ final class LimiterTest extends TestCase
      */
     public function testLimiterThrottle(): void
     {
+        $apiOptions = new options;
+
         $limiter = $this->limiterConstructor;
         $limiter->setOptions($this->options);
         $limiter->setupOptions();
 
+        $exceptionMessage = json_encode($apiOptions->getExceptionMessage('TOO_MANY_REQUESTS'),
+            JSON_PRETTY_PRINT);
         $this->expectException(resposibleException::class);
+        $this->expectExceptionMessage($exceptionMessage);
 
-        for ($i = 0; $i < $this->options['rateLimit']; $i++) {
+        for ($i = 0; $i < 100; $i++) {
             $limiter->throttleRequest();
         }
     }
