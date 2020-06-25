@@ -3,7 +3,7 @@
 use PHPUnit\Framework\TestCase;
 use responsible\responsible;
 use responsible\core\server;
-use responsible\core\exception\httpException;
+use responsible\core\exception\resposibleException;
 
 final class ApiTest extends TestCase
 {
@@ -30,7 +30,7 @@ final class ApiTest extends TestCase
     public function testApiServerUnauthorisedException(): void
     {
         $server = new server([], $this->options);
-        $this->expectException(httpException::class);
+        $this->expectException(resposibleException::class);
         $server->authenticate();
     }
 
@@ -44,7 +44,7 @@ final class ApiTest extends TestCase
         $exceptionMessage = json_encode($apiOptions->getExceptionMessage('UNAUTHORIZED'),
             JSON_PRETTY_PRINT);
         
-        $this->expectException(httpException::class);
+        $this->expectException(resposibleException::class);
         $this->expectExceptionMessage($exceptionMessage);
 
         $server->authenticate();
@@ -88,7 +88,7 @@ final class ApiTest extends TestCase
         $exceptionMessage = json_encode($apiOptions->getExceptionMessage('BAD_REQUEST'),
             JSON_PRETTY_PRINT);
         
-        $this->expectException(httpException::class);
+        $this->expectException(resposibleException::class);
         $this->expectExceptionMessage($exceptionMessage);
 
         $server->route('/mock/123456789/123');
@@ -107,7 +107,7 @@ final class ApiTest extends TestCase
 
         $exceptionMessage = json_encode($apiOptions->getExceptionMessage('METHOD_NOT_ALLOWED'), JSON_PRETTY_PRINT);
         
-        $this->expectException(httpException::class);
+        $this->expectException(resposibleException::class);
         $this->expectExceptionMessage($exceptionMessage);
         $server->route('/mock/123456789');
     }

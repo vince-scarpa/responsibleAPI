@@ -14,13 +14,13 @@
  */
 namespace responsible\core\exception;
 
-class httpException extends \Exception
+class resposibleException extends \Exception
 {
     /**
      * [__construct Use parent constructor]
      */
-    public function __construct($eMessage)
+    public function __construct($eMessage, $code)
     {
-        parent::__construct($eMessage);
+        parent::__construct($eMessage, $code);
     }
 }

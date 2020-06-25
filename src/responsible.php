@@ -19,7 +19,7 @@ use responsible\core as responsibleCore;
 use responsible\core\configuration;
 use responsible\core\user;
 use responsible\core\headers;
-use responsible\core\exception\httpException;
+use responsible\core\exception\resposibleException;
 
 class responsible
 {
@@ -133,7 +133,7 @@ class responsible
         // Authenticate the API connections
         try {
             $this->server->authenticate();
-        }catch (httpException | \Exception $e) {
+        }catch (resposibleException | \Exception $e) {
             self::$response = $e->getMessage();
             return;
         }
@@ -144,7 +144,7 @@ class responsible
                 $this->getRateLimit(),
                 $this->getRateWindow()
             );
-        }catch (httpException | \Exception $e) {
+        }catch (resposibleException | \Exception $e) {
             self::$response = $e->getMessage();
             return;
         }
@@ -152,7 +152,7 @@ class responsible
         // Build the APIs internal router
         try {
             $this->server->route($route);
-        }catch (httpException | \Exception $e) {
+        }catch (resposibleException | \Exception $e) {
             self::$response = $e->getMessage();
             return;
         }

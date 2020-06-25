@@ -16,7 +16,7 @@ namespace responsible\core\exception;
 
 use responsible\core\headers;
 
-class errorException extends httpException
+class errorException extends resposibleException
 {
     /**
      * Responsible API options
@@ -27,9 +27,7 @@ class errorException extends httpException
      * [__construct Use parent constructor]
      */
     public function __construct()
-    {
-        parent::__construct('');
-    }
+    {}
 
     /**
      * [$ERRORS Error sets Default error messages for supported error codes]
@@ -114,7 +112,7 @@ class errorException extends httpException
      * [error]
      * @return void
      */
-    public function error($type, $level = 'system')
+    public function error($type)
     {
         if (!isset($this->ERRORS[$type])) {
             if (isset($this->ERRORS['MESSAGE'])) {
@@ -123,18 +121,18 @@ class errorException extends httpException
                     'ERROR_STATUS' => $type,
                     'MESSAGE' => $this->ERRORS['MESSAGE'],
                 );
-                $this->throwError($level);
+                $this->throwError();
                 return;
             }
 
             $this->ERROR_STATE = $this->ERRORS['APPLICATION_ERROR'];
             $this->ERROR_STATE['MESSAGE'] = "`" . $type . "`" . ' is not defined as an error code';
-            $this->throwError($level);
+            $this->throwError();
             return;
         }
 
         $this->ERROR_STATE = $this->ERRORS[$type];
-        $this->throwError($level);
+        $this->throwError();
     }
 
     /**
@@ -150,7 +148,7 @@ class errorException extends httpException
     /**
      * [errorMessage]
      */
-    private function throwError($level)
+    private function throwError()
     {
         $options = $this->getOptions();
 
@@ -168,7 +166,7 @@ class errorException extends httpException
             'MESSAGE' => $message,
         ), JSON_PRETTY_PRINT);
 
-        throw new httpException($eMessage, 1);
+        throw new resposibleException($eMessage, $this->ERROR_STATE['ERROR_CODE']);
     }
 
     /**

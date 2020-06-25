@@ -4,7 +4,7 @@ use PHPUnit\Framework\TestCase;
 use responsible\responsible;
 use responsible\core\auth;
 use responsible\core\headers;
-use responsible\core\exception as ResponsibleError;
+use responsible\core\exception\resposibleException;
 
 final class AuthTest extends TestCase
 {
@@ -12,15 +12,33 @@ final class AuthTest extends TestCase
 
     private $requestTime;
 
+    private $jwt;
+    
+    private $accessToken;
+
     private const SECRET_KEY = 'mock-key';
 
     private const TOKEN = 'abc-123';
 
     public function setUp()
     {
+        $this->jwt = new auth\jwt;
         $apiOptions = new options;
         $this->options = $apiOptions->getApiOptions();
         $this->requestTime = $_SERVER['REQUEST_TIME'];
+
+        $payload = [
+            'iss' => 'http://localhost',
+            'iat' => $this->requestTime,
+            'exp' => $this->requestTime+300,
+            'nbf' => $this->requestTime,
+        ];
+
+        $this->accessToken = $this->jwt->key(self::SECRET_KEY)
+            ->setOptions($this->options)
+            ->setPayload($payload)
+            ->encode()
+        ;
     }
 
     /**
@@ -28,26 +46,11 @@ final class AuthTest extends TestCase
      */
     public function testJWTCanEncodeAndDecode(): void
     {
-        $jwt = new auth\jwt;
+        $this->assertEquals(true, is_string($this->accessToken));
 
-        $payload = [
-            'iss' => 'http://localhost',
-            'iat' => $this->requestTime,
-            'exp' => $this->requestTime,
-            'nbf' => $this->requestTime,
-        ];
-
-        $encoded = $jwt->key(self::SECRET_KEY)
+        $decoded = $this->jwt
             ->setOptions($this->options)
-            ->setPayload($payload)
-            ->encode()
-        ;
-
-        $this->assertEquals(true, is_string($encoded));
-
-        $decoded = $jwt
-            ->setOptions($this->options)
-            ->token($encoded)
+            ->token($this->accessToken)
             ->key(self::SECRET_KEY)
             ->decode()
         ;
@@ -60,11 +63,9 @@ final class AuthTest extends TestCase
      */
     public function testJWTIsNotValid(): void
     {
-        $jwt = new auth\jwt;
+        $this->expectException(resposibleException::class);
 
-        $this->expectException(\Exception::class);
-
-        $jwt->setOptions($this->options)
+        $this->jwt->setOptions($this->options)
             ->token(self::TOKEN)
             ->key(self::SECRET_KEY)
             ->decode()

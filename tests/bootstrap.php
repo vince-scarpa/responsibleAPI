@@ -1,8 +1,11 @@
 <?php
 /**
- * To run tests 
- * vendor/bin/phpunit --verbose -c phpunit.xml
+ * To run tests regularly
  * vendor/bin/phpunit tests/
+ * vendor/bin/phpunit --verbose -c phpunit.xml
+ *
+ * With xdebug installed
+ * vendor/bin/phpunit --configuration travis.phpunit.xml.dist --colors --verbose
  */
 
 ini_set('error_reporting', E_ALL);

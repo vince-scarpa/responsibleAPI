@@ -3,7 +3,7 @@
 use PHPUnit\Framework\TestCase;
 use responsible\responsible;
 use responsible\core\throttle\limiter;
-use responsible\core\exception\httpException;
+use responsible\core\exception\resposibleException;
 
 final class LimiterTest extends TestCase
 {
@@ -31,7 +31,7 @@ final class LimiterTest extends TestCase
         $limiter = $this->limiterConstructor;
         $limiter->setOptions($this->options);
 
-        $this->expectException(httpException::class);
+        $this->expectException(resposibleException::class);
 
         $limiter->throttleRequest();
     }
@@ -170,7 +170,7 @@ final class LimiterTest extends TestCase
         $limiter->setOptions($this->options);
         $limiter->setupOptions();
 
-        $this->expectException(httpException::class);
+        $this->expectException(resposibleException::class);
 
         for ($i = 0; $i < $this->options['rateLimit']; $i++) {
             $limiter->throttleRequest();
@@ -188,7 +188,7 @@ final class LimiterTest extends TestCase
         $limiter->setOptions($this->options);
         $limiter->setupOptions();
 
-        $this->expectException(httpException::class);
+        $this->expectException(resposibleException::class);
         $limiter->getAccount();
     }
 }
