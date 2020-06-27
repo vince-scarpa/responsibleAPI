@@ -34,6 +34,7 @@ class mock implements interfaces\endpointsInterface
     public function headerMethods()
     {
         $headers = new headers\header;
+        $headers->setOptions($this->responsible->options);
         $headers->setAllowedMethods(
             ['GET']
         );

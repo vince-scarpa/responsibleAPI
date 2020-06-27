@@ -152,7 +152,9 @@ class errorException extends resposibleException
     {
         $options = $this->getOptions();
 
-        (new headers\header)->setHeaders();
+        $headers = new headers\header;
+        $headers->setOptions($this->getOptions());
+        $headers->setHeaders();
 
         http_response_code($this->ERROR_STATE['ERROR_CODE']);
 

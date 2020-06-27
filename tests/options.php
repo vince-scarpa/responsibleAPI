@@ -1,8 +1,11 @@
 <?php 
 use responsible\core\server;
+use responsible\core\auth;
 
 class options
 {
+    private $jwtHeader;
+
     public function getApiOptions()
     {
         $options = array(
@@ -67,6 +70,46 @@ class options
         $options['mock'] = $config['MASTER_KEY'];
 
         return $options;
+    }
+
+    public function getMockJwtHeader()
+    {
+        return $this->setJwtHeaderWith();
+    }
+
+    public function setJwtHeaderWith($header = null)
+    {
+        $options = $this->getApiOptions();
+        $requestTime = $_SERVER['REQUEST_TIME'];
+
+        $this->jwtHeader = [
+            'sub' => $options['mock'],
+            'iss' => 'http://localhost',
+            'iat' => $requestTime,
+            'exp' => $requestTime+300,
+            'nbf' => $requestTime,
+        ];
+
+        if (!is_null($header)) {
+            $this->jwtHeader = $header;
+        }
+
+        return $this->jwtHeader;
+    }
+
+    public function getAccessToken()
+    {
+        $jwt = new auth\jwt;
+        $options = $this->getApiOptions();
+        $payload = $this->getMockJwtHeader();
+
+        $accessToken = $jwt->key($options['mock'])
+            ->setOptions($options)
+            ->setPayload($payload)
+            ->encode()
+        ;
+
+        return $accessToken;
     }
 
     public function getExceptionMessage($messgageType)

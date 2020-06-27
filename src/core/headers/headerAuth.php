@@ -14,6 +14,7 @@
  */
 namespace responsible\core\headers;
 
+use responsible\core\server;
 use responsible\core\encoder;
 use responsible\core\exception;
 use responsible\core\helpers\help as helper;
@@ -131,7 +132,11 @@ class headerAuth extends header
     {
         list($type, $clientToken) = explode(" ", $auth_headers["Authorization"], 2);
 
-        if (strcasecmp($type, "Bearer") == 0 && !empty($clientToken)) {
+        $server = new server([], $this->getOptions());
+        $mockTest = $server->isMockTest();
+
+        // @codeCoverageIgnoreStart
+        if (strcasecmp($type, "Bearer") == 0 && !empty($clientToken) && !$mockTest) {
 
             $user = new user\user;
             $account = $user
@@ -159,8 +164,14 @@ class headerAuth extends header
             return $account;
 
         } else {
+            if ($mockTest) {
+                return [
+                    'mock_access' => true
+                ];
+            }
             $this->setUnauthorised();
         }
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -179,7 +190,13 @@ class headerAuth extends header
             if (!empty($credentails) && is_array($credentails)) {
                 $credentails = explode(':', $cipher->decode($clientCredentials));
 
-                if (!empty($credentails) && is_array($credentails) && sizeof($credentails) == 2) {
+                $server = new server([], $this->getOptions());
+                $mockTest = $server->isMockTest();
+
+                // @codeCoverageIgnoreStart
+                if (!empty($credentails) && is_array($credentails) && sizeof($credentails) == 2 
+                    && !$mockTest
+                ) {
                     $user = new user\user;
                     $user->setAccountID($credentails[0]);
 
@@ -207,6 +224,7 @@ class headerAuth extends header
                         }
                     }
                 }
+                // @codeCoverageIgnoreEnd
             }
         } else {
             $this->setUnauthorised();
@@ -231,6 +249,8 @@ class headerAuth extends header
             'Basic',
         ));
         
-        (new exception\errorException)->error('UNAUTHORIZED');
+        (new exception\errorException)
+            ->setOptions($this->getOptions())
+            ->error('UNAUTHORIZED');
     }
 }

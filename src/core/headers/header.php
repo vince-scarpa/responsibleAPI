@@ -164,7 +164,9 @@ class header extends server implements interfaces\optionsInterface
 
         $requestMethod = $this->getServerMethod();
         if (!in_array($requestMethod, $methods)) {
-            (new exception\errorException)->error('METHOD_NOT_ALLOWED');
+            (new exception\errorException)
+                ->setOptions($this->getOptions())
+                ->error('METHOD_NOT_ALLOWED');
         }
     }
 
@@ -186,7 +188,7 @@ class header extends server implements interfaces\optionsInterface
      */
     public function getHeaders()
     {
-        $headers_list = headers_list();
+        $headers_list = $this->headersList();
         foreach ($headers_list as $index => $headValue) {
             @list($key, $value) = explode(": ", $headValue);
 
@@ -219,6 +221,16 @@ class header extends server implements interfaces\optionsInterface
         }
 
         return array_merge($headers, $apache_headers);
+    }
+
+    private function headersList()
+    {
+        $server = new server([], $this->getOptions());
+        if ($isMockTest = $server->isMockTest()) {
+            return $this->apacheRequestHeaders();
+        }
+        
+        return headers_list();
     }
 
     /**
@@ -392,6 +404,7 @@ class header extends server implements interfaces\optionsInterface
             if (isset($this->getOptions()['maxWindow']) && !empty($this->getOptions()['maxWindow'])) {
                 if (!is_numeric($this->getOptions()['maxWindow'])) {
                     (new exception\errorException)
+                        ->setOptions($this->getOptions())
                         ->message('maxWindow option must be an integer type')
                         ->error('APPLICATION_ERROR');
                 }

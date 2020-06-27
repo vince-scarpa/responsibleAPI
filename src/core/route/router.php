@@ -75,10 +75,12 @@ class router extends server
                 }
             }
 
-            $controller->headerMethods();
-            $controller->settings((array) $controllerSettings);
             $controller->responsible = new \stdClass;
             $controller->responsible = $this->getRoutes();
+
+            $controller->headerMethods();
+            $controller->settings((array) $controllerSettings);
+            
             $response = $controller->run();
 
             return $response;

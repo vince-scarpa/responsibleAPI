@@ -198,10 +198,10 @@ class jwtValidate extends jwt
     {
         $server = new server([], parent::$options);
         if ($server->isMockTest()) {
-            self::$isPayloadValid['sub'] = true;
-            return true;
+            return self::$isPayloadValid['sub'] = true;
         }
 
+        // @codeCoverageIgnoreStart
         if (!isset($payloadObject['sub']) ||
             (isset($payloadObject['sub']) && empty($payloadObject))
         ) {
@@ -227,6 +227,7 @@ class jwtValidate extends jwt
 
         self::$isPayloadValid['sub'] = true;
         return true;
+        // @codeCoverageIgnoreEnd
     }
 
     /**

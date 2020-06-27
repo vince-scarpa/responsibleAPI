@@ -149,7 +149,9 @@ class userLoad extends user
             
             if ($this->requestRefreshToken) {
                 $account->refresh_token = $this->refreshTokenGenerate($account);
-                $sentToken = (new headers\header)->hasBearerToken();
+                $headers = new headers\header;
+                $headers->setOptions($this->getOptions());
+                $sentToken = $headers->hasBearerToken();
 
                 if( $sentToken ) {
                     /**

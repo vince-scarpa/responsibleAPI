@@ -262,11 +262,9 @@ class limiter extends limiterOptions
         }
 
         if (is_null($this->account) || empty($this->account)) {
-            (new header)->unauthorised();
-            /**
-             * @codeCoverageIgnore
-             */
-            return;
+            $header = new header;
+            $header->setOptions($this->getOptions());
+            $header->unauthorised();
         }
 
         return $this->account;

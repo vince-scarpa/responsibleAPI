@@ -27,6 +27,7 @@
         <server name='HTTP_HOST' value='localhost' />
         <server name='REQUEST_URI' value='/mock/123456789' />
         <server name='REQUEST_METHOD' value='get' />
+        <server name='HTTP_AUTHORIZATION' value='' />
     </php>
     
     <logging>

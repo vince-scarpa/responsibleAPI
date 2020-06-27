@@ -111,4 +111,16 @@ final class ApiTest extends TestCase
         $this->expectExceptionMessage($exceptionMessage);
         $server->route('/mock/123456789');
     }
+
+    /**
+     * Test if the Responsible API server router can fail with a wrong request method
+     */
+    public function testApiServerCanSetRequestType(): void
+    {
+        $apiOptions = new options;
+        $server = new server([], $this->options);
+        $server->requestType('array');
+
+        $this->assertEquals('array', $server->getRequestType());
+    }
 }

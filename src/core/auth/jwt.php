@@ -128,7 +128,7 @@ class jwt extends \responsible\core\auth\authorise
     public function token($token = null)
     {
         if (is_null($token) || empty($token) || !is_string($token)) {
-            (new header)->unauthorised();
+            $this->setUnauthorised();
         }
 
         $this->token = $token;
@@ -145,12 +145,22 @@ class jwt extends \responsible\core\auth\authorise
     public function key($key = null)
     {
         if (is_null($key) || empty($key) || !is_string($key)) {
-            (new header)->unauthorised();
+            $this->setUnauthorised();
         }
 
         $this->key = $key;
 
         return $this;
+    }
+
+    /**
+     * [setUnauthorised Render unauthorised response]
+     */
+    protected function setUnauthorised()
+    {
+        $header = new header;
+        $header->setOptions($this->getOptions());
+        $header->unauthorised();
     }
 
     /**
@@ -218,6 +228,15 @@ class jwt extends \responsible\core\auth\authorise
         parent::setOptions($options);
         self::$options = $options;
         return $this;
+    }
+
+    /**
+     * [getOptions]
+     * @return array
+     */
+    public function getOptions():?array
+    {
+        return self::$options;
     }
 
     /**

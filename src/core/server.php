@@ -164,6 +164,19 @@ class server
     }
 
     /**
+     * [getInstance Get a child dependency of sever class]
+     * @param  [type] $class
+     * @return object|null
+     */
+    public function getInstance($class)
+    {
+        if (!is_null($this->{$class})) {
+            return $this->{$class};
+        }
+        return null;
+    }
+
+    /**
      * [options Responsible API options]
      * @param array $options
      */
@@ -346,7 +359,9 @@ class server
          * Endpoint tiers must be larger than 1
          */
         if ($router->getSize() < 2) {
-            (new exception\errorException)->error('NOT_FOUND');
+            (new exception\errorException)
+                ->setOptions($this->getOptions())
+                ->error('NOT_FOUND');
         }
 
         /**
@@ -355,7 +370,9 @@ class server
         if (!$this->router->endpoint =
             $this->endpoints->isEndpoint($router->getApi(), $router->getPath())
         ) {
-            (new exception\errorException)->error('BAD_REQUEST');
+            (new exception\errorException)
+                ->setOptions($this->getOptions())
+                ->error('BAD_REQUEST');
         }
 
         $this->router->endpoint->header = [

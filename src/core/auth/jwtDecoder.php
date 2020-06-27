@@ -51,8 +51,14 @@ class jwtDecoder extends jwt
          */
         $payloadObject = $cipher->jsonDecode($cipher->decode($jwtPayload));
 
+        // @codeCoverageIgnoreStart
         if( $this->key == 'payloadOnly' ) {
             return $payloadObject;
+        }
+        // @codeCoverageIgnoreEnd
+
+        if (is_null($headObject) || is_null($payloadObject)) {
+            $this->setUnauthorised();
         }
 
         /**
@@ -85,8 +91,7 @@ class jwtDecoder extends jwt
         $segment = explode('.', $token);
 
         if (sizeof($segment) != 3 || empty($token)) {
-            (new header)->unauthorised();
-            return;
+            $this->setUnauthorised();
         }
 
         return $segment;
@@ -100,7 +105,7 @@ class jwtDecoder extends jwt
     public function token($token = null)
     {
         if (is_null($token) || empty($token)) {
-            (new header)->unauthorised();
+            $this->setUnauthorised();
         }
 
         $this->token = $token;
