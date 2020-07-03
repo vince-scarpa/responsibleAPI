@@ -112,7 +112,7 @@ class options
         return $accessToken;
     }
 
-    public function getExceptionMessage($messgageType)
+    public function getExceptionMessage($messgageType = null)
     {
         $ERRORS = array(
             'APPLICATION_ERROR' => array(
@@ -181,6 +181,10 @@ class options
                 ],
             ),
         );
+
+        if (is_null($messgageType)) {
+            return $ERRORS;
+        }
 
         return $ERRORS[$messgageType];
     }

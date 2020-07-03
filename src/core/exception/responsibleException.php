@@ -14,7 +14,7 @@
  */
 namespace responsible\core\exception;
 
-class resposibleException extends \Exception
+class responsibleException extends \Exception
 {
     /**
      * [__construct Use parent constructor]

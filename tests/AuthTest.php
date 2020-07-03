@@ -5,7 +5,7 @@ use responsible\responsible;
 use responsible\core\server;
 use responsible\core\auth;
 use responsible\core\headers;
-use responsible\core\exception\resposibleException;
+use responsible\core\exception\responsibleException;
 
 final class AuthTest extends TestCase
 {
@@ -34,13 +34,12 @@ final class AuthTest extends TestCase
     public function testJWTCanEncodeAndDecode(): void
     {
         $apiOptions = new options;
-        $options = $apiOptions->getApiOptions();
         $this->assertEquals(true, is_string($this->accessToken));
 
         $decoded = $this->jwt
             ->setOptions($this->options)
             ->token($this->accessToken)
-            ->key($options['mock'])
+            ->key($this->options['mock'])
             ->decode()
         ;
 
@@ -56,7 +55,7 @@ final class AuthTest extends TestCase
         $exceptionMessage = json_encode($apiOptions->getExceptionMessage('UNAUTHORIZED'),
             JSON_PRETTY_PRINT);
         
-        $this->expectException(resposibleException::class);
+        $this->expectException(responsibleException::class);
         $this->expectExceptionMessage($exceptionMessage);
 
         $this->jwt
@@ -76,7 +75,7 @@ final class AuthTest extends TestCase
         $exceptionMessage = json_encode($apiOptions->getExceptionMessage('UNAUTHORIZED'),
             JSON_PRETTY_PRINT);
         
-        $this->expectException(resposibleException::class);
+        $this->expectException(responsibleException::class);
         $this->expectExceptionMessage($exceptionMessage);
 
         $this->jwt
@@ -101,7 +100,7 @@ final class AuthTest extends TestCase
         $exceptionMessage = json_encode($apiOptions->getExceptionMessage('UNAUTHORIZED'),
             JSON_PRETTY_PRINT);
         
-        $this->expectException(resposibleException::class);
+        $this->expectException(responsibleException::class);
         $this->expectExceptionMessage($exceptionMessage);
 
         $this->jwt
@@ -113,7 +112,7 @@ final class AuthTest extends TestCase
     }
 
     /**
-     * Test if JWT segments are not 3 throw error
+     * Test Basic authentication
      */
     public function testCanAccessAuthorizationHeaders(): void
     {
@@ -126,7 +125,7 @@ final class AuthTest extends TestCase
         $exceptionMessage = json_encode($apiOptions->getExceptionMessage('UNAUTHORIZED'),
             JSON_PRETTY_PRINT);
         
-        $this->expectException(resposibleException::class);
+        $this->expectException(responsibleException::class);
         $this->expectExceptionMessage($exceptionMessage);
 
         $server = new server([], $this->options);
@@ -134,13 +133,12 @@ final class AuthTest extends TestCase
     }
 
     /**
-     * Test if JWT segments are not 3 throw error
+     * Test Bearer authentication
      */
     public function testCanAccessAuthorizationBearer(): void
     {
         $apiOptions = new options;
 
-        $credentials = base64_encode('testusername:testpassword');
         $_SERVER['HTTP_AUTHORIZATION'] = 'Bearer '.$this->accessToken;
         $_REQUEST['grant_type'] = 'refresh_token';
 
@@ -151,5 +149,358 @@ final class AuthTest extends TestCase
             true,
             $server->getInstance('auth')->isGrantType()
         );
+    }
+
+    /**
+     * Test if we don't add iss property to JWT "payload" request should fail
+     */
+    public function testAuthoriseFailWhenNoISSPayload(): void
+    {
+        $apiOptions = new options;
+        $requestTime = $_SERVER['REQUEST_TIME'];
+
+        $payload = [
+            'sub' => $this->options['mock'],
+            'iat' => $requestTime,
+            'exp' => $requestTime+300,
+            'nbf' => $requestTime,
+        ];
+
+        $accessToken = $this->jwt->key($this->options['mock'])
+            ->setOptions($this->options)
+            ->setPayload($payload)
+            ->encode()
+        ;
+
+        $exceptionMessage = json_encode($apiOptions->getExceptionMessage('UNAUTHORIZED'),
+            JSON_PRETTY_PRINT);
+        
+        $this->expectException(responsibleException::class);
+        $this->expectExceptionMessage($exceptionMessage);
+
+        $decoded = $this->jwt
+            ->setOptions($this->options)
+            ->token($accessToken)
+            ->key($this->options['mock'])
+            ->decode()
+        ;
+    }
+
+    /**
+     * Test if we don't add nbf property to JWT "payload" request should fail
+     */
+    public function testAuthoriseFailWhenNoNBFPayload(): void
+    {
+        $apiOptions = new options;
+        $requestTime = $_SERVER['REQUEST_TIME'];
+
+        $payload = [
+            'sub' => $this->options['mock'],
+            'iat' => $requestTime,
+            'iss' => 'http://localhost',
+            'exp' => $requestTime+300,
+        ];
+
+        $accessToken = $this->jwt->key($this->options['mock'])
+            ->setOptions($this->options)
+            ->setPayload($payload)
+            ->encode()
+        ;
+
+        $exceptionMessage = json_encode($apiOptions->getExceptionMessage('UNAUTHORIZED'),
+            JSON_PRETTY_PRINT);
+        
+        $this->expectException(responsibleException::class);
+        $this->expectExceptionMessage($exceptionMessage);
+
+        $decoded = $this->jwt
+            ->setOptions($this->options)
+            ->token($accessToken)
+            ->key($this->options['mock'])
+            ->decode()
+        ;
+    }
+
+    /**
+     * Test if we don't add iat property to JWT "payload" request should fail
+     */
+    public function testAuthoriseFailWhenNoIATPayload(): void
+    {
+        $apiOptions = new options;
+        $requestTime = $_SERVER['REQUEST_TIME'];
+
+        $payload = [
+            'sub' => $this->options['mock'],
+            'iss' => 'http://localhost',
+            'exp' => $requestTime+300,
+            'nbf' => $requestTime,
+        ];
+
+        $accessToken = $this->jwt->key($this->options['mock'])
+            ->setOptions($this->options)
+            ->setPayload($payload)
+            ->encode()
+        ;
+
+        $exceptionMessage = json_encode($apiOptions->getExceptionMessage('UNAUTHORIZED'),
+            JSON_PRETTY_PRINT);
+        
+        $this->expectException(responsibleException::class);
+        $this->expectExceptionMessage($exceptionMessage);
+
+        $decoded = $this->jwt
+            ->setOptions($this->options)
+            ->token($accessToken)
+            ->key($this->options['mock'])
+            ->decode()
+        ;
+    }
+
+    /**
+     * Test if iat property is greater than current time
+     */
+    public function testAuthoriseFailWhenIatIsGreaterThanNow(): void
+    {
+        $apiOptions = new options;
+        $requestTime = $_SERVER['REQUEST_TIME'];
+
+        $payload = [
+            'sub' => $this->options['mock'],
+            'iss' => 'http://localhost',
+            'iat' => $requestTime+84600,
+            'exp' => $requestTime+300,
+            'nbf' => $requestTime,
+        ];
+
+        $accessToken = $this->jwt->key($this->options['mock'])
+            ->setOptions($this->options)
+            ->setPayload($payload)
+            ->encode()
+        ;
+
+        $message = $apiOptions->getExceptionMessage('NO_CONTENT');
+        $message['MESSAGE']['error'] = 'not ready';
+        $message['MESSAGE']['description'] = 'The token supplied is not ready to be accessed at the moment.';
+        $exceptionMessage = json_encode($message,
+            JSON_PRETTY_PRINT);
+        
+        $this->expectException(responsibleException::class);
+        $this->expectExceptionMessage($exceptionMessage);
+
+        $decoded = $this->jwt
+            ->setOptions($this->options)
+            ->token($accessToken)
+            ->key($this->options['mock'])
+            ->decode()
+        ;
+    }
+
+    /**
+     * Test if nbf property is greater than current time
+     */
+    public function testAuthoriseFailWhenNbfIsGreaterThanNow(): void
+    {
+        $apiOptions = new options;
+        $requestTime = $_SERVER['REQUEST_TIME'];
+
+        $payload = [
+            'sub' => $this->options['mock'],
+            'iss' => 'http://localhost',
+            'iat' => $requestTime,
+            'exp' => $requestTime+300,
+            'nbf' => $requestTime+84600,
+        ];
+
+        $accessToken = $this->jwt->key($this->options['mock'])
+            ->setOptions($this->options)
+            ->setPayload($payload)
+            ->encode()
+        ;
+
+        $message = $apiOptions->getExceptionMessage('NO_CONTENT');
+        $message['MESSAGE']['error'] = 'not ready';
+        $message['MESSAGE']['description'] = 'The token supplied is not ready to be accessed at the moment.';
+        $exceptionMessage = json_encode($message,
+            JSON_PRETTY_PRINT);
+        
+        $this->expectException(responsibleException::class);
+        $this->expectExceptionMessage($exceptionMessage);
+
+        $decoded = $this->jwt
+            ->setOptions($this->options)
+            ->token($accessToken)
+            ->key($this->options['mock'])
+            ->decode()
+        ;
+    }
+
+    /**
+     * Test if exp has expired
+     */
+    public function testAuthoriseFailWhenTokenExpired(): void
+    {
+        $apiOptions = new options;
+        $requestTime = $_SERVER['REQUEST_TIME'];
+
+        $payload = [
+            'sub' => $this->options['mock'],
+            'iss' => 'http://localhost',
+            'iat' => $requestTime,
+            'exp' => $requestTime-84600,
+            'nbf' => $requestTime,
+        ];
+
+        $accessToken = $this->jwt->key($this->options['mock'])
+            ->setOptions($this->options)
+            ->setPayload($payload)
+            ->encode()
+        ;
+        
+        $exceptionMessage = json_encode($apiOptions->getExceptionMessage('UNAUTHORIZED'),
+            JSON_PRETTY_PRINT);
+        
+        $this->expectException(responsibleException::class);
+        $this->expectExceptionMessage($exceptionMessage);
+
+        $decoded = $this->jwt
+            ->setOptions($this->options)
+            ->token($accessToken)
+            ->key($this->options['mock'])
+            ->decode()
+        ;
+    }
+
+    /**
+     * Test if we don't add exp property to JWT "payload" request should fail
+     */
+    public function testAuthoriseFailWhenNoExpPayload(): void
+    {
+        $apiOptions = new options;
+        $requestTime = $_SERVER['REQUEST_TIME'];
+
+        $payload = [
+            'sub' => $this->options['mock'],
+            'iss' => 'http://localhost',
+            'iss' => $requestTime,
+            'nbf' => $requestTime,
+        ];
+
+        $accessToken = $this->jwt->key($this->options['mock'])
+            ->setOptions($this->options)
+            ->setPayload($payload)
+            ->encode()
+        ;
+
+        $exceptionMessage = json_encode($apiOptions->getExceptionMessage('UNAUTHORIZED'),
+            JSON_PRETTY_PRINT);
+        
+        $this->expectException(responsibleException::class);
+        $this->expectExceptionMessage($exceptionMessage);
+
+        $decoded = $this->jwt
+            ->setOptions($this->options)
+            ->token($accessToken)
+            ->key($this->options['mock'])
+            ->decode()
+        ;
+    }
+
+    /**
+     * Test if we don't add exp property to JWT "payload" request should fail
+     */
+    public function testAuthoriseAnonymousScope(): void
+    {
+        $apiOptions = new options;
+        $requestTime = $_SERVER['REQUEST_TIME'];
+
+        $payload = [
+            'scope' => 'anonymous',
+            'iss' => 'http://localhost',
+            'iat' => $requestTime,
+            'exp' => $requestTime-84600,
+            'nbf' => $requestTime,
+        ];
+
+        $accessToken = $this->jwt->key($this->options['mock'])
+            ->setOptions($this->options)
+            ->setPayload($payload)
+            ->encode()
+        ;
+
+        $decoded = $this->jwt
+            ->setOptions($this->options)
+            ->token($accessToken)
+            ->key($this->options['mock'])
+            ->decode()
+        ;
+
+        $this->assertEquals($payload, $decoded);
+    }
+
+    /**
+     * Test wrong secret key
+     */
+    public function testAuthoriseFailsWithWrongSecret(): void
+    {
+        $apiOptions = new options;
+
+        $exceptionMessage = json_encode($apiOptions->getExceptionMessage('UNAUTHORIZED'),
+            JSON_PRETTY_PRINT);
+        
+        $this->expectException(responsibleException::class);
+        $this->expectExceptionMessage($exceptionMessage);
+
+        $decoded = $this->jwt
+            ->setOptions($this->options)
+            ->token($this->accessToken)
+            ->key(self::FAKE_KEY)
+            ->decode()
+        ;
+    }
+
+    /**
+     * Test JWT header doesn't contain typ "type = JWT"
+     */
+    public function testAuthoriseFailsWithNoHeaderTyp(): void
+    {
+        $apiOptions = new options;
+
+        $accessToken = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.GuoUe6tw79bJlbU1HU0ADX0pr0u2kf3r_4OdrDufSfQ';
+
+        $exceptionMessage = json_encode($apiOptions->getExceptionMessage('UNAUTHORIZED'),
+            JSON_PRETTY_PRINT);
+        
+        $this->expectException(responsibleException::class);
+        $this->expectExceptionMessage($exceptionMessage);
+
+        $decoded = $this->jwt
+            ->setOptions($this->options)
+            ->token($accessToken)
+            ->key($this->options['mock'])
+            ->decode()
+        ;
+    }
+
+    /**
+     * Test JWT header alg is set to HS256 not SHA256
+     */
+    public function testAuthoriseWithHS256(): void
+    {
+        $apiOptions = new options;
+
+        $accessToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5dn5ecl5VYUZRPigpYUQkQVZlNG48X3ZCPnBkVWIoOCIsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3QiLCJpYXQiOjE1OTMzNDA1MDksImV4cCI6MTU5MzM0MDgwOSwibmJmIjoxNTkzMzQwNTA5fQ.LHMdLCXHXcRN7mQjIoEwqlZCp8cr_7Kn8ksu63Z5cvY';
+
+        $exceptionMessage = json_encode($apiOptions->getExceptionMessage('UNAUTHORIZED'),
+            JSON_PRETTY_PRINT);
+        
+        $this->expectException(responsibleException::class);
+        $this->expectExceptionMessage($exceptionMessage);
+
+        $decoded = $this->jwt
+            ->setOptions($this->options)
+            ->token($accessToken)
+            ->key($this->options['mock'])
+            ->decode()
+        ;
     }
 }

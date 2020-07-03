@@ -44,6 +44,12 @@ class router extends server
      * @var array
      */
     private $requestBody = [];
+    
+    /**
+     * [$requestBody]
+     * @var array
+     */
+    private $payloadBody = [];
 
     /**
      * [run Try run the request method]
@@ -93,16 +99,21 @@ class router extends server
      */
     public function setPostBody($payload)
     {
-        $payloadPost = [
-            'post' => $payload
-        ];
-
-        if( isset($this->requestBody['payload']) ) {
-            array_merge($this->requestBody['payload'], $payloadPost);
+        if( isset($this->payloadBody['payload']) ) {
+            array_merge($this->payloadBody['payload'], ['post' => $payload]);
             return;
         }
 
-        $this->requestBody = $payloadPost;
+        $this->payloadBody = $payload;
+    }
+
+    /**
+     * [getBody]
+     * @return array
+     */
+    public function getBody()
+    {
+        return $this->payloadBody;
     }
 
     /**
@@ -111,6 +122,11 @@ class router extends server
      */
     public function setRequestBody($payload)
     {
+        if (is_array($payload)) {
+            $this->requestBody = $payload;
+            return;
+        }
+
         $payload = ltrim($payload, 'payload=');
         $cipher = new encoder\cipher;
         $this->requestBody = $cipher->jsonDecode($cipher->decode($payload));

@@ -88,10 +88,16 @@ class server
     protected $limiter;
 
     /**
-     * [$router Router class object]
+     * [$router Router object]
      * @var object
      */
     protected $router;
+
+    /**
+     * [$routerClass Router class object]
+     * @var object
+     */
+    protected $routerClass;
 
     /**
      * [$renderError]
@@ -348,7 +354,9 @@ class server
         /**
          * Initialise the router
          */
-        $router = new route\router();
+        $this->routerClass = new route\router();
+        $router = $this->routerClass;
+
         $router->baseApiRoot(dirname(__DIR__));
         $this->router = $router->route($route);
         $this->router->options = $this->getOptions();
@@ -382,16 +390,15 @@ class server
         ];
 
         /**
-         * Check if theres a payload sent
+         * Check if theres a request payload sent
          */
         if(isset($_REQUEST['payload'])) {
             $router->setRequestBody($_REQUEST['payload']);
         }
-        // print_r($_REQUEST);
-        /*if(isset($_POST) && !empty($_POST)) {
-            $router->setPostBody($_POST);
-        }*/
+        $router->setPostBody($this->header->getBody());
+
         $this->router->payload = $router->getRequestBody();
+        $this->router->body = $router->getBody();
 
         /**
          * Check the access scope
@@ -484,8 +491,9 @@ class server
         /**
          * Output the response if any
          */
-        return (new request\application($this->getRequestType()))
-            ->data($this->getResponse());
+        $requestApplication = new request\application($this->getRequestType());
+        $requestApplication->setOptions($this->getOptions());
+        return $requestApplication->data($this->getResponse());
     }
 
     /**

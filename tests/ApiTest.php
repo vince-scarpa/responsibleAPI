@@ -3,7 +3,7 @@
 use PHPUnit\Framework\TestCase;
 use responsible\responsible;
 use responsible\core\server;
-use responsible\core\exception\resposibleException;
+use responsible\core\exception\responsibleException;
 
 final class ApiTest extends TestCase
 {
@@ -30,7 +30,7 @@ final class ApiTest extends TestCase
     public function testApiServerUnauthorisedException(): void
     {
         $server = new server([], $this->options);
-        $this->expectException(resposibleException::class);
+        $this->expectException(responsibleException::class);
         $server->authenticate();
     }
 
@@ -44,7 +44,7 @@ final class ApiTest extends TestCase
         $exceptionMessage = json_encode($apiOptions->getExceptionMessage('UNAUTHORIZED'),
             JSON_PRETTY_PRINT);
         
-        $this->expectException(resposibleException::class);
+        $this->expectException(responsibleException::class);
         $this->expectExceptionMessage($exceptionMessage);
 
         $server->authenticate();
@@ -75,6 +75,33 @@ final class ApiTest extends TestCase
     }
 
     /**
+     * Test get the Responsible API server response in JSON format
+     */
+    public function testApiServerCanGetResponseJSON(): void
+    {
+        $apiOptions = new options;
+
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        
+        $server = new server([], $this->options);
+        $server->rateLimit();
+        $server->route('/mock/123456789');
+
+        $response = $server->response();
+        $response = json_decode($response, true);
+
+        $this->assertArrayHasKey('response', $response);
+        $this->assertNotEmpty($response);
+
+        if (!isset($response['response'])) {
+            $this->fail("Response is not set in test case 'ApiTest::testApiServerCanGetResponseJSON()'");
+        }
+
+        $expected = ['mock_run' => ['passed' => true]];
+        $this->assertEquals($expected, $response['response']);
+    }
+
+    /**
      * Test if the Responsible API server router can fail with a bad request message
      */
     public function testApiServerRouterFail(): void
@@ -88,7 +115,7 @@ final class ApiTest extends TestCase
         $exceptionMessage = json_encode($apiOptions->getExceptionMessage('BAD_REQUEST'),
             JSON_PRETTY_PRINT);
         
-        $this->expectException(resposibleException::class);
+        $this->expectException(responsibleException::class);
         $this->expectExceptionMessage($exceptionMessage);
 
         $server->route('/mock/123456789/123');
@@ -107,7 +134,7 @@ final class ApiTest extends TestCase
 
         $exceptionMessage = json_encode($apiOptions->getExceptionMessage('METHOD_NOT_ALLOWED'), JSON_PRETTY_PRINT);
         
-        $this->expectException(resposibleException::class);
+        $this->expectException(responsibleException::class);
         $this->expectExceptionMessage($exceptionMessage);
         $server->route('/mock/123456789');
     }

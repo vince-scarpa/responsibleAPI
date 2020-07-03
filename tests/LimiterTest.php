@@ -3,7 +3,7 @@
 use PHPUnit\Framework\TestCase;
 use responsible\responsible;
 use responsible\core\throttle\limiter;
-use responsible\core\exception\resposibleException;
+use responsible\core\exception\responsibleException;
 
 final class LimiterTest extends TestCase
 {
@@ -31,7 +31,7 @@ final class LimiterTest extends TestCase
         $limiter = $this->limiterConstructor;
         $limiter->setOptions($this->options);
 
-        $this->expectException(resposibleException::class);
+        $this->expectException(responsibleException::class);
 
         $limiter->throttleRequest();
     }
@@ -174,7 +174,7 @@ final class LimiterTest extends TestCase
 
         $exceptionMessage = json_encode($apiOptions->getExceptionMessage('TOO_MANY_REQUESTS'),
             JSON_PRETTY_PRINT);
-        $this->expectException(resposibleException::class);
+        $this->expectException(responsibleException::class);
         $this->expectExceptionMessage($exceptionMessage);
 
         for ($i = 0; $i < 100; $i++) {
@@ -193,7 +193,7 @@ final class LimiterTest extends TestCase
         $limiter->setOptions($this->options);
         $limiter->setupOptions();
 
-        $this->expectException(resposibleException::class);
+        $this->expectException(responsibleException::class);
         $limiter->getAccount();
     }
 }

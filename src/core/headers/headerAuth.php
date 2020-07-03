@@ -47,7 +47,9 @@ class headerAuth extends header
         if (!$skipError) {
             $this->setUnauthorised();
         }
+    // @codeCoverageIgnoreStart
     }
+    // @codeCoverageIgnoreEnd
 
     /**
      * [hasBearerValue Check if Authorization headers has Bearer value]
@@ -171,8 +173,8 @@ class headerAuth extends header
             }
             $this->setUnauthorised();
         }
-        // @codeCoverageIgnoreEnd
     }
+    // @codeCoverageIgnoreEnd
 
     /**
      * [accessCredentialHeaders Check if the credentials are correct]
@@ -224,12 +226,12 @@ class headerAuth extends header
                         }
                     }
                 }
-                // @codeCoverageIgnoreEnd
             }
         } else {
             $this->setUnauthorised();
         }
     }
+    // @codeCoverageIgnoreEnd
 
     /**
      * [unauthorised Set an unauthorised header]
@@ -252,5 +254,7 @@ class headerAuth extends header
         (new exception\errorException)
             ->setOptions($this->getOptions())
             ->error('UNAUTHORIZED');
+    // @codeCoverageIgnoreStart
     }
+    // @codeCoverageIgnoreEnd
 }

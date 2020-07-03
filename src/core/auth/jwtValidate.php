@@ -72,7 +72,7 @@ class jwtValidate extends jwt
     /**
      * [payload Validate the payload object]
      * Second segment of the token
-     * @return bool
+     * @return boolean
      */
     public static function payload(array $payloadObject = [])
     {

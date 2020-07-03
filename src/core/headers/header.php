@@ -153,6 +153,18 @@ class header extends server implements interfaces\optionsInterface
     }
 
     /**
+     * [getBody Get the post body]
+     * @return array
+     */
+    public function getBody():array
+    {
+        if (isset($this->getMethod()->data) && !empty($this->getMethod()->data)) {
+            return $this->getMethod()->data;
+        }
+        return [];
+    }
+
+    /**
      * [setAllowedMethods Set the allowed methods for endpoints]
      * @param array $methods [GET, POST, PUT, PATCH, DELETE, ect..]
      */
