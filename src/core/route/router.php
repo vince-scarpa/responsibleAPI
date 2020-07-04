@@ -21,6 +21,8 @@ use responsible\core\encoder;
 
 class router extends server
 {
+    use \responsible\core\traits\optionsTrait;
+
     /**
      * [$root Responsible API root path]
      * @var string
@@ -72,6 +74,7 @@ class router extends server
             foreach ($neededMethods as $method) {
                 if (!method_exists($controller, $method)) {
                     (new exception\errorException)
+                        ->setOptions($this->getOptions())
                         ->message(
                             "There's a method missing in '"
                             . $controllerSettings->model['class']
@@ -99,21 +102,15 @@ class router extends server
      */
     public function setPostBody($payload)
     {
-        if( isset($this->payloadBody['payload']) ) {
-            array_merge($this->payloadBody['payload'], ['post' => $payload]);
-            return;
+        if( !empty($this->payloadBody) ) {
+            $payload = array_merge($this->payloadBody, ['post' => $payload]);
+        }
+
+        if( !empty($this->requestBody) ) {
+            $payload = array_merge($this->requestBody, ['post' => $payload]);
         }
 
         $this->payloadBody = $payload;
-    }
-
-    /**
-     * [getBody]
-     * @return array
-     */
-    public function getBody()
-    {
-        return $this->payloadBody;
     }
 
     /**
@@ -130,6 +127,15 @@ class router extends server
         $payload = ltrim($payload, 'payload=');
         $cipher = new encoder\cipher;
         $this->requestBody = $cipher->jsonDecode($cipher->decode($payload));
+    }
+
+    /**
+     * [getBody]
+     * @return array
+     */
+    public function getBody()
+    {
+        return $this->payloadBody;
     }
 
     /**
@@ -205,7 +211,9 @@ class router extends server
         $routes = array_values(array_filter($routes));
 
         if (empty($routes)) {
-            (new exception\errorException)->error('NOT_FOUND');
+            (new exception\errorException)
+                ->setOptions($this->getOptions())
+                ->error('NOT_FOUND');
         }
 
         foreach ($routes as $r => $route) {
@@ -278,7 +286,9 @@ class router extends server
     public function getController()
     {
         if (!isset($this->getRoutes()->endpoint)) {
-            (new exception\errorException)->error('NOT_FOUND');
+            (new exception\errorException)
+                ->setOptions($this->getOptions())
+                ->error('NOT_FOUND');
         }
         return $this->getRoutes()->endpoint;
     }
