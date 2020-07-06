@@ -19,6 +19,12 @@ use josegonzalez;
 class config
 {
     /**
+     * ResponsibleAPI software version
+     * @var float
+     */
+    private const MAJOR_VERSION = 1.5;
+
+    /**
      * [$DEFAULTS]
      * @var array
      */
@@ -64,6 +70,11 @@ class config
                 "No config specified in Responsible API class. Please read the documentation on configuration settings."
             );
         }
+
+        $options['manifest'] = [
+            'major_version' => self::getVersion(),
+            'description' => 'Appended by ResponsibleAPI'
+        ];
 
         $DEFAULTS = [
             'options' => $options,
@@ -116,5 +127,14 @@ class config
     public function baseApiRoot($directory)
     {
         $this->root = $directory;
+    }
+
+    /**
+     * [getVersion Get the ResponsibleAPI sowtware versions]
+     * @return float
+     */
+    public static function getVersion()
+    {
+        return self::MAJOR_VERSION;
     }
 }
