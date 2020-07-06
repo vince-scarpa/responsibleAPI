@@ -45,10 +45,12 @@ class jwtEncoder extends jwt
     {
         $this->cipher = new encoder\cipher;
         $this->claims = new auth\jwtClaims;
+
+        $algo = parent::getAlgorithm();
         
         $header = [
             'typ' => self::CYT,
-            'alg' => self::$ALGORITHMS['hash_hmac'],
+            'alg' => $algo['header'],
         ];
 
         $payload = $this->payload;
@@ -83,9 +85,11 @@ class jwtEncoder extends jwt
      */
     private function sign()
     {
+        $algo = parent::getAlgorithm();
+
         return $this->cipher->encode(
             $this->cipher->hash(
-                self::$ALGORITHMS['hash_hmac'],
+                $algo['hash'],
                 $this->stringToSign,
                 $this->key
             )

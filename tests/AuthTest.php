@@ -43,7 +43,7 @@ final class AuthTest extends TestCase
             ->decode()
         ;
 
-        $this->assertEquals($apiOptions->getMockJwtHeader(), $decoded);
+        $this->assertEquals($apiOptions->getMockJwtPayload(), $decoded);
     }
 
     /**
@@ -82,6 +82,28 @@ final class AuthTest extends TestCase
             ->setOptions($this->options)
             ->token()
             ->key(self::FAKE_KEY)
+            ->decode()
+        ;
+    }
+
+    /**
+     * Test if JWT secret is empty and throws an exception
+     */
+    public function testAccessSecretKeyIsEmpty(): void
+    {
+        $apiOptions = new options;
+        $token = $apiOptions->getAccessToken();
+
+        $exceptionMessage = json_encode($apiOptions->getExceptionMessage('UNAUTHORIZED'),
+            JSON_PRETTY_PRINT);
+        
+        $this->expectException(responsibleException::class);
+        $this->expectExceptionMessage($exceptionMessage);
+
+        $decoded = $this->jwt
+            ->setOptions($this->options)
+            ->token($token)
+            ->key()
             ->decode()
         ;
     }
@@ -482,25 +504,64 @@ final class AuthTest extends TestCase
     }
 
     /**
-     * Test JWT header alg is set to HS256 not SHA256
+     * Test JWT algorythm support
      */
-    public function testAuthoriseWithHS256(): void
+    public function testAuthoriseWithAlgoSupport(): void
     {
         $apiOptions = new options;
 
-        $accessToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5dn5ecl5VYUZRPigpYUQkQVZlNG48X3ZCPnBkVWIoOCIsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3QiLCJpYXQiOjE1OTMzNDA1MDksImV4cCI6MTU5MzM0MDgwOSwibmJmIjoxNTkzMzQwNTA5fQ.LHMdLCXHXcRN7mQjIoEwqlZCp8cr_7Kn8ksu63Z5cvY';
+        $payload = $apiOptions->getMockJwtPayload();
 
-        $exceptionMessage = json_encode($apiOptions->getExceptionMessage('UNAUTHORIZED'),
-            JSON_PRETTY_PRINT);
-        
-        $this->expectException(responsibleException::class);
-        $this->expectExceptionMessage($exceptionMessage);
+        $algoSupported = [
+            'HS256','sha256',
+            'HS384','sha384',
+            'HS512','sha512',
+        ];
 
-        $decoded = $this->jwt
-            ->setOptions($this->options)
-            ->token($accessToken)
-            ->key($this->options['mock'])
-            ->decode()
-        ;
+        foreach ($algoSupported as $a => $suppoerted) {
+            $this->options['jwt']['algo'] = $suppoerted;
+            $accessToken = $this->jwt->key($this->options['mock'])
+                ->setOptions($this->options)
+                ->setPayload($payload)
+                ->encode()
+            ;
+
+            $decoded = $this->jwt
+                ->setOptions($this->options)
+                ->token($accessToken)
+                ->key($this->options['mock'])
+                ->decode()
+            ;
+
+            $this->assertEquals($payload, $decoded);
+        }
+    }
+
+    /**
+     * Test JWT no algorythm support and resolves fallback "HS256"
+     */
+    public function testAuthoriseWithAlgoNoSupport(): void
+    {
+        $apiOptions = new options;
+
+        $payload = $apiOptions->getMockJwtPayload();
+
+        $algoSupported = [
+            'NOT_SUPPORTED_TEST'
+        ];
+
+        foreach ($algoSupported as $a => $suppoerted) {
+            $this->options['jwt']['algo'] = $suppoerted;
+            $accessToken = $this->jwt->key($this->options['mock'])
+                ->setOptions($this->options)
+                ->setPayload($payload)
+                ->encode()
+            ;
+
+            $this->assertEquals([
+                'header' => 'HS256',
+                'hash' => 'sha256',
+            ], $this->jwt->getAlgorithm());
+        }
     }
 }

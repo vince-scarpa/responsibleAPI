@@ -393,6 +393,7 @@ class userLoad extends user
          * Return the encoded JWT
          */
         return $this->jwt
+            ->setOptions($this->getOptions())
             ->key($key)
             ->setPayload($payload)
             ->encode($payload)
