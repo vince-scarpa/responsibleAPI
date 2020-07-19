@@ -520,6 +520,7 @@ final class AuthTest extends TestCase
 
         foreach ($algoSupported as $a => $suppoerted) {
             $this->options['jwt']['algo'] = $suppoerted;
+
             $accessToken = $this->jwt->key($this->options['mock'])
                 ->setOptions($this->options)
                 ->setPayload($payload)
@@ -533,7 +534,11 @@ final class AuthTest extends TestCase
                 ->decode()
             ;
 
-            $this->assertEquals($payload, $decoded);
+            try {
+                $this->assertEquals($payload, $decoded);
+            }catch (\Exception $e) {
+                $this->fail("Test failed at (Algo {$suppoerted}) - " . $e);
+            }
         }
     }
 

@@ -67,7 +67,7 @@ final class ApiTest extends TestCase
         $this->assertNotEmpty($response);
 
         if (!isset($response['response'])) {
-            $this->fail("Response is not set in test case 'ApiTest::testApiServerRouter()'");
+            $this->fail("There was no response in test case 'ApiTest::testApiServerRouter()'");
         }
 
         $expected = ['mock_run' => ['passed' => true]];
@@ -89,7 +89,7 @@ final class ApiTest extends TestCase
         $this->assertNotEmpty($response);
 
         if (!isset($response['response'])) {
-            $this->fail("Response is not set in test case 'ApiTest::testServerSetResponseKeys()'");
+            $this->fail("There was no response in test case 'ApiTest::testServerSetResponseKeys()'");
         }
 
         $this->assertEquals([
@@ -119,7 +119,7 @@ final class ApiTest extends TestCase
         $this->assertNotEmpty($response);
 
         if (!isset($response['response'])) {
-            $this->fail("Response is not set in test case 'ApiTest::testApiServerCanGetResponseJSON()'");
+            $this->fail("There was no response in test case 'ApiTest::testApiServerCanGetResponseJSON()'");
         }
 
         $expected = ['mock_run' => ['passed' => true]];
@@ -221,7 +221,7 @@ final class ApiTest extends TestCase
         $this->assertNotEmpty($response);
 
         if (!isset($response['response'])) {
-            $this->fail("Response is not set in test case 'ApiTest::testResponsibleAPIAllowsAccess()'");
+            $this->fail("There was no response in test case 'ApiTest::testResponsibleAPIAllowsAccess()'");
         }
 
         $expected = ['mock_run' => ['passed' => true]];

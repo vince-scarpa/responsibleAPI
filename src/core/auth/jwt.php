@@ -307,7 +307,6 @@ class jwt extends \responsible\core\auth\authorise
     public static function getAlgorithm($type = '')
     {
         return self::resolveAlgorithm();
-        // return array_search($type, self::$ALGORITHMS);
     }
 
     /**

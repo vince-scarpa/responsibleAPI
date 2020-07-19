@@ -47,15 +47,25 @@ class help
 
 
     /**
-     * [getClaim Check if a claim is set and not empty]
-     * @param  string $claim
+     * [checkVal Check if an array value isset and not empty]
+     *
+     * This is not a multidimensional search, it's intent is to 
+     * replace the use of isset and not empty cases in if statements
+     * 
+     * @param  array $array
+     *         array to check
+     * @param  string $key
+     *         key to find
+     * @param  mixed $default
+     *         Value to return if nothing found
+     * 
      * @return mixed
      */
-    public function checkVal($option, $key, $default = false)
+    public function checkVal(array $array, $key, $default = false)
     {
-        $val = isset($option[$key]) ? $option[$key] : $default;
+        $val = isset($array[$key]) ? $array[$key] : $default;
 
-        if ($val && empty($option[$key])) {
+        if ($val && empty($array[$key])) {
             $val = $default;
         }
 

@@ -26,7 +26,7 @@ class options
              * nothing will happen if not, no errors no added headers
              */
             'addHeaders' => array(
-                ['x-my-new-responsible-api', '1.2'],
+                ['x-my-new-responsible-api', '1.5'],
             ),
 
             /**
