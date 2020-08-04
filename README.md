@@ -21,7 +21,7 @@ Features include:
     - used for request throttling
 
 ## Requirements
-PHP 5.6.x, 7.x\
+PHP 7.x\
 [Composer](https://getcomposer.org/doc/00-intro.md "Composer install")\
 [ResponsibleSDK](https://github.com/vince-scarpa/responsibleSDK "ResponsibleAPI software development kit") [recommended]
 
