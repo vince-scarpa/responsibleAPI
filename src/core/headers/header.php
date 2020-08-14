@@ -88,53 +88,35 @@ class header extends server implements interfaces\optionsInterface
      */
     public function requestMethod()
     {
+        $verbs = new headerVerbs;
+
         switch (strtolower($_SERVER['REQUEST_METHOD'])) {
 
             case 'get':
-                $this->REQUEST_METHOD = ['method' => 'get', 'data' => $_GET];
+                return $this->REQUEST_METHOD = $verbs->get();
                 break;
 
             case 'post':
-                $_POST_DATA = $_POST;
-                $jsonData = json_decode(file_get_contents("php://input"));
-
-                if (is_object($jsonData) || is_array($jsonData)) {
-                    $_POST_DATA = json_decode(file_get_contents("php://input"), true);
-                }
-                $_POST = array_merge($_REQUEST, $_POST);
-                $_REQUEST = array_merge($_POST, $_POST_DATA);
-
-                $this->REQUEST_METHOD = ['method' => 'post', 'data' => $_REQUEST];
+                return $this->REQUEST_METHOD = $verbs->post();
                 break;
 
             case 'options':
-                $this->REQUEST_METHOD = ['method' => 'options', 'data' => $_POST];
+                $this->REQUEST_METHOD = $verbs->post();
                 echo json_encode(['success' => true]);
                 $this->setHeaders();
                 exit;
                 break;
 
             case 'put':
-                parse_str(file_get_contents("php://input"), $_PUT);
-
-                foreach ($_PUT as $key => $value) {
-                    unset($_PUT[$key]);
-                    $_PUT[str_replace('amp;', '', $key)] = $value;
-                }
-
-                $_REQUEST = array_merge($_REQUEST, $_PUT);
-
-                $this->REQUEST_METHOD = ['method' => 'put', 'data' => $_REQUEST];
+                $this->REQUEST_METHOD = $verbs->put();
                 break;
 
             case 'patch':
-                # [TODO]
-                $this->REQUEST_METHOD = ['method' => 'patch', 'data' => []];
+                $this->REQUEST_METHOD = $verbs->patch();
                 break;
 
             case 'delete':
-                # [TODO]
-                $this->REQUEST_METHOD = ['method' => 'delete', 'data' => []];
+                $this->REQUEST_METHOD = $verbs->delete();
                 break;
 
             default:
@@ -150,6 +132,18 @@ class header extends server implements interfaces\optionsInterface
     public function getMethod()
     {
         return (object) $this->REQUEST_METHOD;
+    }
+
+    /**
+     * [getBody Get the post body]
+     * @return array
+     */
+    public function getBody():array
+    {
+        if (isset($this->getMethod()->data) && !empty($this->getMethod()->data)) {
+            return $this->getMethod()->data;
+        }
+        return [];
     }
 
     /**

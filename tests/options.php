@@ -4,7 +4,7 @@ use responsible\core\auth;
 
 class options
 {
-    private $jwtHeader;
+    private $jwtPayload;
 
     public function getApiOptions()
     {
@@ -26,13 +26,14 @@ class options
              * nothing will happen if not, no errors no added headers
              */
             'addHeaders' => array(
-                ['x-my-new-responsible-api', '1.2'],
+                ['x-my-new-responsible-api', '1.5'],
             ),
 
             /**
              * JWT refresh options
              */
             'jwt' => [
+                'algo' => 'HS256', // alorithm support HS256 | HS384 | HS512
                 'leeway' => 10, // n seconds leeway for expiry
                 'issuedAt' => time(),
                 'expires' => time() + 300,
@@ -72,17 +73,17 @@ class options
         return $options;
     }
 
-    public function getMockJwtHeader()
+    public function getMockJwtPayload()
     {
         return $this->setJwtHeaderWith();
     }
 
-    public function setJwtHeaderWith($header = null)
+    public function setJwtHeaderWith($payload = null)
     {
         $options = $this->getApiOptions();
         $requestTime = $_SERVER['REQUEST_TIME'];
 
-        $this->jwtHeader = [
+        $this->jwtPayload = [
             'sub' => $options['mock'],
             'iss' => 'http://localhost',
             'iat' => $requestTime,
@@ -90,18 +91,18 @@ class options
             'nbf' => $requestTime,
         ];
 
-        if (!is_null($header)) {
-            $this->jwtHeader = $header;
+        if (!is_null($payload)) {
+            $this->jwtPayload = $payload;
         }
 
-        return $this->jwtHeader;
+        return $this->jwtPayload;
     }
 
     public function getAccessToken()
     {
         $jwt = new auth\jwt;
         $options = $this->getApiOptions();
-        $payload = $this->getMockJwtHeader();
+        $payload = $this->getMockJwtPayload();
 
         $accessToken = $jwt->key($options['mock'])
             ->setOptions($options)
@@ -112,7 +113,7 @@ class options
         return $accessToken;
     }
 
-    public function getExceptionMessage($messgageType)
+    public function getExceptionMessage($messgageType = null)
     {
         $ERRORS = array(
             'APPLICATION_ERROR' => array(
@@ -181,6 +182,10 @@ class options
                 ],
             ),
         );
+
+        if (is_null($messgageType)) {
+            return $ERRORS;
+        }
 
         return $ERRORS[$messgageType];
     }

@@ -97,6 +97,7 @@ class map extends route\router implements interfaces\optionsInterface
 
         if (!is_dir($directory)) {
             (new exception\errorException)
+                ->setOptions($this->getOptions())
                 ->message('Directory Error:: responsible\service needs to exist. See documentation on setting up a service.')
                 ->error('NOT_EXTENDED');
         }
@@ -115,6 +116,7 @@ class map extends route\router implements interfaces\optionsInterface
 
         if (empty($scanned)) {
             (new exception\errorException)
+                ->setOptions($this->getOptions())
                 ->message('Class Error:: responsible\service\endpoints needs at least 1 class file. See documentation on setting up a service.')
                 ->error('NOT_EXTENDED');
         }
@@ -136,11 +138,12 @@ class map extends route\router implements interfaces\optionsInterface
 
                 $this->NAMESPACE_ENDPOINTS[$point] = $endpoint;
 
-                if (class_exists($child)) {
+                if (class_exists($child) && method_exists($child, 'register')) {
                     self::$middleWareClass = new $child;
                     $this->registry[$point] = self::$middleWareClass->register();
                 }else{
                     (new exception\errorException)
+                        ->setOptions($this->getOptions())
                         ->message("Class Error:: class {$child} needs to exist. See documentation on setting up a service.")
                         ->error('NOT_EXTENDED');
                 }
@@ -208,7 +211,7 @@ class map extends route\router implements interfaces\optionsInterface
         if (null !== ($endpointSettings = $this->isSystemEndpoint($api, $endpoint))) {
             return $endpointSettings;
         }
-
+        
         $endpoint = htmlspecialchars($endpoint, ENT_QUOTES, 'UTF-8');
         $index = array_search($api, $this->BASE_ENDPOINTS);
 

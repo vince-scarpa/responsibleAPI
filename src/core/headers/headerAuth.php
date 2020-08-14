@@ -47,7 +47,9 @@ class headerAuth extends header
         if (!$skipError) {
             $this->setUnauthorised();
         }
+    // @codeCoverageIgnoreStart
     }
+    // @codeCoverageIgnoreEnd
 
     /**
      * [hasBearerValue Check if Authorization headers has Bearer value]
@@ -171,8 +173,8 @@ class headerAuth extends header
             }
             $this->setUnauthorised();
         }
-        // @codeCoverageIgnoreEnd
     }
+    // @codeCoverageIgnoreEnd
 
     /**
      * [accessCredentialHeaders Check if the credentials are correct]
@@ -192,6 +194,19 @@ class headerAuth extends header
 
                 $server = new server([], $this->getOptions());
                 $mockTest = $server->isMockTest();
+
+                if ($mockTest &&
+                    (in_array('mockusername', $credentails) && in_array('mockpassword', $credentails)) 
+                ) {
+                    return [
+                        'uid' => -1,
+                        'account_id' => 0,
+                        'access_token' => '',
+                        'refreshToken' => [
+                            'refresh_token' => '',
+                        ]
+                    ];
+                }
 
                 // @codeCoverageIgnoreStart
                 if (!empty($credentails) && is_array($credentails) && sizeof($credentails) == 2 
@@ -224,12 +239,12 @@ class headerAuth extends header
                         }
                     }
                 }
-                // @codeCoverageIgnoreEnd
             }
         } else {
             $this->setUnauthorised();
         }
     }
+    // @codeCoverageIgnoreEnd
 
     /**
      * [unauthorised Set an unauthorised header]
@@ -252,5 +267,7 @@ class headerAuth extends header
         (new exception\errorException)
             ->setOptions($this->getOptions())
             ->error('UNAUTHORIZED');
+    // @codeCoverageIgnoreStart
     }
+    // @codeCoverageIgnoreEnd
 }

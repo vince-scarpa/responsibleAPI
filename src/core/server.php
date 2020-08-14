@@ -88,10 +88,16 @@ class server
     protected $limiter;
 
     /**
-     * [$router Router class object]
+     * [$router Router object]
      * @var object
      */
     protected $router;
+
+    /**
+     * [$routerClass Router class object]
+     * @var object
+     */
+    protected $routerClass;
 
     /**
      * [$renderError]
@@ -146,6 +152,10 @@ class server
         if (is_null($this->header)) {
             $this->header = new headers\header;
             $this->header->setOptions($options);
+
+            if (empty((array)$this->header->getMethod())) {
+                $this->header->requestMethod();
+            }
         }
 
         if (is_null($this->keys)) {
@@ -170,8 +180,10 @@ class server
      */
     public function getInstance($class)
     {
-        if (!is_null($this->{$class})) {
-            return $this->{$class};
+        if (property_exists($this, $class)) {
+            if (!is_null($this->{$class})) {
+                return $this->{$class};
+            }
         }
         return null;
     }
@@ -237,7 +249,7 @@ class server
      */
     public function setResponse($key, $response)
     {
-        $this->RESPONSE = [
+        $responseHeader = [
             'headerStatus' => $this->header->getHeaderStatus(),
             'expires_in' => $this->auth->getJWTObject('expiresIn'),
             'access_token' => $this->auth->getJWTObject('token'),
@@ -246,16 +258,20 @@ class server
 
         if (isset($this->RESPONSE['response'][$key])) {
             $this->RESPONSE['response'][$key][] = $response;
+            $this->RESPONSE = array_merge($responseHeader, $this->RESPONSE);
             return;
         }
+
         if (is_null($key) || $key == '') {
             if( !is_null($response) ) {
                 $this->RESPONSE['response'] = $response;
             }
+            $this->RESPONSE = array_merge($responseHeader, $this->RESPONSE);
             return;
         }
 
         $this->RESPONSE['response'][$key] = $response;
+        $this->RESPONSE = array_merge($responseHeader, $this->RESPONSE);
     }
 
     /**
@@ -264,6 +280,9 @@ class server
      */
     public function getResponse()
     {
+        if(isset($this->RESPONSE['response']['response'])) {
+            $this->RESPONSE['response'] = $this->RESPONSE['response']['response'];
+        }
         return $this->RESPONSE;
     }
 
@@ -348,7 +367,10 @@ class server
         /**
          * Initialise the router
          */
-        $router = new route\router();
+        $this->routerClass = new route\router();
+        $this->routerClass->setOptions($this->getOptions());
+        $router = $this->routerClass;
+
         $router->baseApiRoot(dirname(__DIR__));
         $this->router = $router->route($route);
         $this->router->options = $this->getOptions();
@@ -382,16 +404,15 @@ class server
         ];
 
         /**
-         * Check if theres a payload sent
+         * Check if theres a request payload sent
          */
         if(isset($_REQUEST['payload'])) {
             $router->setRequestBody($_REQUEST['payload']);
         }
-        // print_r($_REQUEST);
-        /*if(isset($_POST) && !empty($_POST)) {
-            $router->setPostBody($_POST);
-        }*/
+        $router->setPostBody($this->header->getBody());
+
         $this->router->payload = $router->getRequestBody();
+        $this->router->body = $router->getBody();
 
         /**
          * Check the access scope
@@ -484,8 +505,9 @@ class server
         /**
          * Output the response if any
          */
-        return (new request\application($this->getRequestType()))
-            ->data($this->getResponse());
+        $requestApplication = new request\application($this->getRequestType());
+        $requestApplication->setOptions($this->getOptions());
+        return $requestApplication->data($this->getResponse());
     }
 
     /**

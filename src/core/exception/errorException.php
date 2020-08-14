@@ -16,7 +16,7 @@ namespace responsible\core\exception;
 
 use responsible\core\headers;
 
-class errorException extends resposibleException
+class errorException extends responsibleException
 {
     /**
      * Responsible API options
@@ -122,18 +122,18 @@ class errorException extends resposibleException
                     'MESSAGE' => $this->ERRORS['MESSAGE'],
                 );
                 $this->throwError();
-                return;
             }
 
             $this->ERROR_STATE = $this->ERRORS['APPLICATION_ERROR'];
             $this->ERROR_STATE['MESSAGE'] = "`" . $type . "`" . ' is not defined as an error code';
             $this->throwError();
-            return;
         }
 
         $this->ERROR_STATE = $this->ERRORS[$type];
         $this->throwError();
+    // @codeCoverageIgnoreStart
     }
+    // @codeCoverageIgnoreEnd
 
     /**
      * [message Custom message override]
@@ -168,7 +168,7 @@ class errorException extends resposibleException
             'MESSAGE' => $message,
         ), JSON_PRETTY_PRINT);
 
-        throw new resposibleException($eMessage, $this->ERROR_STATE['ERROR_CODE']);
+        throw new responsibleException($eMessage, $this->ERROR_STATE['ERROR_CODE']);
     }
 
     /**

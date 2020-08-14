@@ -14,10 +14,13 @@
  */
 namespace responsible\core\request;
 
+use responsible\core\server;
 use responsible\core\exception;
 
 class application
 {
+    use \responsible\core\traits\optionsTrait;
+
     /**
      * [$requestType description]
      * @var string
@@ -40,7 +43,9 @@ class application
     public function data($data)
     {
         if (empty($data)) {
-            (new exception\errorException)->error('NO_CONTENT');
+            (new exception\errorException)
+                ->setOptions($this->getOptions())
+                ->error('NO_CONTENT');
         }
 
         $this->requestType = $this->requestType . 'Response';
@@ -50,8 +55,10 @@ class application
                 $this,
                 $this->requestType,
             ), $data);
+            
         } else {
             (new exception\errorException)
+                ->setOptions($this->getOptions())
                 ->message('The requested method `' . strtoupper($this->requestType) . '` dosen\'t exist. Please read the documentation on supported request types.')
                 ->error('APPLICATION_ERROR');
         }

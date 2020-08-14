@@ -20,6 +20,9 @@
     <filter>
         <whitelist addUncoveredFilesFromWhitelist="true">
             <directory>./src/</directory>
+            <exclude>
+                <directory>./src/core/connect</directory>
+            </exclude>
         </whitelist>
     </filter>
 

@@ -30,9 +30,8 @@ class jwtDecoder extends jwt
         $cipher = new encoder\cipher;
         $validate = new auth\jwtValidate;
 
-        $validate::leeway(self::$LEEWAY);
-        $validate::timestamp(self::$TIMESTAMP);
-        $validate::algorithm();
+        $validate::leeway(parent::getLeeway());
+        $validate::timestamp(parent::getCurrentTimestamp());
 
         /**
          * Segment the JWT
