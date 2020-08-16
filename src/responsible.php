@@ -74,7 +74,7 @@ class responsible
      * @param array  $options  
      *        API options
      */
-    public function __construct(array $options = [])
+    public function __construct(array $options = [], $initiate = true)
     {
         /**
          * Initiate the Responsible API configuration and options
@@ -87,6 +87,17 @@ class responsible
 
         $this->setRateWindow(($options['rateWindow']) ?? 'MINUTE');
 
+        if ($initiate) {
+            $this->run();
+        }
+    }
+
+    /**
+     * Run the server
+     * @return mixed
+     */
+    public function run()
+    {
         /**
          * Initiate the Responsible API server
          */

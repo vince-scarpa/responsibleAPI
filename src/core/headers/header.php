@@ -217,6 +217,10 @@ class header extends server implements interfaces\optionsInterface
         return array_merge($headers, $apache_headers);
     }
 
+    /**
+     * [headersList Get the default header list]
+     * @return array
+     */
     private function headersList()
     {
         $server = new server([], $this->getOptions());
@@ -225,6 +229,33 @@ class header extends server implements interfaces\optionsInterface
         }
         
         return headers_list();
+    }
+
+    /**
+     * [apacheRequestHeaders Native replacment fuction]
+     * https://www.php.net/manual/en/function.apache-request-headers.php#70810
+     * @return array
+     */
+    public function apacheRequestHeaders()
+    {
+        $arh = array();
+        $rx_http = '/\AHTTP_/';
+
+        foreach ($_SERVER as $key => $val) {
+            if (preg_match($rx_http, $key)) {
+                $arh_key = preg_replace($rx_http, '', $key);
+                $rx_matches = explode('_', $arh_key);
+                if (count($rx_matches) > 0 and strlen($arh_key) > 2) {
+                    foreach ($rx_matches as $ak_key => $ak_val) {
+                        $rx_matches[$ak_key] = ucfirst($ak_val);
+                    }
+
+                    $arh_key = implode('-', $rx_matches);
+                }
+                $arh[$arh_key] = $val;
+            }
+        }
+        return ($arh);
     }
 
     /**
@@ -319,33 +350,6 @@ class header extends server implements interfaces\optionsInterface
                 }
             }
         }
-    }
-
-    /**
-     * [apacheRequestHeaders Native replacment fuction]
-     * https://www.php.net/manual/en/function.apache-request-headers.php#70810
-     * @return array
-     */
-    public function apacheRequestHeaders()
-    {
-        $arh = array();
-        $rx_http = '/\AHTTP_/';
-
-        foreach ($_SERVER as $key => $val) {
-            if (preg_match($rx_http, $key)) {
-                $arh_key = preg_replace($rx_http, '', $key);
-                $rx_matches = explode('_', $arh_key);
-                if (count($rx_matches) > 0 and strlen($arh_key) > 2) {
-                    foreach ($rx_matches as $ak_key => $ak_val) {
-                        $rx_matches[$ak_key] = ucfirst($ak_val);
-                    }
-
-                    $arh_key = implode('-', $rx_matches);
-                }
-                $arh[$arh_key] = $val;
-            }
-        }
-        return ($arh);
     }
 
     /**
