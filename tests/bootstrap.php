@@ -1,8 +1,12 @@
 <?php
 /**
- * To run tests 
- * vendor/bin/phpunit --verbose -c phpunit.xml
+ * To run tests regularly
  * vendor/bin/phpunit tests/
+ * vendor/bin/phpunit --verbose -c phpunit.xml
+ *
+ * With xdebug installed
+ * vendor/bin/phpunit --dump-xdebug-filter tests/build/xdebug-filter.php
+ * vendor/bin/phpunit --verbose -c phpunit.xml
  */
 
 ini_set('error_reporting', E_ALL);

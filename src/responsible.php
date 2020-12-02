@@ -19,6 +19,7 @@ use responsible\core as responsibleCore;
 use responsible\core\configuration;
 use responsible\core\user;
 use responsible\core\headers;
+use responsible\core\exception\responsibleException;
 
 class responsible
 {
@@ -73,7 +74,7 @@ class responsible
      * @param array  $options  
      *        API options
      */
-    public function __construct(array $options = [])
+    public function __construct(array $options = [], $initiate = true)
     {
         /**
          * Initiate the Responsible API configuration and options
@@ -86,6 +87,17 @@ class responsible
 
         $this->setRateWindow(($options['rateWindow']) ?? 'MINUTE');
 
+        if ($initiate) {
+            $this->run();
+        }
+    }
+
+    /**
+     * Run the server
+     * @return mixed
+     */
+    public function run()
+    {
         /**
          * Initiate the Responsible API server
          */
@@ -126,19 +138,35 @@ class responsible
             true
         );
 
-        $this->server
         // Set the header request format
-            ->requestType($this->getRequestType())
+        $this->server->requestType($this->getRequestType());
+
+        // Authenticate the API connections
+        try {
+            $this->server->authenticate();
+        }catch (responsibleException | \Exception $e) {
+            self::$response = $e->getMessage();
+            return;
+        }
+
         // Set the rate limit and timeframe for API connection limits
-            ->rateLimit(
+        try {
+            $this->server->rateLimit(
                 $this->getRateLimit(),
                 $this->getRateWindow()
-            )
-        // Authenticate the API connections
-            ->authenticate()
+            );
+        }catch (responsibleException | \Exception $e) {
+            self::$response = $e->getMessage();
+            return;
+        }
+
         // Build the APIs internal router
-            ->route($route)
-        ;
+        try {
+            $this->server->route($route);
+        }catch (responsibleException | \Exception $e) {
+            self::$response = $e->getMessage();
+            return;
+        }
 
         self::$response = $this->server->response();
     }

@@ -44,7 +44,7 @@ class header extends server implements interfaces\optionsInterface
      * [$REQUEST_TYPE / Default is json]
      * @var string
      */
-    private $REQUEST_TYPE;
+    private $REQUEST_TYPE = 'json';
 
     /**
      * [$REQUEST_METHOD]
@@ -88,53 +88,35 @@ class header extends server implements interfaces\optionsInterface
      */
     public function requestMethod()
     {
+        $verbs = new headerVerbs;
+
         switch (strtolower($_SERVER['REQUEST_METHOD'])) {
 
             case 'get':
-                $this->REQUEST_METHOD = ['method' => 'get', 'data' => $_GET];
+                return $this->REQUEST_METHOD = $verbs->get();
                 break;
 
             case 'post':
-                $_POST_DATA = $_POST;
-                $jsonData = json_decode(file_get_contents("php://input"));
-
-                if (is_object($jsonData) || is_array($jsonData)) {
-                    $_POST_DATA = json_decode(file_get_contents("php://input"), true);
-                }
-                $_POST = array_merge($_REQUEST, $_POST);
-                $_REQUEST = array_merge($_POST, $_POST_DATA);
-
-                $this->REQUEST_METHOD = ['method' => 'post', 'data' => $_REQUEST];
+                return $this->REQUEST_METHOD = $verbs->post();
                 break;
 
             case 'options':
-                $this->REQUEST_METHOD = ['method' => 'options', 'data' => $_POST];
+                $this->REQUEST_METHOD = $verbs->post();
                 echo json_encode(['success' => true]);
                 $this->setHeaders();
                 exit;
                 break;
 
             case 'put':
-                parse_str(file_get_contents("php://input"), $_PUT);
-
-                foreach ($_PUT as $key => $value) {
-                    unset($_PUT[$key]);
-                    $_PUT[str_replace('amp;', '', $key)] = $value;
-                }
-
-                $_REQUEST = array_merge($_REQUEST, $_PUT);
-
-                $this->REQUEST_METHOD = ['method' => 'put', 'data' => $_REQUEST];
+                $this->REQUEST_METHOD = $verbs->put();
                 break;
 
             case 'patch':
-                # [TODO]
-                $this->REQUEST_METHOD = ['method' => 'patch', 'data' => []];
+                $this->REQUEST_METHOD = $verbs->patch();
                 break;
 
             case 'delete':
-                # [TODO]
-                $this->REQUEST_METHOD = ['method' => 'delete', 'data' => []];
+                $this->REQUEST_METHOD = $verbs->delete();
                 break;
 
             default:
@@ -153,6 +135,18 @@ class header extends server implements interfaces\optionsInterface
     }
 
     /**
+     * [getBody Get the post body]
+     * @return array
+     */
+    public function getBody():array
+    {
+        if (isset($this->getMethod()->data) && !empty($this->getMethod()->data)) {
+            return $this->getMethod()->data;
+        }
+        return [];
+    }
+
+    /**
      * [setAllowedMethods Set the allowed methods for endpoints]
      * @param array $methods [GET, POST, PUT, PATCH, DELETE, ect..]
      */
@@ -164,7 +158,9 @@ class header extends server implements interfaces\optionsInterface
 
         $requestMethod = $this->getServerMethod();
         if (!in_array($requestMethod, $methods)) {
-            (new exception\errorException)->error('METHOD_NOT_ALLOWED');
+            (new exception\errorException)
+                ->setOptions($this->getOptions())
+                ->error('METHOD_NOT_ALLOWED');
         }
     }
 
@@ -186,7 +182,7 @@ class header extends server implements interfaces\optionsInterface
      */
     public function getHeaders()
     {
-        $headers_list = headers_list();
+        $headers_list = $this->headersList();
         foreach ($headers_list as $index => $headValue) {
             @list($key, $value) = explode(": ", $headValue);
 
@@ -219,6 +215,47 @@ class header extends server implements interfaces\optionsInterface
         }
 
         return array_merge($headers, $apache_headers);
+    }
+
+    /**
+     * [headersList Get the default header list]
+     * @return array
+     */
+    private function headersList()
+    {
+        $server = new server([], $this->getOptions());
+        if ($isMockTest = $server->isMockTest()) {
+            return $this->apacheRequestHeaders();
+        }
+        
+        return headers_list();
+    }
+
+    /**
+     * [apacheRequestHeaders Native replacment fuction]
+     * https://www.php.net/manual/en/function.apache-request-headers.php#70810
+     * @return array
+     */
+    public function apacheRequestHeaders()
+    {
+        $arh = array();
+        $rx_http = '/\AHTTP_/';
+
+        foreach ($_SERVER as $key => $val) {
+            if (preg_match($rx_http, $key)) {
+                $arh_key = preg_replace($rx_http, '', $key);
+                $rx_matches = explode('_', $arh_key);
+                if (count($rx_matches) > 0 and strlen($arh_key) > 2) {
+                    foreach ($rx_matches as $ak_key => $ak_val) {
+                        $rx_matches[$ak_key] = ucfirst($ak_val);
+                    }
+
+                    $arh_key = implode('-', $rx_matches);
+                }
+                $arh[$arh_key] = $val;
+            }
+        }
+        return ($arh);
     }
 
     /**
@@ -316,33 +353,6 @@ class header extends server implements interfaces\optionsInterface
     }
 
     /**
-     * [apacheRequestHeaders Native replacment fuction]
-     * https://www.php.net/manual/en/function.apache-request-headers.php#70810
-     * @return array
-     */
-    public function apacheRequestHeaders()
-    {
-        $arh = array();
-        $rx_http = '/\AHTTP_/';
-
-        foreach ($_SERVER as $key => $val) {
-            if (preg_match($rx_http, $key)) {
-                $arh_key = preg_replace($rx_http, '', $key);
-                $rx_matches = explode('_', $arh_key);
-                if (count($rx_matches) > 0 and strlen($arh_key) > 2) {
-                    foreach ($rx_matches as $ak_key => $ak_val) {
-                        $rx_matches[$ak_key] = ucfirst($ak_val);
-                    }
-
-                    $arh_key = implode('-', $rx_matches);
-                }
-                $arh[$arh_key] = $val;
-            }
-        }
-        return ($arh);
-    }
-
-    /**
      * [headerAuth]
      * @return object
      */
@@ -392,6 +402,7 @@ class header extends server implements interfaces\optionsInterface
             if (isset($this->getOptions()['maxWindow']) && !empty($this->getOptions()['maxWindow'])) {
                 if (!is_numeric($this->getOptions()['maxWindow'])) {
                     (new exception\errorException)
+                        ->setOptions($this->getOptions())
                         ->message('maxWindow option must be an integer type')
                         ->error('APPLICATION_ERROR');
                 }

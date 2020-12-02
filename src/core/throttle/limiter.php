@@ -18,6 +18,7 @@ use responsible\core\exception;
 use responsible\core\throttle;
 use responsible\core\user;
 use responsible\core\server;
+use responsible\core\headers\header;
 
 class limiter extends limiterOptions
 {
@@ -213,15 +214,14 @@ class limiter extends limiterOptions
         if($this->isMockTest) {
             return;
         }
-
-        /**
-         * [Update account access]
-         */
+        
+        // @codeCoverageIgnoreStart
         (new user\user)
             ->setAccountID($this->getAccount()->account_id)
             ->setBucketToken($this->packed)
             ->updateAccountAccess()
         ;
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -236,6 +236,9 @@ class limiter extends limiterOptions
             return date('m/d/y h:i:sa', $bucket->getTokenData()['time']);
         }
 
+        /**
+         * @codeCoverageIgnore
+         */
         return 'Can\'t be converted';
     }
 
@@ -256,14 +259,12 @@ class limiter extends limiterOptions
     {
         if($this->isMockTest) {
             $this->getMockAccount();
-            return $this->mockAccount;
         }
 
-        if (is_null($this->account)||empty($this->account)) {
-            (new exception\errorException)
-                ->setOptions($this->getOptions())
-                ->error('UNAUTHORIZED');
-            return;
+        if (is_null($this->account) || empty($this->account)) {
+            $header = new header;
+            $header->setOptions($this->getOptions());
+            $header->unauthorised();
         }
 
         return $this->account;
@@ -288,6 +289,7 @@ class limiter extends limiterOptions
 
         $mockAccount['access'] = time();
 
+        $this->setAccount((object)$mockAccount);
         $this->mockAccount = (object)$mockAccount;
     }
 

@@ -17,6 +17,7 @@ namespace responsible\core\auth;
 use responsible\core\auth;
 use responsible\core\encoder;
 use responsible\core\exception;
+use responsible\core\headers\header;
 
 class jwtDecoder extends jwt
 {
@@ -29,9 +30,8 @@ class jwtDecoder extends jwt
         $cipher = new encoder\cipher;
         $validate = new auth\jwtValidate;
 
-        $validate::leeway(self::$LEEWAY);
-        $validate::timestamp(self::$TIMESTAMP);
-        $validate::algorithm();
+        $validate::leeway(parent::getLeeway());
+        $validate::timestamp(parent::getCurrentTimestamp());
 
         /**
          * Segment the JWT
@@ -50,8 +50,14 @@ class jwtDecoder extends jwt
          */
         $payloadObject = $cipher->jsonDecode($cipher->decode($jwtPayload));
 
+        // @codeCoverageIgnoreStart
         if( $this->key == 'payloadOnly' ) {
             return $payloadObject;
+        }
+        // @codeCoverageIgnoreEnd
+
+        if (is_null($headObject) || is_null($payloadObject)) {
+            $this->setUnauthorised();
         }
 
         /**
@@ -84,12 +90,7 @@ class jwtDecoder extends jwt
         $segment = explode('.', $token);
 
         if (sizeof($segment) != 3 || empty($token)) {
-            (new exception\errorException)
-                ->setOptions(parent::$options)
-                ->message(self::messages('denied_token'))
-                ->error('UNAUTHORIZED');
-
-            return;
+            $this->setUnauthorised();
         }
 
         return $segment;
@@ -103,10 +104,7 @@ class jwtDecoder extends jwt
     public function token($token = null)
     {
         if (is_null($token) || empty($token)) {
-            (new exception\errorException)
-                ->setOptions(parent::$options)
-                ->message(self::messages('denied_token'))
-                ->error('UNAUTHORIZED');
+            $this->setUnauthorised();
         }
 
         $this->token = $token;

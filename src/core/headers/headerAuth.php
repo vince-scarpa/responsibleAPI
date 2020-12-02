@@ -14,6 +14,7 @@
  */
 namespace responsible\core\headers;
 
+use responsible\core\server;
 use responsible\core\encoder;
 use responsible\core\exception;
 use responsible\core\helpers\help as helper;
@@ -46,7 +47,9 @@ class headerAuth extends header
         if (!$skipError) {
             $this->setUnauthorised();
         }
+    // @codeCoverageIgnoreStart
     }
+    // @codeCoverageIgnoreEnd
 
     /**
      * [hasBearerValue Check if Authorization headers has Bearer value]
@@ -131,7 +134,11 @@ class headerAuth extends header
     {
         list($type, $clientToken) = explode(" ", $auth_headers["Authorization"], 2);
 
-        if (strcasecmp($type, "Bearer") == 0 && !empty($clientToken)) {
+        $server = new server([], $this->getOptions());
+        $mockTest = $server->isMockTest();
+
+        // @codeCoverageIgnoreStart
+        if (strcasecmp($type, "Bearer") == 0 && !empty($clientToken) && !$mockTest) {
 
             $user = new user\user;
             $account = $user
@@ -159,9 +166,15 @@ class headerAuth extends header
             return $account;
 
         } else {
+            if ($mockTest) {
+                return [
+                    'mock_access' => true
+                ];
+            }
             $this->setUnauthorised();
         }
     }
+    // @codeCoverageIgnoreEnd
 
     /**
      * [accessCredentialHeaders Check if the credentials are correct]
@@ -179,7 +192,26 @@ class headerAuth extends header
             if (!empty($credentails) && is_array($credentails)) {
                 $credentails = explode(':', $cipher->decode($clientCredentials));
 
-                if (!empty($credentails) && is_array($credentails) && sizeof($credentails) == 2) {
+                $server = new server([], $this->getOptions());
+                $mockTest = $server->isMockTest();
+
+                if ($mockTest &&
+                    (in_array('mockusername', $credentails) && in_array('mockpassword', $credentails)) 
+                ) {
+                    return [
+                        'uid' => -1,
+                        'account_id' => 0,
+                        'access_token' => '',
+                        'refreshToken' => [
+                            'refresh_token' => '',
+                        ]
+                    ];
+                }
+
+                // @codeCoverageIgnoreStart
+                if (!empty($credentails) && is_array($credentails) && sizeof($credentails) == 2 
+                    && !$mockTest
+                ) {
                     $user = new user\user;
                     $user->setAccountID($credentails[0]);
 
@@ -212,6 +244,7 @@ class headerAuth extends header
             $this->setUnauthorised();
         }
     }
+    // @codeCoverageIgnoreEnd
 
     /**
      * [unauthorised Set an unauthorised header]
@@ -227,6 +260,14 @@ class headerAuth extends header
             'Unauthorized',
         ), 401);
 
-        (new exception\errorException)->error('UNAUTHORIZED');
+        $this->setHeader('WWW-Authenticate', array(
+            'Basic',
+        ));
+        
+        (new exception\errorException)
+            ->setOptions($this->getOptions())
+            ->error('UNAUTHORIZED');
+    // @codeCoverageIgnoreStart
     }
+    // @codeCoverageIgnoreEnd
 }

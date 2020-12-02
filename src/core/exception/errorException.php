@@ -16,7 +16,7 @@ namespace responsible\core\exception;
 
 use responsible\core\headers;
 
-class errorException extends \Exception
+class errorException extends responsibleException
 {
     /**
      * Responsible API options
@@ -27,9 +27,7 @@ class errorException extends \Exception
      * [__construct Use parent constructor]
      */
     public function __construct()
-    {
-        parent::__construct('');
-    }
+    {}
 
     /**
      * [$ERRORS Error sets Default error messages for supported error codes]
@@ -114,7 +112,7 @@ class errorException extends \Exception
      * [error]
      * @return void
      */
-    public function error($type, $level = 'system')
+    public function error($type)
     {
         if (!isset($this->ERRORS[$type])) {
             if (isset($this->ERRORS['MESSAGE'])) {
@@ -123,19 +121,19 @@ class errorException extends \Exception
                     'ERROR_STATUS' => $type,
                     'MESSAGE' => $this->ERRORS['MESSAGE'],
                 );
-                $this->throwError($level);
-                return;
+                $this->throwError();
             }
 
             $this->ERROR_STATE = $this->ERRORS['APPLICATION_ERROR'];
             $this->ERROR_STATE['MESSAGE'] = "`" . $type . "`" . ' is not defined as an error code';
-            $this->throwError($level);
-            return;
+            $this->throwError();
         }
 
         $this->ERROR_STATE = $this->ERRORS[$type];
-        $this->throwError($level);
+        $this->throwError();
+    // @codeCoverageIgnoreStart
     }
+    // @codeCoverageIgnoreEnd
 
     /**
      * [message Custom message override]
@@ -150,11 +148,13 @@ class errorException extends \Exception
     /**
      * [errorMessage]
      */
-    private function throwError($level)
+    private function throwError()
     {
         $options = $this->getOptions();
 
-        (new headers\header)->setHeaders();
+        $headers = new headers\header;
+        $headers->setOptions($this->getOptions());
+        $headers->setHeaders();
 
         http_response_code($this->ERROR_STATE['ERROR_CODE']);
 
@@ -162,35 +162,13 @@ class errorException extends \Exception
         ? $this->ERRORS['MESSAGE']
         : $this->ERROR_STATE['MESSAGE'];
 
-        if ($level == 'normal') {
-            $eMessage = json_encode(array(
-                'ERROR_CODE' => $this->ERROR_STATE['ERROR_CODE'],
-                'ERROR_STATUS' => $this->ERROR_STATE['ERROR_STATUS'],
-                'MESSAGE' => $message,
-            ), JSON_PRETTY_PRINT);
+        $eMessage = json_encode(array(
+            'ERROR_CODE' => $this->ERROR_STATE['ERROR_CODE'],
+            'ERROR_STATUS' => $this->ERROR_STATE['ERROR_STATUS'],
+            'MESSAGE' => $message,
+        ), JSON_PRETTY_PRINT);
 
-            if( isset($options['errors']) && $options['errors'] == 'catchAll' ) {
-                throw new \Exception($eMessage, 1);
-            }
-
-            echo $eMessage;
-            exit;
-        }
-
-        if ($level == 'system') {
-            $eMessage = json_encode(array(
-                'ERROR_CODE' => $this->ERROR_STATE['ERROR_CODE'],
-                'ERROR_STATUS' => $this->ERROR_STATE['ERROR_STATUS'],
-                'MESSAGE' => $message,
-            ), JSON_PRETTY_PRINT);
-
-            if( isset($options['errors']) && $options['errors'] == 'catchAll' ) {
-                throw new \Exception($eMessage, 1);
-            }
-
-            echo $eMessage;
-            exit;
-        }
+        throw new responsibleException($eMessage, $this->ERROR_STATE['ERROR_CODE']);
     }
 
     /**

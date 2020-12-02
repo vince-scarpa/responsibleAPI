@@ -19,6 +19,7 @@ use responsible\core\encoder;
 use responsible\core\exception;
 use responsible\core\route;
 use responsible\core\user;
+use responsible\core\headers\header;
 
 class jwtValidate extends jwt
 {
@@ -53,6 +54,18 @@ class jwtValidate extends jwt
     ];
 
     /**
+     * [unauthorised Set unauthorized headers]
+     * @throws responsibleException
+     * @return void
+     */
+    private static function unauthorised()
+    {
+        (new jwt)->setUnauthorised();
+        // @codeCoverageIgnoreStart
+    }
+    // @codeCoverageIgnoreEnd
+
+    /**
      * [header Validate the header object]
      * First segment of the token
      * @return bool
@@ -64,17 +77,14 @@ class jwtValidate extends jwt
             !self::typ($headObject) ||
             !self::alg($headObject)
         ) {
-            (new exception\errorException)
-                ->setOptions(parent::$options)
-                ->message(self::messages('denied_token'))
-                ->error('UNAUTHORIZED');
+            self::unauthorised();
         }
     }
 
     /**
      * [payload Validate the payload object]
      * Second segment of the token
-     * @return bool
+     * @return boolean
      */
     public static function payload(array $payloadObject = [])
     {
@@ -89,10 +99,7 @@ class jwtValidate extends jwt
         self::exp($payloadObject);
 
         if ((true === in_array(false, self::$isPayloadValid))) {
-            (new exception\errorException)
-                ->setOptions(parent::$options)
-                ->message(self::messages('denied_token'))
-                ->error('UNAUTHORIZED');
+            self::unauthorised();
         }
     }
 
@@ -117,27 +124,22 @@ class jwtValidate extends jwt
             empty($signature) ||
             empty($key)
         ) {
-            (new exception\errorException)
-                ->setOptions(parent::$options)
-                ->message(self::messages('denied_token'))
-                ->error('UNAUTHORIZED');
+            self::unauthorised();
         }
 
         $cipher = new encoder\cipher;
+        $algo = parent::getAlgorithm();
 
         $hashed = $cipher->encode(
             $cipher->hash(
-                self::$ALGORITHM,
+                $algo['hash'],
                 $jwtHead . '.' . $jwtPayload,
                 $key
             )
         );
 
         if (!$cipher->hashCompare($signature, $hashed)) {
-            (new exception\errorException)
-                ->setOptions(parent::$options)
-                ->message(self::messages('denied_token'))
-                ->error('UNAUTHORIZED');
+            self::unauthorised();
         }
     }
 
@@ -165,12 +167,10 @@ class jwtValidate extends jwt
     {
         if (!isset($headObject['alg']) ||
             (isset($headObject['alg']) && empty($headObject)) &&
-            self::getAlgorithm($headObject['alg'])
+            (self::getAlgorithm()['header'] === $headObject['alg'])
         ) {
             return;
         }
-
-        self::algorithm($headObject['alg']);
 
         return true;
     }
@@ -209,10 +209,10 @@ class jwtValidate extends jwt
     {
         $server = new server([], parent::$options);
         if ($server->isMockTest()) {
-            self::$isPayloadValid['sub'] = true;
-            return true;
+            return self::$isPayloadValid['sub'] = true;
         }
 
+        // @codeCoverageIgnoreStart
         if (!isset($payloadObject['sub']) ||
             (isset($payloadObject['sub']) && empty($payloadObject))
         ) {
@@ -238,6 +238,7 @@ class jwtValidate extends jwt
 
         self::$isPayloadValid['sub'] = true;
         return true;
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -302,10 +303,7 @@ class jwtValidate extends jwt
         }
 
         if ($payloadObject['exp'] <= (int) (self::$TIMESTAMP - self::$LEEWAY)) {
-            (new exception\errorException)
-                ->setOptions(parent::$options)
-                ->message(self::messages('expired'))
-                ->error('UNAUTHORIZED');
+            self::unauthorised();
         }
 
         self::$isPayloadValid['exp'] = true;
@@ -339,17 +337,5 @@ class jwtValidate extends jwt
     private static function getTimestamp()
     {
         return (int) (self::$TIMESTAMP + self::$LEEWAY);
-    }
-
-    /**
-     * [algorithm Set the requested hash algorithm]
-     * @return string
-     */
-    public static function algorithm($algo = 'SHA256')
-    {
-        if ($algo == 'HS256') {
-            $algo = 'sha256';
-        }
-        self::$ALGORITHM = $algo;
     }
 }

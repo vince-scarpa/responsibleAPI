@@ -3,7 +3,7 @@
 use PHPUnit\Framework\TestCase;
 use responsible\responsible;
 use responsible\core\throttle\limiter;
-use responsible\core\exception as ResponsibleError;
+use responsible\core\exception\responsibleException;
 
 final class LimiterTest extends TestCase
 {
@@ -31,7 +31,7 @@ final class LimiterTest extends TestCase
         $limiter = $this->limiterConstructor;
         $limiter->setOptions($this->options);
 
-        $this->expectException(\Exception::class);
+        $this->expectException(responsibleException::class);
 
         $limiter->throttleRequest();
     }
@@ -166,14 +166,34 @@ final class LimiterTest extends TestCase
      */
     public function testLimiterThrottle(): void
     {
+        $apiOptions = new options;
+
         $limiter = $this->limiterConstructor;
         $limiter->setOptions($this->options);
         $limiter->setupOptions();
 
-        $this->expectException(\Exception::class);
+        $exceptionMessage = json_encode($apiOptions->getExceptionMessage('TOO_MANY_REQUESTS'),
+            JSON_PRETTY_PRINT);
+        $this->expectException(responsibleException::class);
+        $this->expectExceptionMessage($exceptionMessage);
 
-        for ($i = 0; $i < $this->options['rateLimit']; $i++) {
+        for ($i = 0; $i < 100; $i++) {
             $limiter->throttleRequest();
         }
+    }
+
+    /**
+     * Test no account exception is caught
+     */
+    public function testNoAccountException(): void
+    {
+        unset($this->options['mock']);
+
+        $limiter = $this->limiterConstructor;
+        $limiter->setOptions($this->options);
+        $limiter->setupOptions();
+
+        $this->expectException(responsibleException::class);
+        $limiter->getAccount();
     }
 }

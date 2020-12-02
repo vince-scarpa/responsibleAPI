@@ -47,4 +47,14 @@ trait optionsTrait
         }
         return [];
     }
+
+    /**
+     * [setOption Set a single option]
+     * @param string $key
+     * @param mixed $value
+     */
+    public function setOption($key, $value)
+    {
+        $this->options[$key] = $value;
+    }
 }

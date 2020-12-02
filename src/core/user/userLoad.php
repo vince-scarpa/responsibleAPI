@@ -149,7 +149,9 @@ class userLoad extends user
             
             if ($this->requestRefreshToken) {
                 $account->refresh_token = $this->refreshTokenGenerate($account);
-                $sentToken = (new headers\header)->hasBearerToken();
+                $headers = new headers\header;
+                $headers->setOptions($this->getOptions());
+                $sentToken = $headers->hasBearerToken();
 
                 if( $sentToken ) {
                     /**
@@ -188,11 +190,17 @@ class userLoad extends user
                 ];
             }
 
+            if (isset($account->tokenExpire['tokenExpire']['expiresIn'])) {
+                $account->refreshToken['expiresIn'] = $account->tokenExpire['tokenExpire']['expiresIn'];
+            }
+
             if ($this->getToken) {
                 $account->JWT = $this->getUserJWT();
                 $account->refresh_token = $this->refreshTokenGenerate($account);
                 $account->refreshToken = ['token' => $account->refresh_token];
             }
+
+            // print_r($account);
 
             return (array) $account;
         }
@@ -385,6 +393,7 @@ class userLoad extends user
          * Return the encoded JWT
          */
         return $this->jwt
+            ->setOptions($this->getOptions())
             ->key($key)
             ->setPayload($payload)
             ->encode($payload)

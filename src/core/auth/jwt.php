@@ -18,6 +18,7 @@ use responsible\core\auth;
 use responsible\core\exception;
 use responsible\core\keys;
 use responsible\core\configuration;
+use responsible\core\headers\header;
 
 class jwt extends \responsible\core\auth\authorise
 {
@@ -41,16 +42,32 @@ class jwt extends \responsible\core\auth\authorise
 
     /**
      * [$EXPIRES Default token expiry]
+     * 300 = 5 minutes
      * @var integer
      */
-    protected $EXPIRES = 86400;
+    protected $EXPIRES = 300;
 
     /**
      * [$algorithyms Supported algorithms]
      * @var array
      */
     protected static $ALGORITHMS = [
-        'hash_hmac' => 'sha256',
+        'HS256','sha256',
+        'HS384','sha384',
+        'HS512','sha512',
+    ];
+
+    /**
+     * [$ALGORITHMS_ACRONYM Get the JWT acronym support]
+     * @var array
+     */
+    protected static $ALGORITHMS_ACRONYM = [
+        'sha256' => ['hash' => 'sha256'],
+        'sha384' => ['hash' => 'sha384'],
+        'sha512' => ['hash' => 'sha512'],
+        'HS256' => ['hash' => 'sha256'],
+        'HS384' => ['hash' => 'sha384'],
+        'HS512' => ['hash' => 'sha512'],
     ];
 
     /**
@@ -127,10 +144,7 @@ class jwt extends \responsible\core\auth\authorise
     public function token($token = null)
     {
         if (is_null($token) || empty($token) || !is_string($token)) {
-            (new exception\errorException)
-                ->setOptions(self::$options)
-                ->message(self::messages('denied_token'))
-                ->error('UNAUTHORIZED');
+            $this->setUnauthorised();
         }
 
         $this->token = $token;
@@ -147,16 +161,25 @@ class jwt extends \responsible\core\auth\authorise
     public function key($key = null)
     {
         if (is_null($key) || empty($key) || !is_string($key)) {
-            (new exception\errorException)
-                ->setOptions(self::$options)
-                ->message(self::messages('denied_key'))
-                ->error('UNAUTHORIZED');
+            $this->setUnauthorised();
         }
 
         $this->key = $key;
 
         return $this;
     }
+
+    /**
+     * [setUnauthorised Render unauthorised response]
+     */
+    protected function setUnauthorised()
+    {
+        $header = new header;
+        $header->setOptions($this->getOptions());
+        $header->unauthorised();
+        // @codeCoverageIgnoreStart
+    }
+    // @codeCoverageIgnoreEnd
 
     /**
      * [payload Set the clients payload]
@@ -200,18 +223,18 @@ class jwt extends \responsible\core\auth\authorise
      * [getLeeway Get the default leeway]
      * @return integer
      */
-    public function getLeeway()
+    public static function getLeeway()
     {
         return self::$LEEWAY;
     }
 
     /**
-     * [getLeeway Get the default expiry]
+     * [getTimestamp Get the current timestamp]
      * @return integer
      */
-    public function getExpires()
+    public static function getCurrentTimestamp()
     {
-        return $this->EXPIRES;
+        return self::$TIMESTAMP;
     }
 
     /**
@@ -223,6 +246,15 @@ class jwt extends \responsible\core\auth\authorise
         parent::setOptions($options);
         self::$options = $options;
         return $this;
+    }
+
+    /**
+     * [getOptions]
+     * @return array
+     */
+    public function getOptions():?array
+    {
+        return self::$options;
     }
 
     /**
@@ -272,8 +304,32 @@ class jwt extends \responsible\core\auth\authorise
      * @param  string $type [Algorithm hash]
      * @return mixed
      */
-    protected static function getAlgorithm($type)
+    public static function getAlgorithm($type = '')
     {
-        return array_search($type, self::$ALGORITHMS);
+        return self::resolveAlgorithm();
+    }
+
+    /**
+     * [resolveAlgorithm Resolve the algorythm to use in the JWT header]
+     * @return array
+     */
+    protected static function resolveAlgorithm()
+    {
+        $algoKey = (self::$options['jwt']['algo']) ?? 'HS256';
+        $algoKey = (isset(self::$ALGORITHMS_ACRONYM[$algoKey])) ? $algoKey : 'HS256';
+
+        $ALGO = [
+            'header' => $algoKey,
+            'hash' => self::$ALGORITHMS_ACRONYM[$algoKey]['hash'],
+        ];
+
+        if (array_search($algoKey, self::$ALGORITHMS) !== FALSE) {
+            $ALGO = [
+                'header' => $algoKey,
+                'hash' => self::$ALGORITHMS_ACRONYM[$algoKey]['hash'],
+            ];
+        }
+
+        return $ALGO;
     }
 }
