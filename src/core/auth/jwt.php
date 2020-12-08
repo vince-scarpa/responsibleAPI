@@ -229,6 +229,15 @@ class jwt extends \responsible\core\auth\authorise
     }
 
     /**
+     * [getLeeway Get the default expiry]
+     * @return integer
+     */
+    public function getExpires()
+    {
+        return $this->EXPIRES;
+    }
+
+    /**
      * [getTimestamp Get the current timestamp]
      * @return integer
      */
