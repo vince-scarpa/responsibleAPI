@@ -10,7 +10,7 @@ final class routerTest extends TestCase
 {
     private $options;
 
-    public function setUp()
+    public function setUp():void
     {
         $apiOptions = new options;
         $this->options = $apiOptions->getApiOptions();

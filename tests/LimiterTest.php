@@ -11,7 +11,7 @@ final class LimiterTest extends TestCase
     private $limiterConstructor;
     private $limiterNoConstructor;
 
-    public function setUp()
+    public function setUp():void
     {
         $apiOptions = new options;
         $this->options = $apiOptions->getApiOptions();

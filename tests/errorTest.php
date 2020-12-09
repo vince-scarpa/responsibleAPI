@@ -7,7 +7,7 @@ final class errorTest extends TestCase
 {
     private $options;
 
-    public function setUp()
+    public function setUp():void
     {
         $apiOptions = new options;
         $this->options = $apiOptions->getApiOptions();
@@ -16,7 +16,7 @@ final class errorTest extends TestCase
     /**
      * Test exceptions
      */
-    public function testErrors(): void
+    public function testErrors():void
     {
         $apiOptions = new options;
         $MESSAGES = $apiOptions->getExceptionMessage();

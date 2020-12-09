@@ -21,7 +21,7 @@ final class VerbsTest extends TestCase
 
     private const MOCK_PAYLOAD = ['a' =>'b', 'foo' => 'bar'];
 
-    public function setUp()
+    public function setUp():void
     {
         $apiOptions = new options;
         $this->jwt = new auth\jwt;

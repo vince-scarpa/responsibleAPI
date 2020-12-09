@@ -20,7 +20,7 @@ final class AuthTest extends TestCase
     private const FAKE_KEY = 'mock-key';
     private const FAKE_TOKEN = 'abc.123.456';
 
-    public function setUp()
+    public function setUp():void
     {
         $apiOptions = new options;
         $this->jwt = new auth\jwt;
