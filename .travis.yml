@@ -7,7 +7,9 @@ env:
   - DB=mysql
 
 before_script:
- - composer self-update
- - composer install --prefer-source --no-interaction
+  - mkdir config
+  - touch config/.config
+  - composer self-update
+  - composer install --prefer-source --no-interaction
 
 script: phpunit --configuration phpunit.xml --coverage-text

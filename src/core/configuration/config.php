@@ -56,30 +56,14 @@ class config
         $ENV_FILE = $this->root . '/config/.config';
         
         if (!file_exists($ENV_FILE)) {
-            if (!isset($options['unitTest'])) {
-                throw new \Exception(
-                    "No configuration file seems to exist. Please read the documentation on setting up a configuration file."
-                );
-            }
-            // Setup a mock config for unit testing
-            if (isset($options['unitTest']) && $options['unitTest'] === true) {
-                $this->CONFIG = [
-                    'DB_TYPE' => '',
-                    'DB_PORT' => '',
-                    'DB_NAME' => '',
-                    'DB_USER' => '',
-                    'DB_PASSWORD' => '',
-                    'DB_HOST' => '',
-                    'MASTER_KEY' => '123abc'
-                ];
-            }
+            throw new \Exception(
+                "No configuration file seems to exist. Please read the documentation on setting up a configuration file."
+            );
         }
 
-        if (!isset($options['unitTest'])) {
-            $this->CONFIG = (new josegonzalez\Dotenv\Loader($ENV_FILE))
-                ->parse()
-                ->toArray();
-        }
+        $this->CONFIG = (new josegonzalez\Dotenv\Loader($ENV_FILE))
+            ->parse()
+            ->toArray();
 
         if (is_null($this->CONFIG) || empty($this->CONFIG)) {
             throw new \Exception(

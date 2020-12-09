@@ -5,7 +5,7 @@
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true"
          processIsolation="true"
-         stopOnFailure="false"
+         stopOnFailure="true"
          bootstrap="./tests/bootstrap.php"
          backupGlobals="false"
          backupStaticAttributes="false"
