@@ -64,6 +64,7 @@ class options
             'leakRate' => 'default', // slow, medium, normal, default, fast or custom positive integer
 
             'errors' => 'catchAll',
+            'unitTest' => true
         );
 
         $server = new server([], $options);
