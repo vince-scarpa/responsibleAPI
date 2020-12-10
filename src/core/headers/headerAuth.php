@@ -259,10 +259,6 @@ class headerAuth extends header
         $this->setHeader('HTTP/1.1', array(
             'Unauthorized',
         ), 401);
-
-        $this->setHeader('WWW-Authenticate', array(
-            'Basic',
-        ));
         
         (new exception\errorException)
             ->setOptions($this->getOptions())

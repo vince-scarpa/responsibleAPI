@@ -499,8 +499,10 @@ class server
         /**
          * Set the Responsible headers
          */
+        $corsAllowed = ($this->getOptions()['cors']) ?? false;
+        $isCorsRequest = ($_SERVER['HTTP_ORIGIN']) ?? false;
         $this->header->requestType($this->getRequestType());
-        $this->header->setHeaders();
+        $this->header->setHeaders($corsAllowed&&$isCorsRequest);
 
         /**
          * Output the response if any

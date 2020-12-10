@@ -101,9 +101,10 @@ class header extends server implements interfaces\optionsInterface
                 break;
 
             case 'options':
+                $isOriginRequest = ($_SERVER['HTTP_ORIGIN']) ?? false;
                 $this->REQUEST_METHOD = $verbs->post();
                 echo json_encode(['success' => true]);
-                $this->setHeaders();
+                $this->setHeaders($isOriginRequest);
                 exit;
                 break;
 
@@ -223,10 +224,10 @@ class header extends server implements interfaces\optionsInterface
      */
     private function headersList()
     {
-        $server = new server([], $this->getOptions());
+        /*$server = new server([], $this->getOptions());
         if ($isMockTest = $server->isMockTest()) {
             return $this->apacheRequestHeaders();
-        }
+        }*/
         
         return headers_list();
     }
@@ -274,9 +275,11 @@ class header extends server implements interfaces\optionsInterface
      * [setHeaders Default headers]
      * @return void
      */
-    public function setHeaders()
+    public function setHeaders($CORS = false)
     {
+        $auth_headers = $this->getHeaders();
         $application = 'json';
+
         if (isset($this->REQUEST_APPLICATION[$this->getRequestType()])) {
             $application = $this->REQUEST_APPLICATION[$this->getRequestType()];
         }
@@ -293,22 +296,14 @@ class header extends server implements interfaces\optionsInterface
             true,
         ));
 
-        $this->setHeader('Access-Control-Allow-Origin', array(
-            '*',
-        ));
-
         if (!array_key_exists('Access-Control-Allow-Methods', $this->getHeaders())) {
             $this->setHeader('Access-Control-Allow-Methods', array(
-                'GET,POST,OPTIONS',
+                'GET,POST,DELETE',
             ));
         }
 
         $this->setHeader('Access-Control-Expose-Headers', array(
             'Content-Range',
-        ));
-
-        $this->setHeader('Access-Control-Allow-Headers', array(
-            'origin,x-requested-with,Authorization,cache-control',
         ));
 
         $this->setHeader('Access-Control-Max-Age', array(
@@ -338,6 +333,22 @@ class header extends server implements interfaces\optionsInterface
         $this->setHeader('X-XSS-Protection', array(
             '1', 'mode=block',
         ));
+
+        if ($CORS) {
+            $origin = ($auth_headers['Origin']) ?? false;
+            $origin = ($origin) ? $auth_headers['Origin'] : '*';
+            $this->setHeader('Access-Control-Allow-Origin', array(
+                $origin,
+            ));
+
+            $this->setHeader('Access-Control-Allow-Headers', array(
+                'origin,x-requested-with,Authorization,cache-control',
+            ));
+
+            $this->setHeader('Access-Control-Allow-Methods', array(
+                'GET,POST,OPTIONS,DELETE',
+            ));
+        }
 
         if (isset($this->getOptions()['addHeaders']) &&
             (is_array($this->getOptions()['addHeaders']) && !empty($this->getOptions()['addHeaders']))
