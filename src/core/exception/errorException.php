@@ -23,7 +23,7 @@ class errorException extends responsibleException
      */
     private static $options;
 
-    /**
+    /**x
      * [__construct Use parent constructor]
      */
     public function __construct()
@@ -152,9 +152,12 @@ class errorException extends responsibleException
     {
         $options = $this->getOptions();
 
+        $corsAllowed = ($options['cors']) ?? false;
+        $isCorsRequest = ($_SERVER['HTTP_ORIGIN']) ?? false;
+        
         $headers = new headers\header;
-        $headers->setOptions($this->getOptions());
-        $headers->setHeaders();
+        $headers->setOptions($options);
+        $headers->setHeaders($corsAllowed&&$isCorsRequest);
 
         http_response_code($this->ERROR_STATE['ERROR_CODE']);
 

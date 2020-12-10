@@ -254,7 +254,9 @@ class headerAuth extends header
      */
     public function setUnauthorised()
     {
-        $this->setHeaders();
+        $corsAllowed = ($this->getOptions()['cors']) ?? false;
+        $isCorsRequest = ($_SERVER['HTTP_ORIGIN']) ?? false;
+        $this->setHeaders($corsAllowed&&$isCorsRequest);
 
         $this->setHeader('HTTP/1.1', array(
             'Unauthorized',

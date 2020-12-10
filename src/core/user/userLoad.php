@@ -80,6 +80,7 @@ class userLoad extends user
     {
         if (is_null($property) || empty($property)) {
             (new exception\errorException)
+                ->setOptions($this->options)
                 ->message('No load property was provided!')
                 ->error('ACCOUNT_ID');
         }
@@ -141,7 +142,7 @@ class userLoad extends user
         if( $this->secretAppend ) {
             $this->secret = $account->secret;
         }
-
+        
         if (!empty($account)) {
             $this->setAccountID($account->account_id);
 
@@ -200,12 +201,12 @@ class userLoad extends user
                 $account->refreshToken = ['token' => $account->refresh_token];
             }
 
-            // print_r($account);
-
             return (array) $account;
         }
 
-        (new exception\errorException)->error('UNAUTHORIZED');
+        (new exception\errorException)
+            ->setOptions($this->options)
+            ->error('UNAUTHORIZED');
     }
 
     /**
@@ -282,6 +283,7 @@ class userLoad extends user
     {
         if (!isset($this->secret)) {
             (new exception\errorException)
+                ->setOptions($this->options)
                 ->message('There was an error trying to retrieve the server master key. Please read the documentation on setting up a configuration file')
                 ->error('NO_CONTENT');
         }
@@ -335,6 +337,7 @@ class userLoad extends user
     {
         if (!isset($this->secret)) {
             (new exception\errorException)
+                ->setOptions($this->options)
                 ->message('There was an error trying to retrieve the server master key. Please read the documentation on setting up a configuration file')
                 ->error('NO_CONTENT');
         }
