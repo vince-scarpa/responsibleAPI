@@ -29,7 +29,7 @@ PHP 7.x\
 Install composer if not already\
     https://getcomposer.org/doc/00-intro.md  
 
-Install ResponsibleSDK [recommended]  
+Install ResponsibleSDK [recommended for quick example]  
     https://github.com/vince-scarpa/responsibleSDK
     
 ```
