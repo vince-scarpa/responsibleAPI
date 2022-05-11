@@ -79,7 +79,7 @@ MASTER_KEY = '<YOUR_MASTER_SECRET>'
 
 ## Basic usage
 #### Setting up our API server
-```
+```php
 <?php
 /**
  * Composer Autoloader
@@ -111,7 +111,7 @@ https://github.com/vince-scarpa/responsibleSDK or any other HTTP request method 
 ### Options
 Add options
 
-```
+```php
 $options = array(
     /**
      * Output type
