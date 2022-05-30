@@ -53,7 +53,9 @@ class base
      */
     public function basepath()
     {
-        return implode('/', array_slice(explode('/', $_SERVER['SCRIPT_NAME']), 0, -1));
+        $scriptName = ltrim($_SERVER['SCRIPT_NAME']);
+        $uri = array_values(array_filter(explode('/', $_SERVER['SCRIPT_NAME'])));
+        return '/'.implode('/', array_slice($uri, 0, 1)).'/';
     }
 
     /**
