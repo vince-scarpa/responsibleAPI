@@ -75,7 +75,7 @@ class cipher
      * [hash]
      * @return string
      */
-    public function hash($algo = 'sha256', $stdString, $secret)
+    public function hash($algo, $stdString, $secret)
     {
         return hash_hmac($algo, $stdString, $secret, true);
     }

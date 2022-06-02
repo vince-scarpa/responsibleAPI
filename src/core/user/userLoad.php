@@ -76,7 +76,7 @@ class userLoad extends user
      */
     private $secretAppend = false;
 
-    public function __construct($property = null, $options)
+    public function __construct($property, $options)
     {
         if (is_null($property) || empty($property)) {
             (new exception\errorException)

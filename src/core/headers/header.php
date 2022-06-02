@@ -342,11 +342,11 @@ class header extends server implements interfaces\optionsInterface
             ));
 
             $this->setHeader('Access-Control-Allow-Headers', array(
-                'origin,x-requested-with,Authorization,cache-control',
+                'origin,x-requested-with,Authorization,cache-control,content-type,x-header-csrf,x-auth-token',
             ));
 
             $this->setHeader('Access-Control-Allow-Methods', array(
-                'GET,POST,OPTIONS,DELETE',
+                'GET,POST,OPTIONS',
             ));
         }
 
