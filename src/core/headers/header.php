@@ -59,6 +59,12 @@ class header extends server implements interfaces\optionsInterface
     protected $headerAuth;
 
     /**
+     * Options can set additional CORS headers
+     * @var array
+     */
+    private $additionalCORSHeaders = [];
+
+    /**
      * [__construct]
      */
     public function __construct()
@@ -335,6 +341,12 @@ class header extends server implements interfaces\optionsInterface
         ));
 
         if ($CORS) {
+            if (isset($this->getOptions()['aditionalCORSHeaders']) &&
+                (is_array($this->getOptions()['aditionalCORSHeaders']) && !empty($this->getOptions()['aditionalCORSHeaders']))
+            ) {
+                $this->additionalCORSHeaders = ','.implode(',', $this->getOptions()['aditionalCORSHeaders']);
+            }
+
             $origin = ($auth_headers['Origin']) ?? false;
             $origin = ($origin) ? $auth_headers['Origin'] : '*';
             $this->setHeader('Access-Control-Allow-Origin', array(
@@ -342,7 +354,8 @@ class header extends server implements interfaces\optionsInterface
             ));
 
             $this->setHeader('Access-Control-Allow-Headers', array(
-                'origin,x-requested-with,Authorization,cache-control,content-type,x-header-csrf,x-auth-token',
+                'origin,x-requested-with,Authorization,cache-control,content-type,x-header-csrf,x-auth-token'
+                .$this->additionalCORSHeaders,
             ));
 
             $this->setHeader('Access-Control-Allow-Methods', array(
