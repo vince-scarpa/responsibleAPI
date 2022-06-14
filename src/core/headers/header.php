@@ -473,6 +473,7 @@ class header extends server implements interfaces\optionsInterface
     private function setAccessControllAllowedHeaders(array $allowedHeaders): array
     {
         $this->additionalCORSHeaders = $allowedHeaders;
+        return $this->additionalCORSHeaders;
     }
 
     /**
