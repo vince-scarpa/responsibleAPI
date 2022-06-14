@@ -344,7 +344,7 @@ class header extends server implements interfaces\optionsInterface
             if (isset($this->getOptions()['aditionalCORSHeaders']) &&
                 (is_array($this->getOptions()['aditionalCORSHeaders']) && !empty($this->getOptions()['aditionalCORSHeaders']))
             ) {
-                $this->additionalCORSHeaders = ','.implode(',', $this->getOptions()['aditionalCORSHeaders']);
+                $this->setAccessControllAllowedHeaders($this->getOptions()['aditionalCORSHeaders']);
             }
 
             $origin = ($auth_headers['Origin']) ?? false;
@@ -355,7 +355,7 @@ class header extends server implements interfaces\optionsInterface
 
             $this->setHeader('Access-Control-Allow-Headers', array(
                 'origin,x-requested-with,Authorization,cache-control,content-type,x-header-csrf,x-auth-token'
-                .$this->additionalCORSHeaders,
+                .$this->getAccessControllAllowedHeaders(),
             ));
 
             $this->setHeader('Access-Control-Allow-Methods', array(
@@ -463,5 +463,29 @@ class header extends server implements interfaces\optionsInterface
     public function setData($data = [])
     {
         $this->REQUEST_METHOD['data'] = $data;
+    }
+
+    /**
+     * Set additional CORS control headers
+     * 
+     * @param array
+     */
+    private function setAccessControllAllowedHeaders(array $allowedHeaders): array
+    {
+        $this->additionalCORSHeaders = $allowedHeaders;
+    }
+
+    /**
+     * Get a list of additional CORS control headers set by the config
+     * 
+     * @return string
+     */
+    private function getAccessControllAllowedHeaders(): string
+    {
+        if (empty($this->additionalCORSHeaders)) {
+            return '';
+        }
+
+        return ','.implode(',', $this->additionalCORSHeaders);
     }
 }
