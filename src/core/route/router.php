@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ==================================
  * Responsible PHP API
@@ -12,6 +13,7 @@
  * @author Vince scarpa <vince.in2net@gmail.com>
  *
  */
+
 namespace responsible\core\route;
 
 use responsible\core\exception;
@@ -46,7 +48,7 @@ class router extends server
      * @var array
      */
     private $requestBody = [];
-    
+
     /**
      * [$requestBody]
      * @var array
@@ -63,7 +65,7 @@ class router extends server
         $controller = $controllerSettings->model['namespace'];
 
         if (class_exists($controller)) {
-            $controller = new $controller;
+            $controller = new $controller();
 
             $neededMethods = [
                 'headerMethods',
@@ -73,7 +75,7 @@ class router extends server
 
             foreach ($neededMethods as $method) {
                 if (!method_exists($controller, $method)) {
-                    (new exception\errorException)
+                    (new exception\errorException())
                         ->setOptions($this->getOptions())
                         ->message(
                             "There's a method missing in '"
@@ -84,12 +86,12 @@ class router extends server
                 }
             }
 
-            $controller->responsible = new \stdClass;
+            $controller->responsible = new \stdClass();
             $controller->responsible = $this->getRoutes();
 
             $controller->headerMethods();
             $controller->settings((array) $controllerSettings);
-            
+
             $response = $controller->run();
 
             return $response;
@@ -102,11 +104,11 @@ class router extends server
      */
     public function setPostBody($payload)
     {
-        if( !empty($this->payloadBody) ) {
+        if (!empty($this->payloadBody)) {
             $payload = array_merge($this->payloadBody, ['post' => $payload]);
         }
 
-        if( !empty($this->requestBody) ) {
+        if (!empty($this->requestBody)) {
             $payload = array_merge($this->requestBody, ['post' => $payload]);
         }
 
@@ -125,7 +127,7 @@ class router extends server
         }
 
         $payload = ltrim($payload, 'payload=');
-        $cipher = new encoder\cipher;
+        $cipher = new encoder\cipher();
         $this->requestBody = $cipher->jsonDecode($cipher->decode($payload));
     }
 
@@ -144,7 +146,7 @@ class router extends server
      */
     public function getRequestBody()
     {
-        if( isset($this->requestBody['payload']) ) {
+        if (isset($this->requestBody['payload'])) {
             return $this->requestBody['payload'];
         }
         return $this->requestBody;
@@ -165,7 +167,7 @@ class router extends server
      */
     public function route($customRoute = '')
     {
-        $base = new route\base;
+        $base = new route\base();
 
         $base_url = $base->url();
         $base_uri = (!empty($customRoute)) ? $customRoute : $base->uri();
@@ -211,7 +213,7 @@ class router extends server
         $routes = array_values(array_filter($routes));
 
         if (empty($routes)) {
-            (new exception\errorException)
+            (new exception\errorException())
                 ->setOptions($this->getOptions())
                 ->error('NOT_FOUND');
         }
@@ -286,7 +288,7 @@ class router extends server
     public function getController()
     {
         if (!isset($this->getRoutes()->endpoint)) {
-            (new exception\errorException)
+            (new exception\errorException())
                 ->setOptions($this->getOptions())
                 ->error('NOT_FOUND');
         }
@@ -318,7 +320,7 @@ class router extends server
     public function getIssuer($protocol = false)
     {
         if (!isset($this->getRoutes()->base)) {
-            $base = new route\base;
+            $base = new route\base();
             return $base->url();
         }
 
@@ -342,7 +344,7 @@ class router extends server
      */
     public function setRoutes($routes)
     {
-        $this->routes = new \stdClass;
+        $this->routes = new \stdClass();
         $this->routes = $routes;
     }
 

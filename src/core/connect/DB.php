@@ -1,4 +1,5 @@
 <?php
+
 /*
  * PHP-PDO-MySQL-Class
  * https://github.com/lincanbin/PHP-PDO-MySQL-Class
@@ -14,7 +15,7 @@
 
 namespace responsible\core\connect;
 
-use \PDO;
+use PDO;
 
 class DB
 {
@@ -26,7 +27,6 @@ class DB
     private $pdo;
     private $sQuery;
     private $bConnected = false;
-    private $log;
     private $parameters;
     public $rowCount = 0;
     public $columnCount = 0;
@@ -97,7 +97,7 @@ class DB
                 }
             }
 
-            $this->succes = $this->sQuery->execute();
+            $this->sQuery->execute();
             $this->querycount++;
         } catch (PDOException $e) {
             echo $this->ExceptionLog($e->getMessage(), $this->BuildParams($query));
