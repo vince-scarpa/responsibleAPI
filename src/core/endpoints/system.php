@@ -13,6 +13,7 @@
  * @author Vince scarpa <vince.in2net@gmail.com>
  *
  */
+
 namespace responsible\core\endpoints;
 
 use responsible\core\endpoints;
@@ -22,6 +23,8 @@ use responsible\responsible;
 
 class system extends map
 {
+    public $responsible = null;
+
     /**
      * [$settings]
      * @var array
@@ -38,7 +41,8 @@ class system extends map
      * [__construct Silence..]
      */
     public function __construct()
-    {}
+    {
+    }
 
     /**
      * [settings Inherited settings]
@@ -55,7 +59,7 @@ class system extends map
      */
     public function headerMethods()
     {
-        $headers = new headers\header;
+        $headers = new headers\header();
         $headers->setAllowedMethods(
             ['GET', 'POST', 'PATCH']
         );
@@ -67,7 +71,8 @@ class system extends map
      * @return void
      */
     public function tokenAccessToken()
-    {}
+    {
+    }
 
     /**
      * [run Get the system response]
@@ -88,7 +93,7 @@ class system extends map
         /**
          * Method doesn't exists throw an application error
          */
-        (new exception\errorException)
+        (new exception\errorException())
             ->message('The requested method `' . $this->settings['model']['method'] . '` dosen\'t exist. Please read the documentation on supported request types.')
             ->error('APPLICATION_ERROR');
     }
