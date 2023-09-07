@@ -209,7 +209,7 @@ class header extends server implements interfaces\optionsInterface
             return [];
         }
 
-        $apache_headers = array_merge($headers_list, $apacheRequestHeaders);
+        $apache_headers = array_replace($headers_list, array_filter($apacheRequestHeaders));
 
         $headers = array();
 
