@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ==================================
  * Responsible PHP API
@@ -12,9 +13,9 @@
  * @author Vince scarpa <vince.in2net@gmail.com>
  *
  */
+
 namespace responsible\core\headers;
 
-use responsible\core\auth;
 use responsible\core\exception;
 use responsible\core\interfaces;
 use responsible\core\server;
@@ -26,7 +27,7 @@ class header extends server implements interfaces\optionsInterface
     /**
      * Max age constant
      */
-    const MAX_WINDOW = 3600;
+    private const MAX_WINDOW = 3600;
 
     /**
      * [$REQUEST_APPLICATION]
@@ -68,7 +69,8 @@ class header extends server implements interfaces\optionsInterface
      * [__construct]
      */
     public function __construct()
-    {}
+    {
+    }
 
     /**
      * [requestType]
@@ -90,20 +92,19 @@ class header extends server implements interfaces\optionsInterface
 
     /**
      * [requestMethod Set and return the request method]
-     * @return object
+     * @return array
      */
     public function requestMethod()
     {
-        $verbs = new headerVerbs;
+        $verbs = new headerVerbs();
 
         switch (strtolower($_SERVER['REQUEST_METHOD'])) {
-
             case 'get':
-                return $this->REQUEST_METHOD = $verbs->get();
+                $this->REQUEST_METHOD = $verbs->get();
                 break;
 
             case 'post':
-                return $this->REQUEST_METHOD = $verbs->post();
+                $this->REQUEST_METHOD = $verbs->post();
                 break;
 
             case 'options':
@@ -130,6 +131,7 @@ class header extends server implements interfaces\optionsInterface
                 $this->REQUEST_METHOD = [];
                 break;
         }
+        return $this->REQUEST_METHOD;
     }
 
     /**
@@ -145,7 +147,7 @@ class header extends server implements interfaces\optionsInterface
      * [getBody Get the post body]
      * @return array
      */
-    public function getBody():array
+    public function getBody(): array
     {
         if (isset($this->getMethod()->data) && !empty($this->getMethod()->data)) {
             return $this->getMethod()->data;
@@ -165,7 +167,7 @@ class header extends server implements interfaces\optionsInterface
 
         $requestMethod = $this->getServerMethod();
         if (!in_array($requestMethod, $methods)) {
-            (new exception\errorException)
+            (new exception\errorException())
                 ->setOptions($this->getOptions())
                 ->error('METHOD_NOT_ALLOWED');
         }
@@ -234,7 +236,7 @@ class header extends server implements interfaces\optionsInterface
         if ($isMockTest = $server->isMockTest()) {
             return $this->apacheRequestHeaders();
         }*/
-        
+
         return headers_list();
     }
 
@@ -341,8 +343,10 @@ class header extends server implements interfaces\optionsInterface
         ));
 
         if ($CORS) {
-            if (isset($this->getOptions()['aditionalCORSHeaders']) &&
-                (is_array($this->getOptions()['aditionalCORSHeaders']) && !empty($this->getOptions()['aditionalCORSHeaders']))
+            if (
+                isset($this->getOptions()['aditionalCORSHeaders']) &&
+                (is_array($this->getOptions()['aditionalCORSHeaders']) &&
+                !empty($this->getOptions()['aditionalCORSHeaders']))
             ) {
                 $this->setAccessControllAllowedHeaders($this->getOptions()['aditionalCORSHeaders']);
             }
@@ -355,7 +359,7 @@ class header extends server implements interfaces\optionsInterface
 
             $this->setHeader('Access-Control-Allow-Headers', array(
                 'origin,x-requested-with,Authorization,cache-control,content-type,x-header-csrf,x-auth-token'
-                .$this->getAccessControllAllowedHeaders(),
+                . $this->getAccessControllAllowedHeaders(),
             ));
 
             $this->setHeader('Access-Control-Allow-Methods', array(
@@ -363,7 +367,8 @@ class header extends server implements interfaces\optionsInterface
             ));
         }
 
-        if (isset($this->getOptions()['addHeaders']) &&
+        if (
+            isset($this->getOptions()['addHeaders']) &&
             (is_array($this->getOptions()['addHeaders']) && !empty($this->getOptions()['addHeaders']))
         ) {
             foreach ($this->getOptions()['addHeaders'] as $i => $customHeader) {
@@ -383,7 +388,7 @@ class header extends server implements interfaces\optionsInterface
     public function headerAuth()
     {
         if (is_null($this->headerAuth)) {
-            $this->headerAuth = new headerAuth;
+            $this->headerAuth = new headerAuth();
         }
         $this->headerAuth->setOptions($this->getOptions());
         return $this->headerAuth;
@@ -409,7 +414,6 @@ class header extends server implements interfaces\optionsInterface
 
     /**
      * [unauthorised Set an unauthorised header]
-     * @return array [exit exception message]
      */
     public function unauthorised()
     {
@@ -425,7 +429,7 @@ class header extends server implements interfaces\optionsInterface
         if ($this->getOptions()) {
             if (isset($this->getOptions()['maxWindow']) && !empty($this->getOptions()['maxWindow'])) {
                 if (!is_numeric($this->getOptions()['maxWindow'])) {
-                    (new exception\errorException)
+                    (new exception\errorException())
                         ->setOptions($this->getOptions())
                         ->message('maxWindow option must be an integer type')
                         ->error('APPLICATION_ERROR');
@@ -439,7 +443,7 @@ class header extends server implements interfaces\optionsInterface
 
     /**
      * [setHeaderStatus]
-     * @param void
+     * @return void
      */
     public function setHeaderStatus($status)
     {
@@ -467,7 +471,7 @@ class header extends server implements interfaces\optionsInterface
 
     /**
      * Set additional CORS control headers
-     * 
+     *
      * @param array
      */
     private function setAccessControllAllowedHeaders(array $allowedHeaders): array
@@ -478,7 +482,7 @@ class header extends server implements interfaces\optionsInterface
 
     /**
      * Get a list of additional CORS control headers set by the config
-     * 
+     *
      * @return string
      */
     private function getAccessControllAllowedHeaders(): string
@@ -487,6 +491,6 @@ class header extends server implements interfaces\optionsInterface
             return '';
         }
 
-        return ','.implode(',', $this->additionalCORSHeaders);
+        return ',' . implode(',', $this->additionalCORSHeaders);
     }
 }
