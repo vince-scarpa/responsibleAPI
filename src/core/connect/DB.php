@@ -139,7 +139,7 @@ class DB
 
     public function query($query, $params = null, $fetchmode = PDO::FETCH_ASSOC)
     {
-        $query = trim($query);
+        $query = trim(preg_replace('/\s+/', ' ', $query));
         $rawStatement = explode(" ", $query);
         $this->Init($query, $params);
         $statement = strtolower($rawStatement[0]);
