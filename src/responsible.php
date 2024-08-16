@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ==================================
  * Responsible PHP API
@@ -13,6 +14,7 @@
  * @author Vince scarpa <vince.in2net@gmail.com>
  *
  */
+
 namespace responsible;
 
 use responsible\core as responsibleCore;
@@ -69,9 +71,9 @@ class responsible
 
     /**
      * [__construc :: Construct the Responsible API]
-     * @param array $DEFAULTS   
+     * @param array $DEFAULTS
      *        environment settings
-     * @param array  $options  
+     * @param array  $options
      *        API options
      */
     public function __construct(array $options = [], $initiate = true)
@@ -110,7 +112,7 @@ class responsible
      */
     private function setConfig($options)
     {
-        $config = new configuration\config;
+        $config = new configuration\config();
         $config->baseApiRoot(dirname(__DIR__));
         $config->responsibleDefault($options);
 
@@ -130,7 +132,7 @@ class responsible
 
         /**
          * [$this->server :: Set the a new API server object]
-         * @var responsibleCore [Alias for responsible\core]
+         * @var responsibleCore\server [Alias for responsible\core]
          */
         $this->server = new responsibleCore\server(
             $this->getConfig(),
@@ -144,7 +146,10 @@ class responsible
         // Authenticate the API connections
         try {
             $this->server->authenticate();
-        }catch (responsibleException | \Exception $e) {
+        } catch (responsibleException | \Exception $e) {
+            if (($options['throwException'] ?? null) === true) {
+                throw new responsibleException($e->getMessage(), $e->getCode());
+            }
             self::$response = $e->getMessage();
             return;
         }
@@ -155,7 +160,10 @@ class responsible
                 $this->getRateLimit(),
                 $this->getRateWindow()
             );
-        }catch (responsibleException | \Exception $e) {
+        } catch (responsibleException | \Exception $e) {
+            if (($options['throwException'] ?? null) === true) {
+                throw new responsibleException($e->getMessage(), $e->getCode());
+            }
             self::$response = $e->getMessage();
             return;
         }
@@ -163,7 +171,10 @@ class responsible
         // Build the APIs internal router
         try {
             $this->server->route($route);
-        }catch (responsibleException | \Exception $e) {
+        } catch (responsibleException | \Exception $e) {
+            if (($options['throwException'] ?? null) === true) {
+                throw new responsibleException($e->getMessage(), $e->getCode());
+            }
             self::$response = $e->getMessage();
             return;
         }
@@ -315,12 +326,12 @@ class responsible
      */
     public static function unauthorised()
     {
-        (new headers\header)->unauthorised();
+        (new headers\header())->unauthorised();
     }
 
     /**
      * [response Get the Responsible API response]
-     * @return array|object
+     * @return array|object|void
      */
     public static function response($echo = false)
     {
@@ -339,7 +350,7 @@ class responsible
      */
     public static function createUser($name, $mail, array $options = [])
     {
-        return (new user\user)
+        return (new user\user())
             ->setOptions($options)
             ->credentials($name, $mail)
             ->create()
@@ -353,7 +364,7 @@ class responsible
      */
     public static function updateUser($properties)
     {
-        return (new user\user)
+        return (new user\user())
             ->update($properties)
         ;
     }
@@ -375,7 +386,7 @@ class responsible
         $getSecretAppend = (isset($options['secret']) && ($options['secret'] == 'append') )
         ? $options['secret'] : false;
 
-        return (new user\user)
+        return (new user\user())
             ->setOptions($options)
             ->load(
                 $property,
@@ -384,6 +395,6 @@ class responsible
                     'getJWT' => $getJWT,
                     'secret' => $getSecretAppend
                 )
-        );
+            );
     }
 }
