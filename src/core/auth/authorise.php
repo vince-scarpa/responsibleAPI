@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ==================================
  * Responsible PHP API
@@ -12,6 +13,7 @@
  * @author Vince scarpa <vince.in2net@gmail.com>
  *
  */
+
 namespace responsible\core\auth;
 
 use responsible\core\auth;
@@ -33,7 +35,7 @@ class authorise extends server
     public function __construct($options)
     {
         $this->setOptions($options);
-        $this->config = new configuration\config;
+        $this->config = new configuration\config();
         $this->config->responsibleDefault($options);
     }
 
@@ -54,7 +56,8 @@ class authorise extends server
         /**
          * Check if a custom scope is set
          */
-        if( isset($this->header->getMethod()->data['scope']) && 
+        if (
+            isset($this->header->getMethod()->data['scope']) &&
             ($this->header->getMethod()->data['scope'] == 'anonymous')
         ) {
             $this->grantAccess = true;
@@ -77,14 +80,13 @@ class authorise extends server
         if (isset($token['client_access_request']) && !empty($token['client_access_request'])) {
             $this->user = (object) $token['client_access_request'];
             $this->grantAccess = true;
-
         } else {
 
             /**
              * [$jwt Decode the JWT]
              * @var auth\jwt
              */
-            $jwt = new auth\jwt;
+            $jwt = new auth\jwt();
             $decoded = $jwt
                 ->setOptions($this->getOptions())
                 ->token($token)
@@ -92,24 +94,30 @@ class authorise extends server
                 ->decode()
             ;
 
-            if( isset($decoded['sub']) && !empty($decoded['sub']) ) {
-
-                $this->user = (object) (new user\user)
+            if (isset($decoded['sub']) && !empty($decoded['sub'])) {
+                $this->user = (object) (new user\user())
                     ->setOptions($this->getOptions())
                     ->load($decoded['sub'], ['refreshToken' => true])
                 ;
 
-                if ( !empty($this->user) ) {
-                    $jwt = new auth\jwt;
+                $secretKey = $this->user->secret;
+                if (
+                    isset($this->getOptions()['jwt']['sign_with']) &&
+                    !empty($this->getOptions()['jwt']['sign_with'])
+                ) {
+                    $secretKey = $this->getOptions()['jwt']['sign_with'];
+                }
+
+                if (!empty($this->user)) {
+                    $jwt = new auth\jwt();
                     $decoded = $jwt
                         ->setOptions($this->getOptions())
                         ->token($token)
-                        ->key($this->user->secret)
+                        ->key($secretKey)
                         ->decode()
                     ;
                 }
-            }else{
-
+            } else {
                 $this->header->unauthorised();
             }
         }
@@ -118,8 +126,8 @@ class authorise extends server
          * [$user Check user account]
          * @var [object]
          */
-        if ( (isset($decoded['sub']) && !empty($decoded['sub'])) && !$this->user ) {
-            $this->user = (object) (new user\user)
+        if ((isset($decoded['sub']) && !empty($decoded['sub'])) && !$this->user) {
+            $this->user = (object) (new user\user())
                 ->setOptions($this->getOptions())
                 ->load($decoded['sub'], ['refreshToken' => true])
             ;
@@ -139,7 +147,7 @@ class authorise extends server
      */
     public function user()
     {
-        if( $this->isGrantType() ) {
+        if ($this->isGrantType()) {
             return (object) [
                 'uid' => -1,
                 'account_id' => 0,
@@ -168,7 +176,8 @@ class authorise extends server
             return;
         }
 
-        if( isset($this->header->getMethod()->data['scope']) && 
+        if (
+            isset($this->header->getMethod()->data['scope']) &&
             ($this->header->getMethod()->data['scope'] == 'anonymous')
         ) {
             return;

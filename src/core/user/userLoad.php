@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ==================================
  * Responsible PHP API
@@ -12,6 +13,7 @@
  * @author Vince scarpa <vince.in2net@gmail.com>
  *
  */
+
 namespace responsible\core\user;
 
 use responsible\core\auth;
@@ -79,7 +81,7 @@ class userLoad extends user
     public function __construct($property, $options)
     {
         if (is_null($property) || empty($property)) {
-            (new exception\errorException)
+            (new exception\errorException())
                 ->setOptions($this->options)
                 ->message('No load property was provided!')
                 ->error('ACCOUNT_ID');
@@ -91,8 +93,8 @@ class userLoad extends user
         $this->requestRefreshToken = $this->checkVal($options, 'refreshToken');
         $this->authorizationRefresh = $this->checkVal($options, 'authorizationRefresh');
 
-        $this->keys = new keys\key;
-        $this->jwt = new auth\jwt;
+        $this->keys = new keys\key();
+        $this->jwt = new auth\jwt();
 
         $this->setColumn($loadBy);
         $this->setProperty($property);
@@ -100,7 +102,7 @@ class userLoad extends user
 
         $this->secret = $this->getDefaults()['config']['MASTER_KEY'];
 
-        if( isset($options['secret']) && $options['secret'] == 'append' ) {
+        if (isset($options['secret']) && $options['secret'] == 'append') {
             $this->secretAppend = true;
         }
     }
@@ -139,27 +141,33 @@ class userLoad extends user
                 \PDO::FETCH_OBJ
             );
 
-        if( $this->secretAppend ) {
+        if ($this->secretAppend) {
             $this->secret = $account->secret;
         }
-        
+
         if (!empty($account)) {
             $this->setAccountID($account->account_id);
 
-            $this->secret = $account->secret;
-            
+            if (
+                isset($this->getOptions()['jwt']['sign_with']) &&
+                !empty($this->getOptions()['jwt']['sign_with']) &&
+                !$this->secretAppend
+            ) {
+                $this->secret = $this->getOptions()['jwt']['sign_with'];
+            }
+
             if ($this->requestRefreshToken) {
                 $account->refresh_token = $this->refreshTokenGenerate($account);
-                $headers = new headers\header;
+                $headers = new headers\header();
                 $headers->setOptions($this->getOptions());
                 $sentToken = $headers->hasBearerToken();
 
-                if( $sentToken ) {
+                if ($sentToken) {
                     /**
                      * [$jwt Decode the JWT]
                      * @var auth\jwt
                      */
-                    $jwt = new auth\jwt;
+                    $jwt = new auth\jwt();
                     $decoded = $jwt
                         ->setOptions($this->getOptions())
                         ->token($sentToken)
@@ -167,12 +175,12 @@ class userLoad extends user
                         ->decode()
                     ;
 
-                    $leeway = ($this->checkVal($this->options['jwt'], 'leeway')) 
+                    $leeway = ($this->checkVal($this->options['jwt'], 'leeway'))
                         ?: $this->jwt->getLeeway()
                     ;
                     $absSeconds = ($decoded['exp'] - ($this->timeNow() - $leeway));
 
-                    if( $absSeconds > 0 ) {
+                    if ($absSeconds > 0) {
                         $account->JWT = $sentToken;
                     }
 
@@ -204,7 +212,7 @@ class userLoad extends user
             return (array) $account;
         }
 
-        (new exception\errorException)
+        (new exception\errorException())
             ->setOptions($this->options)
             ->error('UNAUTHORIZED');
     }
@@ -216,21 +224,21 @@ class userLoad extends user
     public function refreshTokenGenerate($account)
     {
         $offset = 86400;
-        $time = ($this->timeNow()+$offset);
+        $time = ($this->timeNow() + $offset);
 
-        if( isset($account->refresh_token) && !empty($account->refresh_token) ) {
+        if (isset($account->refresh_token) && !empty($account->refresh_token)) {
             $raToken = explode('.', $account->refresh_token);
-            if( !empty($raToken) ) {
+            if (!empty($raToken)) {
                 $raToken = array_values(array_filter($raToken));
-                $time = ($raToken[0] <= ($this->timeNow()-$offset) ) ? ($this->timeNow()+$offset) : $raToken[0];
+                $time = ($raToken[0] <= ($this->timeNow() - $offset) ) ? ($this->timeNow() + $offset) : $raToken[0];
             }
         }
 
-        $cipher = new encoder\cipher;
-        $refreshHash = $account->account_id.':'.$account->secret;
-        $refreshHash = $cipher->encode($cipher->hash('sha256', $refreshHash, $account->secret));
+        $cipher = new encoder\cipher();
+        $refreshHash = $account->account_id . ':' . $this->secret;
+        $refreshHash = $cipher->encode($cipher->hash('sha256', $refreshHash, $this->secret));
 
-        $refreshHash = $time.'.'.$refreshHash;
+        $refreshHash = $time . '.' . $refreshHash;
         $account->refreshToken = $refreshHash;
 
         $updateProp = [
@@ -282,7 +290,7 @@ class userLoad extends user
     public function futureToken()
     {
         if (!isset($this->secret)) {
-            (new exception\errorException)
+            (new exception\errorException())
                 ->setOptions($this->options)
                 ->message('There was an error trying to retrieve the server master key. Please read the documentation on setting up a configuration file')
                 ->error('NO_CONTENT');
@@ -303,7 +311,7 @@ class userLoad extends user
         /**
          * Check token expiry
          */
-        if($this->checkVal($userPayload['payload'], 'exp') && !$skipExpiry) {
+        if ($this->checkVal($userPayload['payload'], 'exp') && !$skipExpiry) {
             return $this->refreshJWT($userPayload);
         }
 
@@ -336,7 +344,7 @@ class userLoad extends user
     public function getUserJWT($refresh = false)
     {
         if (!isset($this->secret)) {
-            (new exception\errorException)
+            (new exception\errorException())
                 ->setOptions($this->options)
                 ->message('There was an error trying to retrieve the server master key. Please read the documentation on setting up a configuration file')
                 ->error('NO_CONTENT');
@@ -349,7 +357,7 @@ class userLoad extends user
          * @var array
          */
         $payload = array(
-            "iss" => (new route\router)->getIssuer(),
+            "iss" => (new route\router())->getIssuer(),
             "sub" => $this->getAccountID(),
             "iat" => $this->timeNow(),
             "nbf" => $this->timeNow() + 10,
@@ -368,26 +376,26 @@ class userLoad extends user
                 $payload['iat'] = $iat;
             }
             if (false !== ($nbf = $this->checkVal($jwtOptions, 'notBeFor'))) {
-                if( strtolower($nbf) == 'issuedat' && isset($payload['iat']) ) {
+                if (strtolower($nbf) == 'issuedat' && isset($payload['iat'])) {
                     $nbf = $payload['iat'] + 10;
                 }
                 $payload['nbf'] = $nbf;
             }
         }
 
-        if( $refresh && $exp ) {
+        if ($refresh && $exp) {
             $refreshPayload = $payload;
 
             $offset = $exp - $this->timeNow();
             $leeway = ($this->checkVal($this->options['jwt'], 'leeway')) ?: $this->jwt->getLeeway();
 
-            $refreshPayload['exp'] = $exp+$offset+$leeway;
+            $refreshPayload['exp'] = $exp + $offset + $leeway;
 
             $refreshJWT = $this->refreshJWT([
                 'payload' => $refreshPayload
             ]);
 
-            if( isset($refreshJWT['refresh']) ) {
+            if (isset($refreshJWT['refresh'])) {
                 return $refreshJWT['refresh'];
             }
         }
@@ -444,7 +452,7 @@ class userLoad extends user
             case ($column == 'refresh_token'):
                 $this->column = 'USR.refresh_token';
                 break;
-            
+
             default:
                 $this->column = '';
                 break;
