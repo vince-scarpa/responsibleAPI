@@ -149,11 +149,11 @@ class userLoad extends user
             $this->setAccountID($account->account_id);
 
             if (
-                isset($this->getOptions()['jwt']['sign_with']) &&
-                !empty($this->getOptions()['jwt']['sign_with']) &&
+                isset($this->getOptions()['jwt']['signWith']) &&
+                !empty($this->getOptions()['jwt']['signWith']) &&
                 !$this->secretAppend
             ) {
-                $this->secret = $this->getOptions()['jwt']['sign_with'];
+                $this->secret = $this->getOptions()['jwt']['signWith'];
             }
 
             if ($this->requestRefreshToken) {

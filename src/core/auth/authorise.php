@@ -102,10 +102,10 @@ class authorise extends server
 
                 $secretKey = $this->user->secret;
                 if (
-                    isset($this->getOptions()['jwt']['sign_with']) &&
-                    !empty($this->getOptions()['jwt']['sign_with'])
+                    isset($this->getOptions()['jwt']['signWith']) &&
+                    !empty($this->getOptions()['jwt']['signWith'])
                 ) {
-                    $secretKey = $this->getOptions()['jwt']['sign_with'];
+                    $secretKey = $this->getOptions()['jwt']['signWith'];
                 }
 
                 if (!empty($this->user)) {
@@ -139,6 +139,7 @@ class authorise extends server
         if (empty($this->user)) {
             $this->header->unauthorised();
         }
+        return false;
     }
 
     /**
