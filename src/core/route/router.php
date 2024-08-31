@@ -196,6 +196,7 @@ class router extends server
                 'size' => sizeof($routes),
                 'scope' => $this->scope,
             ),
+            'responseType' => null,
         );
 
         $this->setRoutes((object)$routesArray);

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ==================================
  * Responsible PHP API
@@ -12,6 +13,7 @@
  * @author Vince scarpa <vince.in2net@gmail.com>
  *
  */
+
 namespace responsible\core;
 
 use responsible\core\auth;
@@ -107,7 +109,7 @@ class server
 
     /**
      * [__construct]
-     * @param array  $config 
+     * @param array  $config
      *        environment variables
      * @param boolean $db
      */
@@ -121,7 +123,12 @@ class server
                 $config = $this->getConfig();
             }
             if (is_null($this->DB)) {
-                $this->DB = new connect\DB($config['DB_HOST'], $config['DB_NAME'], $config['DB_USER'], $config['DB_PASSWORD']);
+                $this->DB = new connect\DB(
+                    $config['DB_HOST'],
+                    $config['DB_NAME'],
+                    $config['DB_USER'],
+                    $config['DB_PASSWORD']
+                );
             }
         }
         // @codeCoverageIgnoreEnd
@@ -135,7 +142,7 @@ class server
      */
     public function getConfig()
     {
-        $config = new configuration\config;
+        $config = new configuration\config();
         $config->responsibleDefault();
         $config = $config->getConfig();
 
@@ -150,7 +157,7 @@ class server
         $options = $this->getOptions();
 
         if (is_null($this->header)) {
-            $this->header = new headers\header;
+            $this->header = new headers\header();
             $this->header->setOptions($options);
 
             if (empty((array)$this->header->getMethod())) {
@@ -159,11 +166,11 @@ class server
         }
 
         if (is_null($this->keys)) {
-            $this->keys = new keys\key;
+            $this->keys = new keys\key();
         }
 
         if (is_null($this->endpoints)) {
-            $this->endpoints = new endpoints\map;
+            $this->endpoints = new endpoints\map();
             $this->endpoints->setOptions($options);
         }
 
@@ -206,7 +213,7 @@ class server
      * [getOptions Get the stored Responsible API options]
      * @return array|null
      */
-    public function getOptions():?array
+    public function getOptions(): ?array
     {
         return $this->options;
     }
@@ -249,6 +256,11 @@ class server
      */
     public function setResponse($key, $response)
     {
+        if ($this->getRouter()->responseType == 'restful') {
+            $this->RESPONSE = $response;
+            return;
+        }
+
         $responseHeader = [
             'headerStatus' => $this->header->getHeaderStatus(),
             'expires_in' => $this->auth->getJWTObject('expiresIn'),
@@ -263,7 +275,7 @@ class server
         }
 
         if (is_null($key) || $key == '') {
-            if( !is_null($response) ) {
+            if (!is_null($response)) {
                 $this->RESPONSE['response'] = $response;
             }
             $this->RESPONSE = array_merge($responseHeader, $this->RESPONSE);
@@ -280,7 +292,7 @@ class server
      */
     public function getResponse()
     {
-        if(isset($this->RESPONSE['response']['response'])) {
+        if (isset($this->RESPONSE['response']['response'])) {
             $this->RESPONSE['response'] = $this->RESPONSE['response']['response'];
         }
         return $this->RESPONSE;
@@ -314,14 +326,14 @@ class server
 
         $this->endpoints->baseApiRoot(dirname(__DIR__));
         $this->endpoints->register();
-        
+
         $router = new route\router();
         $router->baseApiRoot(dirname(__DIR__));
 
         $this->router = $router->route($route);
         $endpoint = $this->endpoints->isEndpoint($router->getApi(), $router->getPath());
 
-        if(isset($endpoint->model['scope'])) {
+        if (isset($endpoint->model['scope'])) {
             $_REQUEST['scope'] = $endpoint->model['scope'];
             $this->header->setData($_REQUEST);
         }
@@ -337,7 +349,7 @@ class server
         if (!isset($this->limiter)) {
             $this->rateLimit();
         }
-        
+
         $this->limiter
             ->setAccount($this->auth->user())
             ->setupOptions()
@@ -381,7 +393,7 @@ class server
          * Endpoint tiers must be larger than 1
          */
         if ($router->getSize() < 2) {
-            (new exception\errorException)
+            (new exception\errorException())
                 ->setOptions($this->getOptions())
                 ->error('NOT_FOUND');
         }
@@ -389,10 +401,11 @@ class server
         /**
          * Check if the requested endpoint is allowed
          */
-        if (!$this->router->endpoint =
+        if (
+            !$this->router->endpoint =
             $this->endpoints->isEndpoint($router->getApi(), $router->getPath())
         ) {
-            (new exception\errorException)
+            (new exception\errorException())
                 ->setOptions($this->getOptions())
                 ->error('BAD_REQUEST');
         }
@@ -406,7 +419,7 @@ class server
         /**
          * Check if theres a request payload sent
          */
-        if(isset($_REQUEST['payload'])) {
+        if (isset($_REQUEST['payload'])) {
             $router->setRequestBody($_REQUEST['payload']);
         }
         $router->setPostBody($this->header->getBody());
@@ -417,18 +430,19 @@ class server
         /**
          * Check the access scope
          */
-        if( !isset($this->router->endpoint->model['scope']) ) {
+        if (!isset($this->router->endpoint->model['scope'])) {
             $this->router->endpoint->model['scope'] = 'private';
         }
 
-        if( isset($this->header->getMethod()->data['scope']) && 
+        if (
+            isset($this->header->getMethod()->data['scope']) &&
             ($this->header->getMethod()->data['scope'] == 'anonymous')
         ) {
             $this->router->endpoint->model['scope'] = 'anonymous';
         }
 
         $router->setScope($this->router->endpoint->model['scope']);
-        
+
         // @codeCoverageIgnoreStart
         if (!$this->auth->isGrantType() && !$this->isMockTest()) {
             if (!$router->systemAccess($this->auth->user())) {
@@ -442,7 +456,6 @@ class server
          */
         if ($router->getScope() !== 'system') {
             $response = $router->run();
-
         } else {
             /*$response = [
                 'system' => $router->getApi(),
@@ -502,7 +515,7 @@ class server
         $corsAllowed = ($this->getOptions()['cors']) ?? false;
         $isCorsRequest = ($_SERVER['HTTP_ORIGIN']) ?? false;
         $this->header->requestType($this->getRequestType());
-        $this->header->setHeaders($corsAllowed&&$isCorsRequest);
+        $this->header->setHeaders($corsAllowed && $isCorsRequest);
 
         /**
          * Output the response if any
@@ -517,7 +530,7 @@ class server
      *     Check if there's a mock test request
      * @return boolean
      */
-    public function isMockTest():bool
+    public function isMockTest(): bool
     {
         $config = $this->getConfig();
 
