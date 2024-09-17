@@ -392,7 +392,7 @@ class server
         /**
          * Endpoint tiers must be larger than 1
          */
-        if ($router->getSize() < 2) {
+        if ($router->getSize() < 1) {
             (new exception\errorException())
                 ->setOptions($this->getOptions())
                 ->error('NOT_FOUND');
