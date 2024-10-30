@@ -13,6 +13,7 @@
  * @author Vince scarpa <vince.in2net@gmail.com>
  *
  */
+
 namespace responsible\core\endpoints;
 
 use responsible\core\endpoints;
@@ -52,7 +53,7 @@ class map extends route\router implements interfaces\optionsInterface
      * [$SYSTEM_ENDPOINTS Reserved system Endpoints]
      * @var array
      */
-    const SYSTEM_ENDPOINTS = [
+    public const SYSTEM_ENDPOINTS = [
         'token' => '/token/access_token',
         'user' => [
             '/user/create',
@@ -63,7 +64,9 @@ class map extends route\router implements interfaces\optionsInterface
     /**
      * [__construct Silence...]
      */
-    public function __construct() {}
+    public function __construct()
+    {
+    }
 
     /**
      * [register Scan and register endpoints defined in services]
@@ -76,14 +79,14 @@ class map extends route\router implements interfaces\optionsInterface
         /**
          * Check if a custom directory was set in the Responsible API options
          */
-        if( (isset($options['classRoute']) && !empty($options['classRoute'])) && 
+        if (
+            (isset($options['classRoute']) && !empty($options['classRoute'])) &&
             (isset($options['classRoute']['directory']) && isset($options['classRoute']['namespace']))
         ) {
             $customService = $this->options['classRoute'];
             $directory = $customService['directory'];
             $middleware = $customService['namespace'];
-
-        }else {
+        } else {
             $middleware = 'responsible';
 
             $endpoint = str_replace(
@@ -96,7 +99,7 @@ class map extends route\router implements interfaces\optionsInterface
         }
 
         if (!is_dir($directory)) {
-            (new exception\errorException)
+            (new exception\errorException())
                 ->setOptions($this->getOptions())
                 ->message('Directory Error:: responsible\service needs to exist. See documentation on setting up a service.')
                 ->error('NOT_EXTENDED');
@@ -105,7 +108,7 @@ class map extends route\router implements interfaces\optionsInterface
         $scanned = '';
         $scanDir = scandir($directory);
 
-        if (!empty($scanDir)) { 
+        if (!empty($scanDir)) {
             $scanned = array_values(
                 array_diff(
                     $scanDir,
@@ -115,14 +118,13 @@ class map extends route\router implements interfaces\optionsInterface
         }
 
         if (empty($scanned)) {
-            (new exception\errorException)
+            (new exception\errorException())
                 ->setOptions($this->getOptions())
                 ->message('Class Error:: responsible\service\endpoints needs at least 1 class file. See documentation on setting up a service.')
                 ->error('NOT_EXTENDED');
         }
 
         foreach ($scanned as $e => $point) {
-
             if (substr($point, -4) == '.php') {
                 $point = str_replace('.php', '', $point);
 
@@ -138,18 +140,20 @@ class map extends route\router implements interfaces\optionsInterface
 
                 $this->NAMESPACE_ENDPOINTS[$point] = $endpoint;
 
-                if (class_exists($child) && method_exists($child, 'register')) {
-                    self::$middleWareClass = new $child;
+                if (class_exists($child) && method_exists($child, 'middleware')) {
+                    self::$middleWareClass = new $child();
+                    $this->registry[$point] = self::$middleWareClass->middleware();
+                } elseif (class_exists($child) && method_exists($child, 'register')) {
+                    self::$middleWareClass = new $child();
                     $this->registry[$point] = self::$middleWareClass->register();
-                }else{
-                    (new exception\errorException)
+                } else {
+                    (new exception\errorException())
                         ->setOptions($this->getOptions())
                         ->message("Class Error:: class {$child} needs to exist. See documentation on setting up a service.")
                         ->error('NOT_EXTENDED');
                 }
             }
         }
-
         return $this->registry;
     }
 
@@ -161,7 +165,8 @@ class map extends route\router implements interfaces\optionsInterface
      */
     private function isSystemEndpoint($api, $endpoint)
     {
-        if (isset(self::SYSTEM_ENDPOINTS[$api]) &&
+        if (
+            isset(self::SYSTEM_ENDPOINTS[$api]) &&
             (
                 in_array($endpoint, self::SYSTEM_ENDPOINTS) ||
                 array_search($endpoint, self::SYSTEM_ENDPOINTS[$api]) !== false
@@ -211,7 +216,10 @@ class map extends route\router implements interfaces\optionsInterface
         if (null !== ($endpointSettings = $this->isSystemEndpoint($api, $endpoint))) {
             return $endpointSettings;
         }
-        
+
+        /**
+         * Check if the endpoint is a RouterInterface
+         */
         $endpoint = htmlspecialchars($endpoint, ENT_QUOTES, 'UTF-8');
         $index = array_search($api, $this->BASE_ENDPOINTS);
 
@@ -232,16 +240,14 @@ class map extends route\router implements interfaces\optionsInterface
                  * @var array
                  */
                 if (array_search($endpoint, $this->registry[$api]) !== false) {
-                    if( method_exists($this->NAMESPACE_ENDPOINTS[$api], 'scope') ) {
-                        $classScope = (new $this->NAMESPACE_ENDPOINTS[$api])->scope();
+                    if (method_exists($this->NAMESPACE_ENDPOINTS[$api], 'scope')) {
+                        $classScope = (new $this->NAMESPACE_ENDPOINTS[$api]())->scope();
                         $position = array_search($endpoint, $this->registry[$api]);
-                        
-                        if( is_array($classScope) && isset($classScope[$position]) ) {
+
+                        if (is_array($classScope) && isset($classScope[$position])) {
                             $endpointSettings['model']['scope'] = $classScope[$position];
-
-                        }else{
-
-                            if( !is_array($classScope) ) {
+                        } else {
+                            if (!is_array($classScope)) {
                                 $endpointSettings['model']['scope'] = $classScope;
                             }
                         }
@@ -256,6 +262,13 @@ class map extends route\router implements interfaces\optionsInterface
                 foreach ($this->registry[$api] as $i => $path) {
                     $endpointRegister = $path;
                     $methodArgs = [];
+
+                    $routeInstance = null;
+                    if ($path instanceof \responsible\core\endpoints\RouteMiddlewareInterface) {
+                        $routeInstance = $path;
+                        $endpointRegister = $path = $routeInstance->getRoute();
+                        $scope = $routeInstance->getScope();
+                    }
 
                     /**
                      * If comparing the two sizes are not equal
@@ -291,17 +304,21 @@ class map extends route\router implements interfaces\optionsInterface
                         }
 
                         $scope = 'private';
+                        if ($routeInstance instanceof \responsible\core\endpoints\RouteMiddlewareInterface) {
+                            $scope = $routeInstance->getScope();
+                            if ($scope == 'public') {
+                                $scope = 'anonymous';
+                            }
+                        }
 
-                        if( method_exists($this->NAMESPACE_ENDPOINTS[$api], 'scope') ) {
-                            $classScope = (new $this->NAMESPACE_ENDPOINTS[$api])->scope();
+                        if (method_exists($this->NAMESPACE_ENDPOINTS[$api], 'scope')) {
+                            $classScope = (new $this->NAMESPACE_ENDPOINTS[$api]())->scope();
                             $position = array_search($path, $this->registry[$api]);
-                            
-                            if( is_array($classScope) && isset($classScope[$position]) ) {
+
+                            if (is_array($classScope) && isset($classScope[$position])) {
                                 $scope = $classScope[$position];
-
-                            }else{
-
-                                if( !is_array($classScope) ) {
+                            } else {
+                                if (!is_array($classScope)) {
                                     $scope = $classScope;
                                 }
                             }
@@ -313,6 +330,7 @@ class map extends route\router implements interfaces\optionsInterface
                             'class' => $model['class'],
                             'method' => $model['method'],
                             'arguments' => $methodArgs,
+                            'middleware' => $routeInstance,
                         );
 
                         return (object) $endpointSettings;
@@ -375,10 +393,13 @@ class map extends route\router implements interfaces\optionsInterface
 
             return array(
                 'class' => $cm[0],
-                'method' => $cm[1],
+                'method' => $cm[1] ?? '',
             );
         }
 
-        return;
+        return [
+            'class' => '',
+            'method' => '',
+        ];
     }
 }
