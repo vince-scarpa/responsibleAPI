@@ -268,6 +268,16 @@ class map extends route\router implements interfaces\optionsInterface
                         $routeInstance = $path;
                         $endpointRegister = $path = $routeInstance->getRoute();
                         $scope = $routeInstance->getScope();
+
+                        if (isset($_SERVER['REQUEST_METHOD'])) {
+                            $serverMethod = $_SERVER['REQUEST_METHOD'];
+                            if ($routeInstance->getVerb() !== $serverMethod) {
+                                continue;
+                            }
+                        } else {
+                            // If no request method is set then continue to force a bad request
+                            continue;
+                        }
                     }
 
                     /**
