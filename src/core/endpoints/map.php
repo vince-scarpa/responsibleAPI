@@ -256,6 +256,24 @@ class map extends route\router implements interfaces\optionsInterface
                 }
 
                 /**
+                 * Check for exact match in middleware routes
+                 */
+                foreach ($this->registry[$api] as $i => $path) {
+                    if ($path instanceof \responsible\core\endpoints\RouteMiddlewareInterface) {
+                        $middlewareRoute = $path->getRoute();
+                        if ($middlewareRoute === $endpoint) {
+                            $scope = $path->getScope();
+                            if ($scope == 'public') {
+                                $scope = 'anonymous';
+                            }
+                            $endpointSettings['model']['scope'] = $scope;
+                            $endpointSettings['model']['middleware'] = $path;
+                            return (object) $endpointSettings;
+                        }
+                    }
+                }
+
+                /**
                  * Check for dynamic uri eg: {asset_id}
                  * Dynamic uri's must be wrapped in {} for a true return
                  */
