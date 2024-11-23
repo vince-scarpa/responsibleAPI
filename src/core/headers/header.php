@@ -214,7 +214,6 @@ class header extends server implements interfaces\optionsInterface
         $apache_headers = array_replace($headers_list, array_filter($apacheRequestHeaders));
 
         $headers = array();
-
         foreach ($_SERVER as $key => $value) {
             if (substr($key, 0, 5) != 'HTTP_') {
                 continue;
@@ -286,15 +285,15 @@ class header extends server implements interfaces\optionsInterface
     public function setHeaders($CORS = false)
     {
         $auth_headers = $this->getHeaders();
-        $application = 'json';
-
-        if (isset($this->REQUEST_APPLICATION[$this->getRequestType()])) {
-            $application = $this->REQUEST_APPLICATION[$this->getRequestType()];
+        if (!array_key_exists('Content-Type', $auth_headers)) {
+            $application = 'json';
+            if (isset($this->REQUEST_APPLICATION[$this->getRequestType()])) {
+                $application = $this->REQUEST_APPLICATION[$this->getRequestType()];
+            }
+            $this->setHeader('Content-Type', array(
+                $application, 'charset=UTF-8',
+            ));
         }
-
-        $this->setHeader('Content-Type', array(
-            $application, 'charset=UTF-8',
-        ));
 
         $this->setHeader('Accept-Ranges', array(
             'bytes',
@@ -304,7 +303,7 @@ class header extends server implements interfaces\optionsInterface
             true,
         ));
 
-        if (!array_key_exists('Access-Control-Allow-Methods', $this->getHeaders())) {
+        if (!array_key_exists('Access-Control-Allow-Methods', $auth_headers)) {
             $this->setHeader('Access-Control-Allow-Methods', array(
                 'GET,POST,DELETE',
             ));
