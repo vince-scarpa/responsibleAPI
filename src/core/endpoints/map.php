@@ -263,6 +263,12 @@ class map extends route\router implements interfaces\optionsInterface
                         $middlewareRoute = $path->getRoute();
                         if ($middlewareRoute === $endpoint) {
                             $scope = $path->getScope();
+                            if (isset($_SERVER['REQUEST_METHOD'])) {
+                                $serverMethod = $_SERVER['REQUEST_METHOD'];
+                                if ($path->getVerb() !== $serverMethod) {
+                                    continue;
+                                }
+                            }
                             if ($scope == 'public') {
                                 $scope = 'anonymous';
                             }
