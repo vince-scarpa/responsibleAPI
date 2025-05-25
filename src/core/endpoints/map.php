@@ -261,6 +261,19 @@ class map extends route\router implements interfaces\optionsInterface
                 foreach ($this->registry[$api] as $i => $path) {
                     if ($path instanceof \responsible\core\endpoints\RouteMiddlewareInterface) {
                         $middlewareRoute = $path->getRoute();
+                        $scope = $path->getScope();
+
+                        if ($this->isWildcardEndpoint($middlewareRoute, $endpoint)) {
+                            // If the endpoint is a wildcard endpoint, we can return it directly
+                            if ($scope == 'public') {
+                                $scope = 'anonymous';
+                            }
+                            $endpointSettings['model']['scope'] = $scope;
+                            $endpointSettings['model']['middleware'] = $path;
+                            $endpointSettings['model']['method'] = '';
+                            return (object) $endpointSettings;
+                        }
+
                         if ($middlewareRoute === $endpoint) {
                             $scope = $path->getScope();
                             if (isset($_SERVER['REQUEST_METHOD'])) {
@@ -376,6 +389,26 @@ class map extends route\router implements interfaces\optionsInterface
         }
 
         return;
+    }
+
+    /**
+     * [isWildcardEndpoint Check if the requested route matches a wildcard endpoint]
+     * @param  string  $registeredRoute
+     * @param  string  $requestedRoute
+     * @return bool|null
+     */
+    private function isWildcardEndpoint($registeredRoute, $requestedRoute)
+    {
+        // Check if the registered route ends with '*'
+        if (substr($registeredRoute, -1) === '*') {
+            // Remove the trailing '*' and trim any trailing slash
+            $prefix = rtrim(substr($registeredRoute, 0, -1), '/');
+            // Also trim any trailing slash from requested route for comparison
+            $requestedTrimmed = rtrim($requestedRoute, '/');
+            // Check if requested route starts with the prefix
+            return strpos($requestedTrimmed, $prefix) === 0;
+        }
+        return null;
     }
 
     /**
