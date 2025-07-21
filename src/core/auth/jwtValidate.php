@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ==================================
  * Responsible PHP API
@@ -12,6 +13,7 @@
  * @author Vince scarpa <vince.in2net@gmail.com>
  *
  */
+
 namespace responsible\core\auth;
 
 use responsible\core\server;
@@ -19,7 +21,6 @@ use responsible\core\encoder;
 use responsible\core\exception;
 use responsible\core\route;
 use responsible\core\user;
-use responsible\core\headers\header;
 
 class jwtValidate extends jwt
 {
@@ -55,12 +56,12 @@ class jwtValidate extends jwt
 
     /**
      * [unauthorised Set unauthorized headers]
-     * @throws responsibleException
+     * @throws \responsible\core\exception\responsibleException
      * @return void
      */
     private static function unauthorised()
     {
-        (new jwt)->setUnauthorised();
+        (new jwt())->setUnauthorised();
         // @codeCoverageIgnoreStart
     }
     // @codeCoverageIgnoreEnd
@@ -68,7 +69,8 @@ class jwtValidate extends jwt
     /**
      * [header Validate the header object]
      * First segment of the token
-     * @return bool
+     * @return void
+     * @throws \responsible\core\exception\responsibleException
      */
     public static function header(array $headObject = [])
     {
@@ -84,11 +86,12 @@ class jwtValidate extends jwt
     /**
      * [payload Validate the payload object]
      * Second segment of the token
-     * @return boolean
+     * @return bool
+     * @throws \responsible\core\exception\responsibleException
      */
     public static function payload(array $payloadObject = [])
     {
-        if( self::isAnonymousScope($payloadObject) ) {
+        if (self::isAnonymousScope($payloadObject)) {
             return true;
         }
 
@@ -101,6 +104,7 @@ class jwtValidate extends jwt
         if ((true === in_array(false, self::$isPayloadValid))) {
             self::unauthorised();
         }
+        return true;
     }
 
     /**
@@ -115,11 +119,13 @@ class jwtValidate extends jwt
     /**
      * [signature - Validate the signature object]
      * Third segment of the token
-     * @return bool
+     * @return void
+     * @throws \responsible\core\exception\responsibleException
      */
     public static function signature($jwtHead, $jwtPayload, $signature, $key)
     {
-        if (empty($jwtHead) ||
+        if (
+            empty($jwtHead) ||
             empty($jwtPayload) ||
             empty($signature) ||
             empty($key)
@@ -127,7 +133,7 @@ class jwtValidate extends jwt
             self::unauthorised();
         }
 
-        $cipher = new encoder\cipher;
+        $cipher = new encoder\cipher();
         $algo = parent::getAlgorithm();
 
         $hashed = $cipher->encode(
@@ -150,10 +156,11 @@ class jwtValidate extends jwt
      */
     public static function typ($headObject)
     {
-        if (!isset($headObject['typ']) ||
+        if (
+            !isset($headObject['typ']) ||
             (isset($headObject['typ']) && empty($headObject))
         ) {
-            return;
+            return false;
         }
         return true;
     }
@@ -165,11 +172,12 @@ class jwtValidate extends jwt
      */
     public static function alg($headObject)
     {
-        if (!isset($headObject['alg']) ||
+        if (
+            !isset($headObject['alg']) ||
             (isset($headObject['alg']) && empty($headObject)) &&
             (self::getAlgorithm()['header'] === $headObject['alg'])
         ) {
-            return;
+            return false;
         }
 
         return true;
@@ -182,17 +190,18 @@ class jwtValidate extends jwt
      */
     public static function iss($payloadObject)
     {
-        if (!isset($payloadObject['iss']) ||
+        if (
+            !isset($payloadObject['iss']) ||
             (isset($payloadObject['iss']) && empty($payloadObject))
         ) {
-            return;
+            return false;
         }
 
-        $router = new route\router;
+        $router = new route\router();
         $router->route();
 
         if ($payloadObject['iss'] !== $router->getIssuer(true)) {
-            return;
+            return false;
         }
 
         self::$isPayloadValid['iss'] = true;
@@ -213,26 +222,27 @@ class jwtValidate extends jwt
         }
 
         // @codeCoverageIgnoreStart
-        if (!isset($payloadObject['sub']) ||
+        if (
+            !isset($payloadObject['sub']) ||
             (isset($payloadObject['sub']) && empty($payloadObject))
         ) {
-            return;
+            return false;
         }
 
-        $account = (object) (new user\user)
+        $account = (object) (new user\user())
             ->setOptions(parent::$options)
             ->load($payloadObject['sub'], ['refreshToken' => false])
         ;
 
         if (empty($account)) {
-            return;
+            return false;
         } else {
             if (!isset($account->account_id)) {
-                return;
+                return false;
             }
 
             if ((int) $account->account_id !== (int) $payloadObject['sub']) {
-                return;
+                return false;
             }
         }
 
@@ -248,14 +258,15 @@ class jwtValidate extends jwt
      */
     public static function iat($payloadObject)
     {
-        if (!isset($payloadObject['iat']) ||
+        if (
+            !isset($payloadObject['iat']) ||
             (isset($payloadObject['iat']) && empty($payloadObject))
         ) {
-            return;
+            return false;
         }
 
         if ($payloadObject['iat'] > self::getTimestamp()) {
-            (new exception\errorException)
+            (new exception\errorException())
                 ->setOptions(parent::$options)
                 ->message(self::messages('not_ready'))
                 ->error('NO_CONTENT');
@@ -272,14 +283,15 @@ class jwtValidate extends jwt
      */
     public static function nbf($payloadObject)
     {
-        if (!isset($payloadObject['nbf']) ||
+        if (
+            !isset($payloadObject['nbf']) ||
             (isset($payloadObject['nbf']) && empty($payloadObject))
         ) {
-            return;
+            return false;
         }
 
         if ($payloadObject['nbf'] > self::getTimestamp()) {
-            (new exception\errorException)
+            (new exception\errorException())
                 ->setOptions(parent::$options)
                 ->message(self::messages('not_ready'))
                 ->error('NO_CONTENT');
@@ -296,10 +308,11 @@ class jwtValidate extends jwt
      */
     public static function exp($payloadObject)
     {
-        if (!isset($payloadObject['exp']) ||
+        if (
+            !isset($payloadObject['exp']) ||
             (isset($payloadObject['exp']) && empty($payloadObject))
         ) {
-            return;
+            return true;
         }
 
         if ($payloadObject['exp'] <= (int) (self::$TIMESTAMP - self::$LEEWAY)) {

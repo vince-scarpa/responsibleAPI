@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ==================================
  * Responsible PHP API
@@ -12,6 +13,7 @@
  * @author Vince scarpa <vince.in2net@gmail.com>
  *
  */
+
 namespace responsible\core\auth;
 
 use responsible\core\auth;
@@ -43,11 +45,11 @@ class jwtEncoder extends jwt
      */
     public function encode()
     {
-        $this->cipher = new encoder\cipher;
-        $this->claims = new auth\jwtClaims;
+        $this->cipher = new encoder\cipher();
+        $this->claims = new auth\jwtClaims();
 
         $algo = parent::getAlgorithm();
-        
+
         $header = [
             'typ' => self::CYT,
             'alg' => $algo['header'],
@@ -71,10 +73,12 @@ class jwtEncoder extends jwt
 
         $this->claims->setSegment(
             'signature',
-            $this->cipher->encode($signature)
+            $signature
         );
 
-        $signed = $this->claims->getSegment('header') . '.' . $this->claims->getSegment('payload') . '.' . $this->claims->getSegment('signature');
+        $signed = $this->claims->getSegment('header') . '.' .
+        $this->claims->getSegment('payload') . '.' .
+        $this->claims->getSegment('signature');
 
         return $signed;
     }

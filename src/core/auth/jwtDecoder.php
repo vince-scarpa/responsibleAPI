@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ==================================
  * Responsible PHP API
@@ -12,6 +13,7 @@
  * @author Vince scarpa <vince.in2net@gmail.com>
  *
  */
+
 namespace responsible\core\auth;
 
 use responsible\core\auth;
@@ -27,8 +29,8 @@ class jwtDecoder extends jwt
      */
     public function decode()
     {
-        $cipher = new encoder\cipher;
-        $validate = new auth\jwtValidate;
+        $cipher = new encoder\cipher();
+        $validate = new auth\jwtValidate();
 
         $validate::leeway(parent::getLeeway());
         $validate::timestamp(parent::getCurrentTimestamp());
@@ -36,7 +38,7 @@ class jwtDecoder extends jwt
         /**
          * Segment the JWT
          */
-        list($jwtHead, $jwtPayload, $sig) = $this->segment();
+        list($jwtHead, $jwtPayload, $signature) = $this->segment();
 
         /**
          * [$headObject JWT head object]
@@ -51,7 +53,7 @@ class jwtDecoder extends jwt
         $payloadObject = $cipher->jsonDecode($cipher->decode($jwtPayload));
 
         // @codeCoverageIgnoreStart
-        if( $this->key == 'payloadOnly' ) {
+        if ($this->key == 'payloadOnly') {
             return $payloadObject;
         }
         // @codeCoverageIgnoreEnd
@@ -59,12 +61,6 @@ class jwtDecoder extends jwt
         if (is_null($headObject) || is_null($payloadObject)) {
             $this->setUnauthorised();
         }
-
-        /**
-         * [$jwtKey Key signature]
-         * @var string
-         */
-        $signature = $cipher->decode($sig);
 
         /**
          * Validate the JWT
