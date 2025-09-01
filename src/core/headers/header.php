@@ -300,7 +300,7 @@ class header extends server implements interfaces\optionsInterface
         ));
 
         $this->setHeader('Access-Control-Allow-Credentials', array(
-            true,
+            'true',
         ));
 
         if (!array_key_exists('Access-Control-Allow-Methods', $auth_headers)) {
