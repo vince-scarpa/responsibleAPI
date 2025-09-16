@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ==================================
  * Responsible PHP API
@@ -12,6 +13,7 @@
  * @author Vince scarpa <vince.in2net@gmail.com>
  *
  */
+
 namespace responsible\core\user;
 
 use responsible\core\auth;
@@ -110,7 +112,7 @@ class user
     public function updateAccountAccess($ACCOUNT_ID = null)
     {
         if (is_null($ACCOUNT_ID) && empty($this->ACCOUNT_ID)) {
-            (new exception\errorException)
+            (new exception\errorException())
                 ->message('No ACCOUNT_ID provided!')
                 ->error('ACCOUNT_ID');
         }
@@ -132,7 +134,8 @@ class user
     private function updateAccess()
     {
         return $this->DB()->
-            query("
+            query(
+                "
                 UPDATE responsible_api_users USR
                         JOIN responsible_token_bucket TKN
                             ON (USR.account_id = TKN.account_id)
@@ -140,17 +143,17 @@ class user
                             USR.access = :unix,
                             TKN.bucket = :bkt
                         WHERE USR.account_id = :aid;",
-            array(
+                array(
                 'unix' => (new \DateTime('now'))->getTimestamp(),
                 'aid' => $this->getAccountID(),
                 'bkt' => $this->getBucketToken(),
-            )
-        );
+                )
+            );
     }
 
     /**
      * [updateAccount Update access for limit requests]
-     * @return boolean
+     * @return mixed
      */
     private function updateAccount($properties)
     {
@@ -162,7 +165,8 @@ class user
 
         $updateSet = $this->buildUpdateSet($properties);
 
-        return $this->DB()->query("
+        return $this->DB()->query(
+            "
             UPDATE responsible_api_users USR
                         set {$updateSet['set']}
                         WHERE {$updateSet['where']}
@@ -178,12 +182,13 @@ class user
      */
     private function checkUpdateProperties($properties)
     {
-        if (!isset($properties->update) ||
+        if (
+            !isset($properties->update) ||
             !isset($properties->where) ||
             (isset($properties->update) && !is_array($properties->update)) ||
             (isset($properties->where) && !is_array($properties->where))
         ) {
-            (new exception\errorException)
+            (new exception\errorException())
                 ->message('No update property was provided. Please read the documentation on updating user accounts.')
                 ->error('ACCOUNT_UPDATE');
         }
@@ -234,7 +239,7 @@ class user
     public function credentials($name, $mail)
     {
         if (!$this->validate('name', $name) || !$this->validate('mail', $mail)) {
-            (new exception\errorException)
+            (new exception\errorException())
                 ->message(
                     'Username or email address validation error! Username must be a string and email must be valid.'
                 )
@@ -260,7 +265,6 @@ class user
         $skipValidatation = (isset($options['validate']) && $options['validate'] == false);
 
         switch ($type) {
-
             case 'name':
                 $valid = $this->validateName($property, $skipValidatation);
                 break;
@@ -300,8 +304,8 @@ class user
      */
     protected function getJWT($key)
     {
-        $token = (new headers\header)->authorizationHeaders(true);
-        $jwt = new auth\jwt;
+        $token = (new headers\header())->authorizationHeaders(true);
+        $jwt = new auth\jwt();
         $decoded = $jwt->token($token)
             ->key($key)
             ->decode()
@@ -318,11 +322,20 @@ class user
      */
     protected function DB()
     {
+        if (($this->options['db'] ?? null) && $this->options['db'] instanceof \responsible\core\connect\DB) {
+            return $this->options['db'];
+        }
+
         if (is_null($this->DB)) {
             $defaults = $this->getDefaults();
             $config = $defaults['config'];
 
-            $this->DB = new connect\DB($config['DB_HOST'], $config['DB_NAME'], $config['DB_USER'], $config['DB_PASSWORD']);
+            $this->DB = new connect\DB(
+                $config['DB_HOST'],
+                $config['DB_NAME'],
+                $config['DB_USER'],
+                $config['DB_PASSWORD']
+            );
         }
         return $this->DB;
     }
@@ -333,7 +346,7 @@ class user
      */
     protected function getDefaults()
     {
-        $config = new configuration\config;
+        $config = new configuration\config();
         $config->responsibleDefault();
         return $config->getDefaults();
     }
