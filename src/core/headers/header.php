@@ -299,9 +299,11 @@ class header extends server implements interfaces\optionsInterface
             'bytes',
         ));
 
-        $this->setHeader('Access-Control-Allow-Credentials', array(
-            'true',
-        ));
+        if (is_null($this->getHeaderValue('Access-Control-Allow-Credentials'))) {
+            $this->setHeader('Access-Control-Allow-Credentials', array(
+                'true',
+            ));
+        }
 
         if (!array_key_exists('Access-Control-Allow-Methods', $auth_headers)) {
             $this->setHeader('Access-Control-Allow-Methods', array(
@@ -350,11 +352,13 @@ class header extends server implements interfaces\optionsInterface
                 $this->setAccessControllAllowedHeaders($this->getOptions()['aditionalCORSHeaders']);
             }
 
-            $origin = ($auth_headers['Origin']) ?? false;
-            $origin = ($origin) ? $auth_headers['Origin'] : '*';
-            $this->setHeader('Access-Control-Allow-Origin', array(
-                $origin,
-            ));
+            if (!$this->hasHeader('Access-Control-Allow-Origin')) {
+                $origin = ($auth_headers['Origin']) ?? false;
+                $origin = ($origin) ? $auth_headers['Origin'] : '*';
+                $this->setHeader('Access-Control-Allow-Origin', array(
+                    $origin,
+                ));
+            }
 
             $this->setHeader('Access-Control-Allow-Headers', array(
                 'origin,x-requested-with,Authorization,cache-control,content-type,x-header-csrf,x-auth-token'
@@ -491,5 +495,72 @@ class header extends server implements interfaces\optionsInterface
         }
 
         return ',' . implode(',', $this->additionalCORSHeaders);
+    }
+
+    /**
+     * Check if a specific header is present
+     *
+     * @param  string $propertyName
+     * @param  string $delimiter
+     * @return bool
+     */
+    public function hasHeader($propertyName, $delimiter = '_'): bool
+    {
+        return !is_null($this->getHeaderValue($propertyName, $delimiter));
+    }
+
+    /**
+     * Try get the header value
+     *
+     * @param  string $propertyName
+     * @return string|null
+     */
+    public function getHeaderValue(string $propertyName, $delimiter = '_'): ?string
+    {
+        $allHeaders = $this->getHeaders();
+
+        $found = null;
+        $headersClone = array_change_key_case($allHeaders, CASE_LOWER);
+        foreach ($this->normalize($propertyName, $delimiter) as $i => $property) {
+            if (array_key_exists($property, $headersClone)) {
+                $found = $headersClone[$property];
+                break;
+            }
+        }
+        return $found;
+    }
+
+    /**
+     * Normalize the property name in 6 formats
+     *
+     * @param string $propertyName
+     * @param string $delimiter
+     * @return array
+     */
+    private function normalize(string $propertyName, string $delimiter)
+    {
+        $nameParts = explode($delimiter, $propertyName);
+        $camelCased = implode($delimiter, array_map(function ($el) {
+            return ucfirst($el);
+        }, $nameParts));
+
+        $outcome = [
+            $camelCased,
+            strtolower($propertyName),
+            strtoupper($propertyName)
+        ];
+
+        if (isset($nameParts[1])) {
+            // Safe fallback
+            $nameParts = [
+                ucfirst($nameParts[1]),
+                strtolower($nameParts[1]),
+                strtoupper($nameParts[1])
+            ];
+
+            $outcome = array_merge($outcome, $nameParts);
+        }
+
+        return $outcome;
     }
 }
