@@ -198,4 +198,19 @@ class DB
         header("Status: 500 Internal Server Error");
         return $exception;
     }
+
+    public function beginTransaction()
+    {
+        $this->pdo->beginTransaction();
+    }
+
+    public function commit()
+    {
+        $this->pdo->commit();
+    }
+
+    public function rollBack()
+    {
+        $this->pdo->rollBack();
+    }
 }
