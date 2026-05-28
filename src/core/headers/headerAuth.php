@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ==================================
  * Responsible PHP API
@@ -12,9 +13,12 @@
  * @author Vince scarpa <vince.in2net@gmail.com>
  *
  */
+
 namespace responsible\core\headers;
 
 use responsible\core\server;
+use responsible\core\auth;
+use responsible\core\configuration;
 use responsible\core\encoder;
 use responsible\core\exception;
 use responsible\core\helpers\help as helper;
@@ -28,7 +32,8 @@ class headerAuth extends header
      * [__construct]
      */
     public function __construct()
-    {}
+    {
+    }
 
     /**
      * [authorizationHeaders Scan for "Authorization" header]
@@ -62,7 +67,6 @@ class headerAuth extends header
         $auth_headers = $this->getHeaders();
 
         if (isset($auth_headers["Authorization"]) && !empty($auth_headers["Authorization"])) {
-
             list($type, $clientToken) = explode(" ", $auth_headers["Authorization"], 2);
 
             if (strcasecmp(trim($type), "Bearer") == 0) {
@@ -82,7 +86,6 @@ class headerAuth extends header
         $auth_headers = $this->getHeaders();
 
         if ($this->hasBearerValue()) {
-
             list($type, $clientToken) = explode(" ", $auth_headers["Authorization"], 2);
 
             if (strcasecmp(trim($type), "Bearer") == 0 && !empty($clientToken)) {
@@ -100,11 +103,10 @@ class headerAuth extends header
     public function isGrantRequest()
     {
         $auth_headers = $this->getHeaders();
-        $helper = new helper;
+        $helper = new helper();
 
         if (isset($auth_headers["Authorization"]) && !empty($auth_headers["Authorization"])) {
             if ($grantType = $helper->checkVal($_REQUEST, 'grant_type')) {
-
                 $refreshToken = false;
 
                 if ($grantType == 'client_credentials') {
@@ -139,14 +141,51 @@ class headerAuth extends header
 
         // @codeCoverageIgnoreStart
         if (strcasecmp($type, "Bearer") == 0 && !empty($clientToken) && !$mockTest) {
+            $refreshKey = $this->getRefreshSigningKey();
+            $jwt = new auth\jwt();
+            $payload = $jwt
+                ->setOptions($this->options)
+                ->token($clientToken)
+                ->key($refreshKey)
+                ->decode()
+            ;
 
-            $user = new user\user;
+            if (isset($payload['token_type']) && $payload['token_type'] !== 'refresh') {
+                $this->setUnauthorised();
+            }
+
+            if (!isset($payload['sub']) || empty($payload['sub'])) {
+                $this->setUnauthorised();
+            }
+
+            $user = new user\user();
             $account = $user
                 ->setOptions($this->options)
                 ->load(
-                    $clientToken,
+                    $payload['sub'],
                     array(
-                        'loadBy' => 'refresh_token',
+                        'loadBy' => 'account_id',
+                        'getJWT' => false,
+                        'authorizationRefresh' => true,
+                    )
+                );
+
+            if (empty($account) || empty($account['refresh_token'])) {
+                $this->setUnauthorised();
+            }
+
+            $helper = new helper();
+            $hashedToken = $helper->hashRefreshToken($clientToken, $refreshKey);
+            if (!hash_equals($account['refresh_token'], $hashedToken)) {
+                $this->setUnauthorised();
+            }
+
+            $account = $user
+                ->setOptions($this->options)
+                ->load(
+                    $payload['sub'],
+                    array(
+                        'loadBy' => 'account_id',
                         'getJWT' => true,
                         'authorizationRefresh' => true,
                     )
@@ -164,7 +203,6 @@ class headerAuth extends header
             $account['refreshToken'] = $tokens;
 
             return $account;
-
         } else {
             if ($mockTest) {
                 return [
@@ -172,6 +210,7 @@ class headerAuth extends header
                 ];
             }
             $this->setUnauthorised();
+            return [];
         }
     }
     // @codeCoverageIgnoreEnd
@@ -183,7 +222,7 @@ class headerAuth extends header
      */
     private function accessCredentialHeaders($auth_headers)
     {
-        $cipher = new encoder\cipher;
+        $cipher = new encoder\cipher();
 
         list($type, $clientCredentials) = explode(" ", $auth_headers["Authorization"], 2);
 
@@ -195,8 +234,9 @@ class headerAuth extends header
                 $server = new server([], $this->getOptions());
                 $mockTest = $server->isMockTest();
 
-                if ($mockTest &&
-                    (in_array('mockusername', $credentails) && in_array('mockpassword', $credentails)) 
+                if (
+                    $mockTest &&
+                    (in_array('mockusername', $credentails) && in_array('mockpassword', $credentails))
                 ) {
                     return [
                         'uid' => -1,
@@ -209,10 +249,11 @@ class headerAuth extends header
                 }
 
                 // @codeCoverageIgnoreStart
-                if (!empty($credentails) && is_array($credentails) && sizeof($credentails) == 2 
+                if (
+                    !empty($credentails) && is_array($credentails) && sizeof($credentails) == 2
                     && !$mockTest
                 ) {
-                    $user = new user\user;
+                    $user = new user\user();
                     $user->setAccountID($credentails[0]);
 
                     $account = $user
@@ -242,7 +283,9 @@ class headerAuth extends header
             }
         } else {
             $this->setUnauthorised();
+            return [];
         }
+        return [];
     }
     // @codeCoverageIgnoreEnd
 
@@ -256,16 +299,40 @@ class headerAuth extends header
     {
         $corsAllowed = ($this->getOptions()['cors']) ?? false;
         $isCorsRequest = ($_SERVER['HTTP_ORIGIN']) ?? false;
-        $this->setHeaders($corsAllowed&&$isCorsRequest);
+        $this->setHeaders($corsAllowed && $isCorsRequest);
 
         $this->setHeader('HTTP/1.1', array(
             'Unauthorized',
         ), 401);
-        
-        (new exception\errorException)
+
+        (new exception\errorException())
             ->setOptions($this->getOptions())
             ->error('UNAUTHORIZED');
     // @codeCoverageIgnoreStart
     }
+
+    /**
+     * [getRefreshSigningKey Resolve the refresh token signing key]
+     * @return string
+     */
+    private function getRefreshSigningKey()
+    {
+        $jwtOptions = $this->getOptions()['jwt'] ?? [];
+
+        if (isset($jwtOptions['refreshSignWith']) && !empty($jwtOptions['refreshSignWith'])) {
+            return $jwtOptions['refreshSignWith'];
+        }
+
+        if (isset($jwtOptions['signWith']) && !empty($jwtOptions['signWith'])) {
+            return $jwtOptions['signWith'];
+        }
+
+        $config = new configuration\config();
+        $config->responsibleDefault($this->getOptions());
+        $defaults = $config->getDefaults();
+
+        return $defaults['config']['MASTER_KEY'] ?? '';
+    }
+
     // @codeCoverageIgnoreEnd
 }

@@ -18,10 +18,10 @@ namespace responsible\core\user;
 
 use responsible\core\auth;
 use responsible\core\exception;
+use responsible\core\helpers\help as helper;
 use responsible\core\headers;
 use responsible\core\keys;
 use responsible\core\route;
-use responsible\core\encoder;
 
 class userLoad extends user
 {
@@ -215,6 +215,8 @@ class userLoad extends user
         (new exception\errorException())
             ->setOptions($this->options)
             ->error('UNAUTHORIZED');
+
+        return [];
     }
 
     /**
@@ -223,23 +225,28 @@ class userLoad extends user
      */
     public function refreshTokenGenerate($account)
     {
-        $offset = 86400;
-        $time = ($this->timeNow() + $offset);
+        $expiresAt = $this->timeNow() + $this->resolveRefreshDurationSeconds();
 
-        if (isset($account->refresh_token) && !empty($account->refresh_token)) {
-            $raToken = explode('.', $account->refresh_token);
-            if (!empty($raToken)) {
-                $raToken = array_values(array_filter($raToken));
-                $time = ($raToken[0] <= ($this->timeNow() - $offset) ) ? ($this->timeNow() + $offset) : $raToken[0];
-            }
-        }
+        $payload = [
+            'sub' => \strval($account->account_id),
+            'exp' => $expiresAt,
+            'iss' => (new route\router())->getIssuer(),
+            'iat' => $this->timeNow(),
+            'nbf' => $this->timeNow(),
+            'token_type' => 'refresh',
+        ];
 
-        $cipher = new encoder\cipher();
-        $refreshHash = $account->account_id . ':' . $this->secret;
-        $refreshHash = $cipher->encode($cipher->hash('sha256', $refreshHash, $this->secret));
+        $refreshKey = $this->getRefreshSigningKey();
+        $refreshToken = $this->jwt
+            ->setOptions($this->getOptions())
+            ->key($refreshKey)
+            ->setPayload($payload)
+            ->encode($payload)
+        ;
 
-        $refreshHash = $time . '.' . $refreshHash;
-        $account->refreshToken = $refreshHash;
+        $helper = new helper();
+        $refreshHash = $helper->hashRefreshToken($refreshToken, $refreshKey);
+        $account->refreshToken = $refreshToken;
 
         $updateProp = [
             'where' => [
@@ -251,8 +258,42 @@ class userLoad extends user
         ];
         parent::update($updateProp);
 
-        return $refreshHash;
+        return $refreshToken;
     }
+
+    /**
+     * [resolveRefreshDurationSeconds Get refresh token TTL in seconds]
+     * @return int
+     */
+    private function resolveRefreshDurationSeconds(): int
+    {
+        $options = $this->getOptions();
+        $duration = $options['refreshToken']['duration'] ?? "30d"; // Default to 30 days
+        $helper = new helper();
+        print_r($helper->parseDurationSeconds($duration, 86400));
+        exit;
+        return $helper->parseDurationSeconds($duration, 86400);
+    }
+
+    /**
+     * [getRefreshSigningKey Resolve the refresh token signing key]
+     * @return string
+     */
+    private function getRefreshSigningKey(): string
+    {
+        $jwtOptions = $this->getOptions()['jwt'] ?? [];
+
+        if (isset($jwtOptions['refreshSignWith']) && !empty($jwtOptions['refreshSignWith'])) {
+            return $jwtOptions['refreshSignWith'];
+        }
+
+        if (isset($jwtOptions['signWith']) && !empty($jwtOptions['signWith'])) {
+            return $jwtOptions['signWith'];
+        }
+
+        return $this->secret;
+    }
+
 
     /**
      * [refreshJWT Get a refresh JWT]
