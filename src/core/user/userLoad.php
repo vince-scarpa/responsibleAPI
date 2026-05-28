@@ -270,8 +270,6 @@ class userLoad extends user
         $options = $this->getOptions();
         $duration = $options['refreshToken']['duration'] ?? "30d"; // Default to 30 days
         $helper = new helper();
-        print_r($helper->parseDurationSeconds($duration, 86400));
-        exit;
         return $helper->parseDurationSeconds($duration, 86400);
     }
 
