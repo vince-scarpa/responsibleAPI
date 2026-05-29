@@ -67,9 +67,9 @@ class headerAuth extends header
         $auth_headers = $this->getHeaders();
 
         if (isset($auth_headers["Authorization"]) && !empty($auth_headers["Authorization"])) {
-            list($type, $clientToken) = explode(" ", $auth_headers["Authorization"], 2);
+            [$type, $clientToken] = array_pad(explode(" ", $auth_headers["Authorization"], 2), 2, '');
 
-            if (strcasecmp(trim($type), "Bearer") == 0) {
+            if (strcasecmp(trim($type), "Bearer") == 0 && !empty($clientToken)) {
                 return true;
             }
         }
@@ -86,7 +86,7 @@ class headerAuth extends header
         $auth_headers = $this->getHeaders();
 
         if ($this->hasBearerValue()) {
-            list($type, $clientToken) = explode(" ", $auth_headers["Authorization"], 2);
+            [$type, $clientToken] = array_pad(explode(" ", $auth_headers["Authorization"], 2), 2, '');
 
             if (strcasecmp(trim($type), "Bearer") == 0 && !empty($clientToken)) {
                 return $clientToken;
@@ -134,7 +134,7 @@ class headerAuth extends header
      */
     private function accessRefreshHeaders($auth_headers)
     {
-        list($type, $clientToken) = explode(" ", $auth_headers["Authorization"], 2);
+        [$type, $clientToken] = array_pad(explode(" ", $auth_headers["Authorization"], 2), 2, '');
 
         $server = new server([], $this->getOptions());
         $mockTest = $server->isMockTest();
@@ -224,7 +224,7 @@ class headerAuth extends header
     {
         $cipher = new encoder\cipher();
 
-        list($type, $clientCredentials) = explode(" ", $auth_headers["Authorization"], 2);
+        [$type, $clientCredentials] = array_pad(explode(" ", $auth_headers["Authorization"], 2), 2, '');
 
         if (strcasecmp($type, "Basic") == 0 && !empty($clientCredentials)) {
             $credentails = explode('/', $clientCredentials);
