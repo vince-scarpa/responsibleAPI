@@ -94,10 +94,12 @@ class authorise extends server
                 ->decode()
             ;
 
+            // If we have a sub claim then we can attempt to load the user account
+            // then decode the JWT with the users secret key
             if (isset($decoded['sub']) && !empty($decoded['sub'])) {
                 $this->user = (object) (new user\user())
                     ->setOptions($this->getOptions())
-                    ->load($decoded['sub'], ['refreshToken' => true])
+                    ->load($decoded['sub'], ['refreshToken' => false])
                 ;
 
                 $secretKey = $this->user->secret;
@@ -123,13 +125,13 @@ class authorise extends server
         }
 
         /**
-         * [$user Check user account]
+         * Check user account if it wasn't already loaded with the client access request token
          * @var [object]
          */
         if ((isset($decoded['sub']) && !empty($decoded['sub'])) && !$this->user) {
             $this->user = (object) (new user\user())
                 ->setOptions($this->getOptions())
-                ->load($decoded['sub'], ['refreshToken' => true])
+                ->load($decoded['sub'], ['refreshToken' => false])
             ;
         }
 
@@ -188,7 +190,7 @@ class authorise extends server
             return;
         }
 
-        $haystack = (is_null($array)) ? $this->user->refreshToken : $array;
+        $haystack = (is_null($array)) ? $this->user?->refreshToken ?? [] : $array;
 
         if (isset($haystack[$objectKey])) {
             return $haystack[$objectKey];

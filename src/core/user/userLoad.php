@@ -20,6 +20,7 @@ use responsible\core\auth;
 use responsible\core\exception;
 use responsible\core\helpers\help as helper;
 use responsible\core\headers;
+use responsible\core\interfaces\UserStateAdaptorInterface;
 use responsible\core\keys;
 use responsible\core\route;
 
@@ -113,40 +114,57 @@ class userLoad extends user
      */
     public function account()
     {
-        /**
-         * [Validate the requested account exists]
-         */
-        $account = $this->DB()
-            ->row(
-                "SELECT
-                USR.uid,
-                USR.account_id,
-                USR.name,
-                USR.mail,
-                USR.status,
-                USR.access,
-                USR.secret,
-                USR.refresh_token,
-                TKN.bucket
-                FROM responsible_api_users USR
-                INNER JOIN responsible_token_bucket TKN
-                    ON USR.account_id = TKN.account_id
+        $adaptor = $this->getOptions()['userStateAdaptor'] ?? null;
+        $fromCache = false;
 
-                    WHERE {$this->column} = ?
-                    AND status = 1
-            ;",
-                array(
-                    $this->property,
-                ),
-                \PDO::FETCH_OBJ
-            );
+        $cached = ($adaptor instanceof UserStateAdaptorInterface)
+            ? $adaptor->getUser($this->property)
+            : null;
 
-        if ($this->secretAppend) {
-            $this->secret = $account->secret;
+        if ($cached !== null) {
+            $account = $cached;
+            $fromCache = true;
+        } else {
+            /**
+             * [Validate the requested account exists]
+             */
+            $account = $this->DB()
+                ->row(
+                    "SELECT
+                    USR.uid,
+                    USR.account_id,
+                    USR.name,
+                    USR.mail,
+                    USR.status,
+                    USR.access,
+                    USR.secret,
+                    USR.refresh_token,
+                    TKN.bucket
+                    FROM responsible_api_users USR
+                    INNER JOIN responsible_token_bucket TKN
+                        ON USR.account_id = TKN.account_id
+
+                        WHERE {$this->column} = ?
+                        AND status = 1
+                ;",
+                    array(
+                        $this->property,
+                    ),
+                    \PDO::FETCH_OBJ
+                );
+
+            if ($this->secretAppend && !empty($account)) {
+                $this->secret = $account->secret;
+            }
         }
 
         if (!empty($account)) {
             $this->setAccountID($account->account_id);
+
+            if (!$fromCache && $adaptor instanceof UserStateAdaptorInterface) {
+                $ttl = $this->resolveCacheTtl();
+                $adaptor->setUser($this->property, $account, $ttl);
+            }
 
             if (
                 isset($this->getOptions()['jwt']['signWith']) &&
@@ -448,6 +466,20 @@ class userLoad extends user
             ->setPayload($payload)
             ->encode($payload)
         ;
+    }
+
+    /**
+     * Derive a cache TTL from the JWT exp claim, falling back to null (adaptor default).
+     */
+    private function resolveCacheTtl(): ?int
+    {
+        $exp = $this->getOptions()['jwt']['expires'] ?? null;
+
+        if (is_int($exp) && $exp > time()) {
+            return $exp - time();
+        }
+
+        return null;
     }
 
     /**

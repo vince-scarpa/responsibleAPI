@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ==================================
  * Responsible PHP API
@@ -12,24 +13,25 @@
  * @author Vince scarpa <vince.in2net@gmail.com>
  *
  */
+
 namespace responsible\core\interfaces;
 
 interface optionsInterface
 {
     /**
-     * setOptions 
+     * setOptions
      *     Set the Responsible API options
-     *     
-     * @param array $options  
+     *
+     * @param array $options
      * @return void
      */
-    public function setOptions($options):void;
+    public function setOptions($options): void;
 
     /**
-     * getOptions 
+     * getOptions
      *     Get the Responsible API options
-     *     
+     *
      * @return array
      */
-    public function getOptions():array;
+    public function getOptions(): array;
 }

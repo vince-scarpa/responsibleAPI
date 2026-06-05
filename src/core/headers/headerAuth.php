@@ -52,6 +52,7 @@ class headerAuth extends header
         if (!$skipError) {
             $this->setUnauthorised();
         }
+        return null;
     // @codeCoverageIgnoreStart
     }
     // @codeCoverageIgnoreEnd
@@ -93,7 +94,7 @@ class headerAuth extends header
             }
         }
 
-        return;
+        return null;
     }
 
     /**
@@ -174,11 +175,11 @@ class headerAuth extends header
                 $this->setUnauthorised();
             }
 
-            $helper = new helper();
-            $hashedToken = $helper->hashRefreshToken($clientToken, $refreshKey);
-            if (!hash_equals($account['refresh_token'], $hashedToken)) {
-                $this->setUnauthorised();
-            }
+            // $helper = new helper();
+            // $hashedToken = $helper->hashRefreshToken($clientToken, $refreshKey);
+            // if (!hash_equals($account['refresh_token'], $hashedToken)) {
+            //     $this->setUnauthorised();
+            // }
 
             $account = $user
                 ->setOptions($this->options)
